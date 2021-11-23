@@ -1,0 +1,13 @@
+{
+    "apps": [{ 
+      "name": "ray", 
+      "script": "npm", 
+      "args": "start", 
+      "max_memory_restart": "384M",
+      "instances": 1,
+      "exec_mode": "cluster",
+      "merge_logs": true,
+      "out_file": "./logs/output.log",
+      "error_file": "./logs/error.log"
+    }]
+}
