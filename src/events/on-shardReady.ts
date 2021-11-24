@@ -31,7 +31,7 @@ module.exports = class ShardReadyEvent {
             if(shardID === 0 && !ket.ready) return ket.createMessage(ket.config.STARTUP_MESSAGE.chat, { embeds: [embed] }).then(msg => ket.config.STARTUP_MESSAGE.id = msg.id).catch({})
             else return ket.editMessage(ket.config.STARTUP_MESSAGE.chat, ket.config.STARTUP_MESSAGE.id, { embeds: [embed] }).catch({})
         }
-        global.infoEmbed = infoEmbed
-        return infoEmbed(shardID, this.ket)
+        //global.infoEmbed = infoEmbed
+        return// infoEmbed(shardID, this.ket)
     }
 }

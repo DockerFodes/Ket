@@ -1,13 +1,8 @@
 import { Client } from "eris";
 import type { ClientOptions } from "eris";
-import c from "chalk"
 import dotenv from "dotenv"
 dotenv.config()
 import { readdir } from "fs";
-const moment = require("moment");
-const duration = require("moment-duration-format");
-const {tz} = require('moment-timezone')
-duration(moment);
 
 const EventHandler = require("./components/EventHandler")
 
@@ -27,31 +22,12 @@ export class KetClient extends Client {
         this.modules = new Map()
         this.shardUptime = new Map()
         global.emoji = require('./components/Emojis')
-        global.log = this.log
     }
     async boot() {
         this.loadLocales()
         this.loadListeners(`${__dirname}/events/`)
         this.loadModules()
         return this.connect()
-    }
-    async log(type: string = "log", setor = "CLIENT", message: string, error: any = "") {
-        moment.locale("pt-BR")
-        switch (type) {
-            case "log": return console.info(c.greenBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`))
-            case "error": 
-                return console.error(c.redBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}\n${error}`))
-                //return console.error(error)
-            case "shard": return console.log(c.blueBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`))
-        }
-        // enum TypeColors {
-        //     log = "greenBright",
-        //     error = 'redBright',
-        //     system = "blueBright",
-        //     shard = "yellowBright"
-        // }
-        // let data = c
-        // eval(`eval("console.info(data."+TypeColors.${!type ? "error" : type}+"(hourMessage+message))")`)
     }
     loadLocales() {
         const LOCALES_STRUCTURES = new (require("./components/LocalesStructure"))(this)
@@ -70,9 +46,9 @@ export class KetClient extends Client {
                     })
                 })
             })
-            this.log('log', 'MODULES MANAGER', '√ Módulos inicializados com sucesso')
+            global.log('log', 'MODULES MANAGER', '√ Módulos inicializados com sucesso')
         } catch(e) {
-            this.log('error', 'MODULES MANAGER', 'Houve um erro ao carregar os módulos:', e)
+            global.log('error', 'MODULES MANAGER', 'Houve um erro ao carregar os módulos:', e)
         }
 		return;
 	}
@@ -85,7 +61,7 @@ export class KetClient extends Client {
                 })
             })
         } catch(e) {
-            this.log('error', "EVENTS LOADER", `Erro ao carregar eventos:`, e)
+            global.log('error', "EVENTS LOADER", `Erro ao carregar eventos:`, e)
         }
         return;
     }

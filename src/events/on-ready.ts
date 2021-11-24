@@ -1,6 +1,5 @@
 import prompts from "prompts"
 import c from "chalk"
-const moment = require('moment')
 
 module.exports = class ReadyEvent {
     ket: any
@@ -24,20 +23,19 @@ module.exports = class ReadyEvent {
             try {
                 switch(response.code) {
                     case '.h':
-                    case '.help': return console.log(`Terminal Commands:\nSome code (it will run inside the bot)\n.help | .h\n.exit | .e\n.restart | .r`)
+                    case '.help': return console.log(`Terminal Commands:\nSome code (it will run inside the bot)\n.help | .h\n.clear | .c\n.exit | .e\n.restart | .r`)
                     case '.e':
                     case '.exit': return process.emit('SIGINT', null);
-                    case '.r': 
+                    case '.c':
+                    case '.clear': return console.clear()
+                    case '.r':
                     case '.restart':
                         console.log('compilando arquivos...')
                         await require('child_process').exec(`tsc ${global.dir}`)
                         let i = 0
                         console.log('reiniciando shards...')
                         let interval = setInterval(async () => {
-                            if(i > ket.config.ERIS_LOADER_SETTINGS.maxShards - 1) {
-                                return clearInterval(interval);
-//                                return termEval(ket)
-                            }
+                            if(i > ket.config.ERIS_LOADER_SETTINGS.maxShards - 1) return clearInterval(interval);
                             await ket.shards.get(i).disconnect()
                             await ket.shards.get(i).connect()
                             i++
@@ -53,8 +51,9 @@ module.exports = class ReadyEvent {
             }
         }
     
-        return setInterval(() => {
+/*        return setInterval(() => {
             return global.infoEmbed(NaN, this.ket)
         }, 2000)
+        */
     }
 }
