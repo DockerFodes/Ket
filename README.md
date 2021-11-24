@@ -1,21 +1,25 @@
 # ⭐ Ket ⭐
 ✨ Ket is an excellent bot for Discord made in TypeScript using Eris ✨
 
-Uau não tem muita coisa pra ver aqui, mas se quiser executar a Ket na sua máquina você vai precisar de:
-- NodeJS (recomendada a versão 14.18.1)
+There's not much to see here, but if you want to run Ket on your machine you'll need:
+- NodeJS (Recommended version: 14.18.1 or higher)
 
 
-# Como instalar 🤔
-- Baixe os arquivos acima ou clone o repositório com:
+# How to install 🤔
+- Download the above files or clone the repository with:
 ```
 git clone https://github.com/KetDiscordBot/Ket
 ```
-- Instale as dependências necessárias para rodar o projeto:
+- Install the necessary dependencies to run the project:
 ```
 cd Ket
 npm install
 ```
-- Crie um arquivo com nome ".env" e preencha com as informações abaixo:
+- You may need to install 2 packages separately:
+```
+npm install -g typescript pm2
+```
+- Create a file named ".env" and fill in the information below:
 ```
 BOT_OWNERS=["id1", "id2", "..."] # These users have access to developer commands
 TRUSTED_BOTS=["id1", "id2", "..."] # Trusted bots that can use commands
@@ -38,9 +42,9 @@ WEBHOOK_GUILD_REMOVE="webhookID | webhookTOKEN"
 CLIENT_DISCORD_TOKEN="token of your bot"
 BETA_CLIENT_DISCORD_TOKEN="Token of your BETA bot (Can be ignored if CLIENT_CANARY is false)"
 ```
-- Agora é só iniciar:
+- Now just start:
 ```
 npm start
 ```
 
-Espero que goste do projeto :)
+I hope you like the project :)
