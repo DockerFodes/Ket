@@ -27,7 +27,8 @@
         },
         "rest": {
             "domain": "canary.discord.com",
-            "ratelimiterOffset": 0
+            "ratelimiterOffset": 0,
+            "restMode": true
         },
         "intents": [
             "guilds",

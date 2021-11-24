@@ -1,6 +1,6 @@
 {
     "apps": [{ 
-      "name": "ray", 
+      "name": "ket", 
       "script": "npm", 
       "args": "start", 
       "max_memory_restart": "384M",
