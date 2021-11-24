@@ -1,0 +1,46 @@
+{
+            "BOT SETTINGS": "",
+    "PREFIX": ",",
+    "SUPPORT_SERVER": "https://discord.gg/zzrctuz9Sa",
+    "BOT_INVITE": "https://discord.com/oauth2/authorize?client_id=777938917117919255&scope=bot+applications.commands&permissions=872423560",
+    "DATABASE_BACKUP_CHANNELID": "827392570681589790",
+    "REPORT_CHANNEL_ID": "817984134596132864",
+    "LOGS_CHANNEL_ID": "817731617857863690",
+    "SUGGEST_CHANNEL_ID": "835893819765030922",
+    
+    "STARTUP_MESSAGE": {
+        "id": "DEIXE VAZIO",
+        "chat": "802053941809381386",
+        "content": ""
+    },
+    "ERIS_LOADER_SETTINGS": {
+        "compress": true,
+        "defaultImageFormat": "jpg",
+        "defaultImageSize": 2048,
+        "getAllUsers": false,
+        "maxShards": 4,
+        "allowedMentions": {
+            "everyone": false,
+            "roles": false,
+            "users": true,
+            "repliedUser": true
+        },
+        "rest": {
+            "domain": "canary.discord.com",
+            "ratelimiterOffset": 0
+        },
+        "intents": [
+            "guilds",
+            "guildMessages",
+            "guildMembers",
+            "guildPresences",
+            "guildBans",
+            "guildWebhooks",
+            "guildInvites",
+            "guildMessageTyping",
+
+            "directMessages",
+            "directMessageTyping"
+        ]
+    }    
+}
