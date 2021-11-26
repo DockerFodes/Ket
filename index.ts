@@ -137,4 +137,4 @@ process.on("uncaughtException", (err, o) => global.log('error', 'ANTI-CRASH', `C
 
 process.on('uncaughtExceptionMonitor', (err, o) => global.log('error', "ANTI-CRASH", `BLOQUEADO:`, err));
 
-//process.on('multipleResolves', (type, promise, reason) => global.log(`MULTIPLOS ERROS:\n${util.inspect(promise)}`, "ANTI-CRASH", 'crash'));
+process.on('multipleResolves', (type, promise, reason) => global.log('error', 'ANTI-CRASH', `MULTIPLOS ERROS:`, promise));

@@ -6,7 +6,7 @@ There's not much to see here, but if you want to run Ket on your machine you'll 
 
 
 # How to install 🤔
-- Download the above files or clone the repository with:
+- Download the above files or clone the repository:
 ```
 git clone https://github.com/KetDiscordBot/Ket
 ```

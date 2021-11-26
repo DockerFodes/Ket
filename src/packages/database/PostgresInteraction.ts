@@ -2,9 +2,6 @@ import c from "chalk"
 import Postegrego from "pg"
 
 module.exports = class PostgresInteraction {
-    ket: any
-    db: any
-    postgres: any
     constructor() {
         global.postgres = new Postegrego.Client({
             user: process.env.DATABASE_USER,

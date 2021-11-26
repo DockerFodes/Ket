@@ -18,7 +18,7 @@
         "defaultImageFormat": "jpg",
         "defaultImageSize": 2048,
         "getAllUsers": false,
-        "maxShards": 4,
+        "maxShards": 1,
         "allowedMentions": {
             "everyone": false,
             "roles": false,
@@ -27,21 +27,25 @@
         },
         "rest": {
             "domain": "canary.discord.com",
-            "ratelimiterOffset": 0,
-            "restMode": true
+            "ratelimiterOffset": 0
         },
+        "restMode": true,
         "intents": [
             "guilds",
-            "guildMessages",
             "guildMembers",
-            "guildPresences",
-            "guildBans",
-            "guildWebhooks",
-            "guildInvites",
-            "guildMessageTyping",
-
-            "directMessages",
-            "directMessageTyping"
+            //"guildBans",
+            //"guildEmojisAndStickers",
+            //"guildIntegrations",
+            //"guildWebhooks",
+            //"guildInvites",
+            //"guildVoiceStates",
+            "guildMessages"//,
+            //"guildPresences",
+            //"guildMessageReactions",
+            //"guildMessageTyping",
+            //"directMessages",
+            //"directMessageReactions",
+            //"directMessageTyping"
         ]
     }    
 }
