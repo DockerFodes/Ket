@@ -1,4 +1,4 @@
-module.exports = class EventHandler {
+export default class EventHandler {
     ket: any
     events: Array<any>
     eventData: any

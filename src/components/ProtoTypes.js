@@ -1,9 +1,9 @@
 import Eris from "eris";
 import Emoji from "./Emojis"
-import EmbedBuilder from "./EmbedBuilder"
+import { EmbedBuilder } from "./CommandStructure"
 import { CanvasRenderingContext2D, createCanvas } from "canvas"
 
-module.exports = class ProtoTypes {
+export default class ProtoTypes {
 	constructor(ket) {
 		this.ket = ket
 	}
@@ -11,12 +11,13 @@ module.exports = class ProtoTypes {
 		/** Eris Structures **/
 
 		/* message.reply() */
-		Eris.Message.prototype.reply = async function reply(message, emoji = null) {
-			let msgObj;
-			if(typeof message === 'object') msgObj.referencedMessage = this.id
-			else msgObj = { content: emoji ? `${Emoji[emoji]} **| ${message}**` : message, referencedMessage: this.id}
-			return this.channel.createMessage(msgObj)
-		}
+		Object.defineProperty(Eris.Message.prototype, 'reply', ((message, emoji = null) => {
+				let msgObj;
+				if(typeof message === 'object') msgObj.referencedMessage = this.id
+				else msgObj = { content: emoji ? `${Emoji[emoji]} **| ${message}**` : message, referencedMessage: this.id}
+				return this.channel.createMessage(msgObj)	
+			}
+		))
 
 		/* channel.sendErrorEmbed() */
 		Eris.TextChannel.prototype.sendErrorEmbed = async function sendErrorEmbed() {

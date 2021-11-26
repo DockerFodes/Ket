@@ -6,6 +6,7 @@ import dotenv from "dotenv"
 import prompts from "prompts"
 import gradient from "gradient-string"
 import cld from "child_process"
+import prototypes from "./src/components/ProtoTypes"
 const moment = require("moment");
 const duration = require("moment-duration-format");
 const {tz} = require('moment-timezone')
@@ -17,8 +18,8 @@ function log(type: string = "log", setor = "CLIENT", message: string, error: any
     switch (type) {
         case "log": return console.info(c.greenBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`))
         case "error": 
-            return console.error(c.redBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}\n${error}`))
-            //return console.error(error)
+            console.error(c.redBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}\n${error}`))
+            return console.error(error)
         case "shard": return console.log(c.blueBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`))
     }
 }
@@ -101,7 +102,7 @@ async function logsMenu() {
         }
 }
 function start() {
-    require('./src/components/ProtoTypes').start()
+    prototypes.start()
     dotenv.config()
     
     console.log(c.bgBlueBright("[ SHARDING MANAGER ] - Iniciando fragmentação..."))

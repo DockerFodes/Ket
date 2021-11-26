@@ -1,6 +1,6 @@
-const CommandStructure = require('../../components/CommandsStructure')
+import { CommandStructure } from "../../components/CommandStructure"
 
-module.exports = class PingCommand extends CommandStructure {
+export default class PingCommand extends CommandStructure {
     constructor(ket) {
         super(ket, {
             name: 'ping',

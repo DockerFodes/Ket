@@ -9,4 +9,4 @@ const emojis = {
     offline: '<:offline:817024931619274762>'
 }
 
-module.exports = emojis
+export default emojis

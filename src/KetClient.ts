@@ -2,9 +2,9 @@ import { Client } from "eris";
 import type { ClientOptions } from "eris";
 import dotenv from "dotenv"
 dotenv.config()
-import { readdir } from "fs";
-
-const EventHandler = require("./components/EventHandler")
+import { readdir, readdirSync } from "fs";
+import EventHandler from "./components/EventHandler";
+import LocalesStructure from "./components/LocalesStructure"
 
 export class KetClient extends Client {
     config: object
@@ -30,33 +30,36 @@ export class KetClient extends Client {
     }
     async boot() {
         this.loadLocales()
+        this.loadCommands()
         this.loadListeners(`${__dirname}/events/`)
         this.loadModules()
-        return this.connect()
+        return this.connect();
     }
     
     loadLocales() {
-        const LOCALES_STRUCTURES = new (require("./components/LocalesStructure"))(this)
-		return LOCALES_STRUCTURES.inicialize()
+        let Locales = new LocalesStructure(this)
+        Locales.inicialize()
+		return this;
     }
 
-    loadCommand() {
+    loadCommands() { 
         try {
-            readdir(`${global.dir}/src/commands/`, (e, categories) => {
+            readdir(`${__dirname}/commands/`, (e, categories: string[]) => {
                 categories.forEach(category => {
-                    readdir(`${global.dir}/src/commands/${category}/`, (e, files) => {
-                        files.forEach(command => {
-                            const comando = new (require(`${global.dir}/src/commands/${category}/${command}`))(this)
-                            this.commands.set(command.split('.')[0], comando)
-                            this.aliases.set(comando.config.aliases, comando.config.name)
+                    readdir(`${__dirname}/commands/${category}/`, (e, files) => {
+                        files.forEach(async command => {
+                            const commandClass = await import(`${__dirname}/commands/${category}/${command}`)
+                            const comando = new commandClass.default(this)
+                            this.commands.set(comando.config.name, comando)
+                            return comando.config.aliases.forEach(aliase => this.aliases.set(aliase, comando.config.name));
                         })
                     })
                 })
             })
         } catch(e) {
-            return global.log('error', 'COMMANDS HANDLER', 'Erro ao carregar comandos:', e)
+            global.log('error', 'COMMANDS HANDLER', 'Erro ao carregar comandos:', e)
         }
-            
+        return this;
     }
 
     loadListeners(path: string) {
@@ -70,7 +73,7 @@ export class KetClient extends Client {
         } catch(e) {
             global.log('error', "EVENTS LOADER", `Erro ao carregar eventos:`, e)
         }
-        return;
+        return this;
     }
 
     loadModules() {
@@ -80,8 +83,10 @@ export class KetClient extends Client {
                     readdir(`${__dirname}/packages/${category}/`, (e, modules) => {
                         modules.forEach(async file => {
                             if (file.startsWith("_")) return;
-                            this.modules.set(file.split('.')[0], `${__dirname}/packages/${category}/${file}`)
-                            new Promise((res, rej) => res(new (require(`${__dirname}/packages/${category}/${file}`))(this).inicialize()))
+                            const moduleClass = await import(`${__dirname}/packages/${category}/${file}`)
+                            const module = new moduleClass.default(this)
+                            this.modules.set(file.split('.')[0], module)
+                            return module.inicialize();
                         })
                     })
                 })
@@ -90,6 +95,6 @@ export class KetClient extends Client {
         } catch(e) {
             global.log('error', 'MODULES MANAGER', 'Houve um erro ao carregar os módulos:', e)
         }
-		return;
+		return this;
 	}
 }

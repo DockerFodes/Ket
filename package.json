@@ -47,6 +47,7 @@
     "util": "^0.12.4"
   },
   "devDependencies": {
+    "@types/i18next-node-fs-backend": "^2.1.1",
     "@types/node": "^16.11.9",
     "@types/pg": "^8.6.1"
   }

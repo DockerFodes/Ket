@@ -1,7 +1,7 @@
 import c from "chalk"
 import Postegrego from "pg"
 
-module.exports = class PostgresInteraction {
+export default class PostgresInteraction {
     constructor() {
         global.postgres = new Postegrego.Client({
             user: process.env.DATABASE_USER,

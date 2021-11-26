@@ -1,6 +1,5 @@
-const EmbedBuilder = require("../../components/EmbedBuilder")
-
-module.exports = class MessageDMCreate {
+import { EmbedBuilder } from "../../components/CommandStructure"
+export default class MessageDMCreate {
     ket: any
     constructor(ket) {
         this.ket = ket

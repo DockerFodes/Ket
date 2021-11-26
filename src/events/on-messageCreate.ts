@@ -1,28 +1,24 @@
-import util from "util"
-
 module.exports = class MessageCreateEvent {
     ket: any
     constructor(ket) {
         this.ket = ket
     }
     async start(message) {
-        if(!message.channel.guild) {
+        const ket = this.ket
+        if(!message.guildID) {
             delete require.cache[require.resolve("../packages/events/_on-messageDMCreate")]
             new (require("../packages/events/_on-messageDMCreate"))(this).start(message)
         }
         if(!process.env.BOT_OWNERS.includes(message.author?.id)) return;
-        const ket = this.ket
-        
-        if (message.content.startsWith(".e")) {
-            try {
-                let data: any = await eval(message.content.slice(2))
-                data = util.inspect(data).slice(0, 1800)
-                message.channel.createMessage(`\`\`\`js\n${data}\`\`\``)
-            } catch (e) {
-                ket.emit("error", e)
-            }
+        const db = global.db
+        const regexp = new RegExp(`^(${process.env.DEFAULT_PREFIX}|<@!?${ket.user.id}>)( )*`, 'gi')
+        if (!message.content.match(regexp)) return;
+        const args = message.content.replace(regexp, '').trim().split(/ /g)
+        const commandName = args.shift().toLowerCase()
+        const command = ket.commands.get(commandName)
 
-        }
+        if(!command) return;
+        else command.executeVanilla({ket, message, args, command, db})
         return;
     }
 }
