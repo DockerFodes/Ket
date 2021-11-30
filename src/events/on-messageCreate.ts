@@ -1,0 +1,24 @@
+module.exports = class MessageCreateEvent {
+    ket: any
+    constructor(ket) {
+        this.ket = ket
+    }
+    async start(message) {
+        const ket = this.ket
+        if(!message.guildID) {
+            delete require.cache[require.resolve("../packages/events/_on-messageDMCreate")]
+            new (require("../packages/events/_on-messageDMCreate"))(this).start(message)
+        }
+        if(!process.env.BOT_OWNERS.includes(message.author?.id)) return;
+        const db = global.db
+        const regexp = new RegExp(`^(${process.env.DEFAULT_PREFIX}|<@!?${ket.user.id}>)( )*`, 'gi')
+        if (!message.content.match(regexp)) return;
+        const args = message.content.replace(regexp, '').trim().split(/ /g)
+        const commandName = args.shift().toLowerCase()
+        const command = ket.commands.get(commandName)
+
+        if(!command) return;
+        else command.executeVanilla({ket, message, args, command, db})
+        return;
+    }
+}

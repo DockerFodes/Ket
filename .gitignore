@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.env
+package-lock.json
+UPDATE.md
+.vscode
