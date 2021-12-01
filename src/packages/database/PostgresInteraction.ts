@@ -1,7 +1,7 @@
 import c from "chalk"
 import Postegrego from "pg"
 
-export default class PostgresInteraction {
+module.exports = class PostgresInteraction {
     constructor() {
         global.postgres = new Postegrego.Client({
             user: process.env.DATABASE_USER,
@@ -54,6 +54,7 @@ export default class PostgresInteraction {
             console.log(c.yellow(`Criando tabela de dados para usuários`))
             await global.postgres.query(`CREATE TABLE public.users (
                 id VARCHAR(20) NOT NULL PRIMARY KEY,
+                prefix VARCHAR(3) NOT NULL DEFAULT ',',
                 lang VARCHAR(2) DEFAULT 'pt',
                 commands NUMERIC CHECK(commands > -1) DEFAULT 1,
                 banned BOOLEAN NULL,

@@ -3,7 +3,7 @@ import Emoji from "./Emojis"
 import { EmbedBuilder } from "./CommandStructure"
 import { CanvasRenderingContext2D, createCanvas } from "canvas"
 
-export default class ProtoTypes {
+module.exports = class ProtoTypes {
 	constructor(ket) {
 		this.ket = ket
 	}

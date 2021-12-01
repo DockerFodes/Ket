@@ -1,6 +1,6 @@
 {
             "BOT SETTINGS": "",
-    "PREFIX": ",",
+    "DEFAULT_PREFIX": ",",
     "SUPPORT_SERVER": "https://discord.gg/zzrctuz9Sa",
     "BOT_INVITE": "https://discord.com/oauth2/authorize?client_id=777938917117919255&scope=bot+applications.commands&permissions=872423560",
     "DATABASE_BACKUP_CHANNELID": "827392570681589790",
@@ -18,7 +18,7 @@
         "defaultImageFormat": "jpg",
         "defaultImageSize": 2048,
         "getAllUsers": false,
-        "maxShards": 1,
+        "maxShards": 2,
         "allowedMentions": {
             "everyone": false,
             "roles": false,
@@ -39,11 +39,11 @@
             //"guildWebhooks",
             //"guildInvites",
             //"guildVoiceStates",
-            "guildMessages"//,
+            "guildMessages",
             //"guildPresences",
             //"guildMessageReactions",
             //"guildMessageTyping",
-            //"directMessages",
+            "directMessages"//,
             //"directMessageReactions",
             //"directMessageTyping"
         ]

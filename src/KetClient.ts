@@ -1,12 +1,10 @@
-import { Client } from "eris";
 import type { ClientOptions } from "eris";
-import dotenv from "dotenv"
-dotenv.config()
-import { readdir, readdirSync } from "fs";
-import EventHandler from "./components/EventHandler";
-import LocalesStructure from "./components/LocalesStructure"
+import { Client } from "eris";
+import { readdir } from "fs";
+require('dotenv').config()
+    
 
-export class KetClient extends Client {
+module.exports = class KetClient extends Client {
     config: object
     db: any
     events: any
@@ -21,7 +19,7 @@ export class KetClient extends Client {
         super(token, options)
 
         this.config = require('./json/settings.json')
-        this.events = new EventHandler(this)
+        this.events = new (require('./components/EventHandler'))(this)
         this.commands = new Map()
         this.aliases = new Map()
         this.modules = new Map()
@@ -37,7 +35,7 @@ export class KetClient extends Client {
     }
     
     loadLocales() {
-        let Locales = new LocalesStructure(this)
+        const Locales = new (require('./components/LocalesStructure'))(this)
         Locales.inicialize()
 		return this;
     }
@@ -48,8 +46,7 @@ export class KetClient extends Client {
                 categories.forEach(category => {
                     readdir(`${__dirname}/commands/${category}/`, (e, files) => {
                         files.forEach(async command => {
-                            const commandClass = await import(`${__dirname}/commands/${category}/${command}`)
-                            const comando = new commandClass.default(this)
+                            const comando = new (require(`${__dirname}/commands/${category}/${command}`))(this)
                             this.commands.set(comando.config.name, comando)
                             return comando.config.aliases.forEach(aliase => this.aliases.set(aliase, comando.config.name));
                         })
@@ -83,8 +80,7 @@ export class KetClient extends Client {
                     readdir(`${__dirname}/packages/${category}/`, (e, modules) => {
                         modules.forEach(async file => {
                             if (file.startsWith("_")) return;
-                            const moduleClass = await import(`${__dirname}/packages/${category}/${file}`)
-                            const module = new moduleClass.default(this)
+                            const module = new (require(`${__dirname}/packages/${category}/${file}`))(this)
                             this.modules.set(file.split('.')[0], module)
                             return module.inicialize();
                         })

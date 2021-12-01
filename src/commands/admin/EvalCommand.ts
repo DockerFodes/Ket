@@ -1,7 +1,7 @@
 import { CommandStructure, EmbedBuilder } from "../../components/CommandStructure"
 import util from "util"
 
-export default class EvalCommand extends CommandStructure {
+module.exports = class EvalCommand extends CommandStructure {
     constructor(ket) {
         super(ket, {
 			name: 'eval',

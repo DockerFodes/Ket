@@ -1,22 +1,21 @@
 import type { ClientOptions } from "eris";
-import { KetClient } from "./src/KetClient";
 import settings from "./src/json/settings.json"
 import c from "chalk"
-import dotenv from "dotenv"
 import prompts from "prompts"
 import gradient from "gradient-string"
 import cld from "child_process"
-import prototypes from "./src/components/ProtoTypes"
-const moment = require("moment");
-const duration = require("moment-duration-format");
-const {tz} = require('moment-timezone')
+const
+    KetClient = require('./src/KetClient'),
+    moment = require("moment"),
+    duration = require("moment-duration-format"),
+    {tz} = require('moment-timezone')
 duration(moment);
 let DISCORD_TOKEN: string;
 
 function log(type: string = "log", setor = "CLIENT", message: string, error: any = "") {
     moment.locale("pt-BR")
     switch (type) {
-        case "log": return console.info(c.greenBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`))
+        case "log": return console.log(c.greenBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`))
         case "error": 
             console.error(c.redBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}\n${error}`))
             return console.error(error)
@@ -27,6 +26,7 @@ global.log = log
 starterMenu()
 async function starterMenu() {
     console.clear()
+    console.log(process.env.DATABASE_CREDENTIALS)
     let starterMenu = await prompts({
         name: 'value',
         message: gradient.mind(`
@@ -102,8 +102,7 @@ async function logsMenu() {
         }
 }
 function start() {
-    prototypes.start()
-    dotenv.config()
+    require('./src/components/ProtoTypes').start()
     
     console.log(c.bgBlueBright("[ SHARDING MANAGER ] - Iniciando fragmentação..."))
     const ket = new KetClient(`Bot ${DISCORD_TOKEN}`, settings.ERIS_LOADER_SETTINGS as ClientOptions)
@@ -117,25 +116,22 @@ function start() {
     global.dir = __dirname;
 }
 
-process.on('SIGINT', async () => {
-    console.log(c.bgGreen('encerrando conexão com o banco de dados...'))
-    try {
-        await global.db.disconnect()
-        global.log('log', 'DATABASE', `√ Banco de dados desconectado`)
-    } catch(e) {
-        global.log('error', 'DATABASE', `x Houve um erro ao encerrar a conexão com o banco de dados:`, e)
-    } finally {
-        process.exit()
-        process.exit(0)
-        process.exit(1)
-        //process.kill()
-    }
-})
-
-process.on('unhandledRejection', (reason, p) => global.log('error', "ANTI-CRASH", `SCRIPT REJEITADO:`, reason));
-
-process.on("uncaughtException", (err, o) => global.log('error', 'ANTI-CRASH', `CATCH ERROR:`, err))
-
-process.on('uncaughtExceptionMonitor', (err, o) => global.log('error', "ANTI-CRASH", `BLOQUEADO:`, err));
-
-process.on('multipleResolves', (type, promise, reason) => global.log('error', 'ANTI-CRASH', `MULTIPLOS ERROS:`, promise));
+process
+    .on('SIGINT', async () => {
+        console.log(c.bgGreen('encerrando conexão com o banco de dados...'))
+        try {
+            await global.db.disconnect()
+            global.log('log', 'DATABASE', `√ Banco de dados desconectado`)
+        } catch(e) {
+            global.log('error', 'DATABASE', `x Houve um erro ao encerrar a conexão com o banco de dados:`, e)
+        } finally {
+            process.exit()
+            process.exit(0)
+            process.exit(1)
+            return process.kill(process.pid);
+        }
+    })
+    .on('unhandledRejection', (reason, p) => global.log('error', "ANTI-CRASH", `SCRIPT REJEITADO:`, reason))
+    .on("uncaughtException", (err, o) => global.log('error', 'ANTI-CRASH', `CATCH ERROR:`, err))
+    .on('uncaughtExceptionMonitor', (err, o) => global.log('error', "ANTI-CRASH", `BLOQUEADO:`, err))
+    .on('multipleResolves', (type, promise, reason) => global.log('error', 'ANTI-CRASH', `MULTIPLOS ERROS:`, promise));

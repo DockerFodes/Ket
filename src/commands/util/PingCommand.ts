@@ -1,6 +1,6 @@
 import { CommandStructure } from "../../components/CommandStructure"
 
-export default class PingCommand extends CommandStructure {
+module.exports = class PingCommand extends CommandStructure {
     constructor(ket) {
         super(ket, {
             name: 'ping',

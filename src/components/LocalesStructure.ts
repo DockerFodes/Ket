@@ -2,12 +2,10 @@ import { readdirSync } from "fs"
 import i18next from "i18next"
 import i18nbackend from "i18next-node-fs-backend"
 
-export default class LocaleStructure {
-    ket: any
+module.exports = class LocaleStructure {
     languages: string[]
     ns: string[]
-    constructor(ket) {
-        this.ket = ket
+    constructor() {
         this.languages = ["pt", "en", "es"]
         this.ns = ["commands", "events", "permissions"]
     }
