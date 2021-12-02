@@ -146,15 +146,15 @@ export class TerminalClient {
                 message: `${ket.user.username}$`,
                 type: 'text',
                 validate: async (code) => {
-                    if(!code.startsWith('.')) return true;
+                    if (!code.startsWith('.')) return true;
                     delete require.cache[require.resolve(`./CLI`)];
                     const commands = new (require(`./CLI`));
-                    if(!eval(`commands${code}`)) return 'Comando não encontrado, digite .help para ver a lista de comandos.'
+                    if (!eval(`commands${code}`)) return 'Comando não encontrado, digite .help para ver a lista de comandos.'
                     else return true
                 }
             }, { onCancel: () => console.log(gradient('red', 'purple')('Para encerrar o processo digite .exit (para mais informações use .help)')) });
             let evaled;
-            if(!response.code) return;
+            if (!response.code) return;
             try {
                 if (response.code.startsWith('.')) {
                     delete require.cache[require.resolve(`./CLI`)];

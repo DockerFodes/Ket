@@ -1,8 +1,8 @@
-export {};
+export { };
 const gradient = require('gradient-string');
 
 module.exports = class TerminalClientComamnds {
-    constructor() {}
+    constructor() { }
     help() {
         return console.log(gradient.mind(`Comandos do terminal:\nVocê também pode digitar códigos aqui para serem executados como um comando de eval\n\nLista de comandos\n.clear | limpa o terminal\n.compile | compila os arquivos\n.exit | encerra o processo\n.restart | reinicia todas as shards pausadamente`))
     }
