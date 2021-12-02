@@ -1,4 +1,4 @@
-export {}
+export { }
 const
     prompts = require('prompts'),
     gradient = require('gradient-string'),
@@ -34,10 +34,13 @@ export class KetMenu {
         console.clear()
         switch (menuResponse.value) {
             case 0: return process.exit()
-            case 1: return this.start(process.env.CLIENT_DISCORD_TOKEN)
-            case 2: return this.start(process.env.BETA_CLIENT_DISCORD_TOKEN)
+            case 1: global.client.canary = false
+                return this.start(process.env.CLIENT_DISCORD_TOKEN);
+            case 2: global.client.canary = true
+                return this.start(process.env.BETA_CLIENT_DISCORD_TOKEN)
             case 3: return this.logMenu()
         }
+        return;
     }
     async logMenu() {
         console.clear()
@@ -69,14 +72,14 @@ export class KetMenu {
         ]
         let logs: string = 'bunda'
         try {
-            let data = await readFileSync(path.resolve(`${global.dir}/../src/logs/${logResponse.value === 1 ? 'output' : 'errors' }.log`), 'utf8')
-            if(data === undefined) {
+            let data = await readFileSync(path.resolve(`${global.client.dir}/../src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.log`), 'utf8')
+            if (data === undefined) {
                 logs = 'Nenhum arquivo de log foi encontrado.';
                 logChoices[1].disabled = true
             }
-            else if(data.length === 0) logs = 'Os logs estão vazios.';
+            else if (data.length === 0) logs = 'Os logs estão vazios.';
             else logs = data
-        } catch(e) {
+        } catch (e) {
             logs = 'Nenhum arquivo de log foi encontrado.';
             logChoices[1].disabled = true;
         }
@@ -90,18 +93,18 @@ export class KetMenu {
         }, {
             onCancel: () => this.logMenu()
         })
-        if(logOptions.value === 1) {
+        if (logOptions.value === 1) {
             try {
-                unlink(`${global.dir}/../src/logs/${logResponse.value === 1 ? 'output' : 'errors' }.log`, () => {
+                return unlink(`${global.client.dir}/../src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.log`, () => {
                     console.log('Logs apagados com sucesso')
-                    setTimeout(() => this.logMenu(), 200)
+                    return setTimeout(() => this.logMenu(), 200)
                 })
 
-            } catch(e) {
-                global.log('error', 'KET PAINEL', 'Não foi possível apagar o arquivo de log.', e)
+            } catch (e) {
+                return global.client.log('error', 'KET PAINEL', 'Não foi possível apagar o arquivo de log.', e)
             }
         }
-        else this.logMenu();
+        else return this.logMenu();
     }
     async start(DISCORD_TOKEN: string) {
         let colors = [['red', 'yellow'], ['yellow', 'green'], ['green', 'blue'], ['blue', 'purple']];
@@ -109,56 +112,62 @@ export class KetMenu {
             console.clear();
             console.log(gradient(colors[Math.floor(Math.random() * colors.length)])('Aguarde um momento, os arquivos estão sendo compilados.'));
         }, 100);
-        cld.exec('tsc', () => {
-            delete require.cache;
-            require('./ProtoTypes').start();
+        return cld.exec('tsc', () => {
             clearInterval(interval);
             console.clear();
-            return require('../../index')(DISCORD_TOKEN);
+            // delete require.cache;
+            require('../ProtoTypes').start();
+            return require(`${global.client.dir}/index`)(DISCORD_TOKEN);
         })
+    }
+}
+export class CredentialBroker {
+    constructor() { }
+    async invalidToken() {
+        const token = await prompts({
+            message: 'Token inválido, gere outro em https://discord.dev e insira aqui:',
+            name: 'value',
+            type: 'password'
+        })
+        process.env
+    }
+    checkAll() {
+
     }
 }
 
 export class TerminalClient {
-    ket: any
-    commands: any
-    constructor(ket) {
-        this.ket = ket
-        this.commands = new Map()
-    }
-    registryCommands() {
-        this.commands.set([
-            ['.help', ],
-            ['.exit', ''],
-            ['.kill', ''],
-            ['.clear', ''],
-            ['.compile', ''],
-            ['.restart', '']
-        ])
-    }
-    async execute() {
-        const ket = this.ket
+    constructor() { }
+    async start(ket) {
         termEval()
         async function termEval() {
             const response: any = await prompts({
                 name: 'code',
                 message: `${ket.user.username}$`,
-                type: 'text'
-            }, {onCancel: () => console.log(gradient('red', 'purple')('Para encerrar o processo digite .exit (para mais informações use .help)'))});
-            let evaled;
-            this.commands.get(response.code)
-
-            try {
-                switch(response.code) {
-                    case '.restart':
-
+                type: 'text',
+                validate: async (code) => {
+                    if(!code.startsWith('.')) return true;
+                    delete require.cache[require.resolve(`./CLI`)];
+                    const commands = new (require(`./CLI`));
+                    if(!eval(`commands${code}`)) return 'Comando não encontrado, digite .help para ver a lista de comandos.'
+                    else return true
                 }
+            }, { onCancel: () => console.log(gradient('red', 'purple')('Para encerrar o processo digite .exit (para mais informações use .help)')) });
+            let evaled;
+            if(!response.code) return;
+            try {
+                if (response.code.startsWith('.')) {
+                    delete require.cache[require.resolve(`./CLI`)];
+                    const commands = new (require(`./CLI`));
+                    return eval(`commands${response.code}(ket)`);
+                }
+
                 evaled = await eval(response.code)
-            } catch(e) {
-                global.log('error', 'TERMINAL CLIENT', `houve um erro ao executar o seu código:`, e)
+            } catch (e) {
+                global.client.log('error', 'TERMINAL CLIENT', `houve um erro ao executar o seu código:`, e)
             } finally {
                 console.log(evaled)
-                termEval()
+                return termEval()
             }
         }
     }

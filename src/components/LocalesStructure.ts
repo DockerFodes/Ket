@@ -1,4 +1,4 @@
-export {}
+export { }
 const
     { readdirSync } = require('fs'),
     i18next = require('i18next'),
@@ -13,7 +13,7 @@ module.exports = class LocaleStructure {
     }
     async inicialize() {
         try {
-            i18next.use(i18nbackend).init({
+            return i18next.use(i18nbackend).init({
                 ns: this.ns,
                 preload: readdirSync("./src/locales/"),
                 fallbackLng: "pt",
@@ -26,7 +26,7 @@ module.exports = class LocaleStructure {
                 returnEmptyString: false
             })
         } catch (err) {
-            return global.log('error', 'LOCALES MANAGER', "Houve um erro ao carregar os locales", err)
+            return global.client.log('error', 'LOCALES MANAGER', "Houve um erro ao carregar os locales", err)
         }
     }
 }

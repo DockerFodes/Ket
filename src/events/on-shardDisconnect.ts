@@ -4,10 +4,10 @@ module.exports = class ShardDisconnect {
         this.ket = ket
     }
     async start(error, shardID) {
-        global.log('error', "SHARDING MANAGER", `Shard ${shardID} morreu`)
+        global.client.log('error', "SHARDING MANAGER", `Shard ${shardID} morreu`);
         return this.ket.shardUptime.set(shardID, {
             shardID,
             uptime: NaN
-          })
+        });
     }
 }

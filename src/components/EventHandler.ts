@@ -27,7 +27,7 @@ module.exports = class EventHandler {
             delete require.cache[require.resolve(event.dir)]
             try {
                 new (require(event.dir))(data).start(...args)
-            } catch(e) {
+            } catch (e) {
                 this.ket.emit('error', e, 'EVENTS-HANDLER');
             }
             return;

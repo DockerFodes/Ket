@@ -1,14 +1,14 @@
 export class CommandStructure {
     ket: any
     config: object
-    
-	constructor(ket, command) {
-		this.config = {
-			name: command.name || null,
-			aliases: command.aliases || [],
-			category: command.category || "util",
+
+    constructor(ket, command) {
+        this.config = {
+            name: command.name || null,
+            aliases: command.aliases || [],
+            category: command.category || "util",
             cooldown: command.cooldown || 3,
-			permissions: command.permissions || {
+            permissions: command.permissions || {
                 user: [],
                 bot: [],
                 onlyDevs: false
@@ -17,11 +17,11 @@ export class CommandStructure {
                 DM: true,
                 Threads: true
             },
-			testCommand: command.testCommand || [],
+            testCommand: command.testCommand || [],
             slashData: command.slashData
-		}
-		this.ket = ket
-	}
+        }
+        this.ket = ket
+    }
 }
 
 export class EmbedBuilder {
@@ -59,14 +59,14 @@ export class EmbedBuilder {
         return this
     }
     setDescription(description, code = null) {
-        if(code) this.description = `\`\`\`${code}\n${description.toString().substring(0, 3072)}\n\`\`\``
+        if (code) this.description = `\`\`\`${code}\n${description.toString().substring(0, 3072)}\n\`\`\``
         else this.description = description.toString().substring(0, 3072)
         return this
     }
     addField(name, value, inline = false, code = null) {
         if (!name || this.fields.length >= 25) return this
         if (!value) return false
-        if(code) value = `\`\`\`${code}\n${value.toString().substring(0, 1024)}\n\`\`\``
+        if (code) value = `\`\`\`${code}\n${value.toString().substring(0, 1024)}\n\`\`\``
         else value = value.toString().substring(0, 1024)
         this.fields.push({ name: name.toString().substring(0, 256), value: value, inline })
         return this
@@ -88,7 +88,7 @@ export class EmbedBuilder {
             purple = "#9400d3",
             pink = "#ff007f",
         }
-        if(color.startsWith('#')) this.color = parseInt(color.replace('#', ''), 16)
+        if (color.startsWith('#')) this.color = parseInt(color.replace('#', ''), 16)
         else this.color = this.color = parseInt(eval(`Colors.${color}`).replace('#', ''), 16)
         return this
     }
@@ -140,7 +140,7 @@ export class Decoration {
             idle: '<:idle:817023347723730944>',
             offline: '<:offline:817024931619274762>'
         }
-        if(emojis[emoji]) return emojis[emoji]
+        if (emojis[emoji]) return emojis[emoji]
     }
     async colors(color: string, isNumber = false) {
         const colors = {
@@ -155,7 +155,7 @@ export class Decoration {
             purple: "#9400d3",
             pink: "#ff007f",
         }
-        if(isNumber) return parseInt((colors[color]).replace('#', ''), 16)
+        if (isNumber) return parseInt((colors[color]).replace('#', ''), 16)
         return colors[color]
     }
 }

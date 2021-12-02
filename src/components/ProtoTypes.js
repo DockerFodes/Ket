@@ -1,7 +1,7 @@
-import Eris from "eris";
-import Emoji from "./Emojis"
-import { EmbedBuilder } from "./CommandStructure"
-import { CanvasRenderingContext2D, createCanvas } from "canvas"
+const
+	Eris = require('eris'),
+	{ EmbedBuilder, Decoration } = require('./CommandStructure'),
+	{ CanvasRenderingContext2D, createCanvas } = require('canvas')
 
 module.exports = class ProtoTypes {
 	constructor(ket) {
@@ -12,11 +12,11 @@ module.exports = class ProtoTypes {
 
 		/* message.reply() */
 		Object.defineProperty(Eris.Message.prototype, 'reply', ((message, emoji = null) => {
-				let msgObj;
-				if(typeof message === 'object') msgObj.referencedMessage = this.id
-				else msgObj = { content: emoji ? `${Emoji[emoji]} **| ${message}**` : message, referencedMessage: this.id}
-				return this.channel.createMessage(msgObj)	
-			}
+			let msgObj;
+			if (typeof message === 'object') msgObj.referencedMessage = this.id
+			else msgObj = { content: emoji ? `${Emoji[emoji]} **| ${message}**` : message, referencedMessage: this.id }
+			return this.channel.createMessage(msgObj)
+		}
 		))
 
 		/* channel.sendErrorEmbed() */
@@ -27,7 +27,7 @@ module.exports = class ProtoTypes {
 
 		/* user.tag */
 		Object.defineProperty(Eris.User.prototype, "tag", {
-			get() { 
+			get() {
 				return `${this.username}#${this.discriminator}`;
 			}
 		});

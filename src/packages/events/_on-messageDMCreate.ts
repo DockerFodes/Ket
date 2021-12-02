@@ -1,5 +1,5 @@
 import { EmbedBuilder } from "../../components/CommandStructure"
-export default class MessageDMCreate {
+module.exports = class MessageDMCreate {
     ket: any
     constructor(ket) {
         this.ket = ket

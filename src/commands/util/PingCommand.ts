@@ -1,4 +1,4 @@
-export {}
+export { }
 const { CommandStructure } = require("../../components/CommandStructure")
 
 module.exports = class PingCommand extends CommandStructure {
