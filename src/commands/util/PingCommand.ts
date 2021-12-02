@@ -1,4 +1,5 @@
-import { CommandStructure } from "../../components/CommandStructure"
+export {}
+const { CommandStructure } = require("../../components/CommandStructure")
 
 module.exports = class PingCommand extends CommandStructure {
     constructor(ket) {

@@ -6,11 +6,12 @@
   "scripts": {
     "build": "echo Compilando arquivos... && tsc",
     "start": "npm run build && cross-env NODE_ENV=production node --expose-gc dist/index.js",
-    "karen": "npm run build && node dist/src/packages/home/sus.js"
+    "direct-mode": "node ssexo.js",
+    "no-compile": "cross-env NODE_ENV=production node --expose-gc dist/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/KetDiscordBot/Ket.git"
+    "url": "https://github.com/KetDiscordBot/Ket"
   },
   "author": "Heryson1616 & Shortcat",
   "license": "ISC",
@@ -40,6 +41,7 @@
     "moment": "^2.29.1",
     "moment-duration-format": "^2.3.2",
     "moment-timezone": "^0.5.33",
+    "path": "^0.12.7",
     "pg": "^8.7.1",
     "pm2": "^5.1.2",
     "prompts": "^2.4.2",

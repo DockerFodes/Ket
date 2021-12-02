@@ -1,8 +1,8 @@
+export {}
 import type { ClientOptions } from "eris";
-import { Client } from "eris";
-import { readdir } from "fs";
-require('dotenv').config()
-    
+const
+    { Client } = require('eris'),
+    { readdir } = require('fs')
 
 module.exports = class KetClient extends Client {
     config: object
@@ -24,7 +24,6 @@ module.exports = class KetClient extends Client {
         this.aliases = new Map()
         this.modules = new Map()
         this.shardUptime = new Map()
-        global.emoji = require('./components/Emojis')
     }
     async boot() {
         this.loadLocales()

@@ -37,6 +37,7 @@ module.exports = class PostgresInteraction {
         /* Database Structure Functions */
     async inicialize() {
         const db = global.db
+        if(db.ready) return;
         console.log(`Conectando ao banco de dados...`)
         try {
             await global.postgres.connect()

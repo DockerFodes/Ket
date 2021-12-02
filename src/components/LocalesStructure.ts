@@ -1,6 +1,8 @@
-import { readdirSync } from "fs"
-import i18next from "i18next"
-import i18nbackend from "i18next-node-fs-backend"
+export {}
+const
+    { readdirSync } = require('fs'),
+    i18next = require('i18next'),
+    i18nbackend = require('i18next-node-fs-backend')
 
 module.exports = class LocaleStructure {
     languages: string[]

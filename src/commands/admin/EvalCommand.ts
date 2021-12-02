@@ -1,5 +1,13 @@
-import { CommandStructure, EmbedBuilder } from "../../components/CommandStructure"
-import util from "util"
+export {}
+const
+    prompts = require('prompts'),
+    c = require('chalk'),
+    gradient = require("gradient-string"),
+    { CommandStructure, EmbedBuilder } = require("../../components/CommandStructure"),
+    util = require("util"),
+    moment = require("moment"),
+    duration = require("moment-duration-format"),
+    {tz} = require('moment-timezone')
 
 module.exports = class EvalCommand extends CommandStructure {
     constructor(ket) {
@@ -23,11 +31,11 @@ module.exports = class EvalCommand extends CommandStructure {
     }
     async executeVanilla({message, args}) {
         const ket = this.ket
-        let evaled, embed;
+        let evaled = args.join(" ").replace('```js', '').replace('```', ''), embed;
 
         try {
-            if(args.includes('await')) evaled = await eval(`async function executeEval() {\n${args.join(" ")}\n}\nexecuteEval()`)
-            else evaled = await eval(args.join(' '))    
+            if(args.includes('await')) evaled = await eval(`async function executeEval() {\n${evaled}\n}\nexecuteEval()`)
+            else evaled = await eval(evaled)    
 
             embed = new EmbedBuilder()
                 .setTitle('Só sucexo bb')

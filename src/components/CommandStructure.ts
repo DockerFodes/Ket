@@ -92,22 +92,6 @@ export class EmbedBuilder {
         else this.color = this.color = parseInt(eval(`Colors.${color}`).replace('#', ''), 16)
         return this
     }
-    colors(color, isNumber = false) {
-        const colors = {
-            red: "#ff1500",
-            orange: "#ff8c00",
-            yellow: "#fdff00",
-            green: "#25ff00",
-            hardgreen: "#0d7200",
-            blue: "#2391ff",
-            hardblue: "#0025ff",
-            hardpurple: "#4b0082",
-            purple: "#9400d3",
-            pink: "#ff007f",
-        }
-        if(isNumber) return parseInt((colors[color]).replace('#', ''), 16)
-        return colors[color]
-    }
     setImage(image, height = null, width = null) {
         this.image = {
             url: image
@@ -138,5 +122,40 @@ export class EmbedBuilder {
     build(content = null) {
         if (!content) content = '_ _'
         return { content, embeds: [this] }
+    }
+}
+export class Decoration {
+    constructor() {
+        this.emojis;
+        this.colors;
+    }
+    async emojis(emoji: string) {
+        let emojis = {
+            autorizado: "<:autorizado:765952397595639828>",
+            negado: "<:negado:765952453203984404>",
+            cristal: "<a:cristal:789542971011104808>",
+            carregando: "<a:carregando:765952420575444994>",
+            axo: "<a:axo:904961545811951636>",
+            online: '<:online:817023347396706324>',
+            idle: '<:idle:817023347723730944>',
+            offline: '<:offline:817024931619274762>'
+        }
+        if(emojis[emoji]) return emojis[emoji]
+    }
+    async colors(color: string, isNumber = false) {
+        const colors = {
+            red: "#ff1500",
+            orange: "#ff8c00",
+            yellow: "#fdff00",
+            green: "#25ff00",
+            hardgreen: "#0d7200",
+            blue: "#2391ff",
+            hardblue: "#0025ff",
+            hardpurple: "#4b0082",
+            purple: "#9400d3",
+            pink: "#ff007f",
+        }
+        if(isNumber) return parseInt((colors[color]).replace('#', ''), 16)
+        return colors[color]
     }
 }
