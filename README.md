@@ -49,4 +49,6 @@ BETA_CLIENT_DISCORD_TOKEN="Token of your BETA bot (Can be ignored)"
 npm start
 ```
 
-I hope you like the project :)\n(Ket is still in development, not yet open for public use.)
+I hope you like the project :) 
+
+(Ket is still in development, not yet open for public use.)
