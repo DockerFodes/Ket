@@ -4,13 +4,13 @@
     "SUPPORT_SERVER": "https://discord.gg/zzrctuz9Sa",
     "BOT_INVITE": "https://discord.com/oauth2/authorize?client_id=777938917117919255&scope=bot+applications.commands&permissions=872423560",
     "channels": {
-        "database": "827392570681589790",
-        "errorReports": "817984134596132864",
-        "commandLogs": "817731617857863690",
-        "suggestions": "835893819765030922",
+        "database": "827392570681589790", // canal para enviar backups do banco de dados
+        "errorReports": "817984134596132864", // canal para enviar reports de erros
+        "commandLogs": "817731617857863690", // canal para enviar logs de comandos
+        "suggestions": "835893819765030922", // canal para enviar sugestões
         "startupMessage": {
             "id": "",
-            "channel": "802053941809381386"
+            "channel": "802053941809381386" // canal para enviar embed de informações quando o bot ficar online
         }
     },
     "ERIS_LOADER_SETTINGS": {

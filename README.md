@@ -20,30 +20,9 @@ npm install
 ```bash
 npm install -g typescript pm2
 ```
-- Create a file named ".env" and fill in the information below:
-```env
-    #   BOT SETTINGS
-BOT_OWNERS=["id1", "id2", "..."] # These users have access to developer commands
-TRUSTED_BOTS=["id1", "id2", "..."] # Trusted bots that can use commands
+- Rename the ".env.example" file to ".env"
+- Complete the information of ".env" and "settings.json" (src/json/settings.json)
 
-    #   BOT CONNECTIONS
-# TOPGG_TOKEN="" # this can be ignored
-    
-    #   DATABASE SETTINGS (POSTGRESQL)
-DATABASE_USER="database user"
-DATABASE_PASSWORD="database password"
-DATABASE_HOST="localhost"
-DATABASE_PORT="port (number)"
-DATABASE="database name"
-
-    #   CHANNEL / WEBHOOK DATA
-WEBHOOK_GUILD_ADD="webhookID | webhookTOKEN"
-WEBHOOK_GUILD_REMOVE="webhookID | webhookTOKEN"
-         
-    #   MULTI CLIENT SETTINGS
-CLIENT_DISCORD_TOKEN="token of your bot"
-BETA_CLIENT_DISCORD_TOKEN="Token of your BETA bot (Can be ignored)"
-```
 - Now just start:
 ```bash
 npm start
