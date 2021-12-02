@@ -115,27 +115,11 @@ export class KetMenu {
         return cld.exec('tsc', () => {
             clearInterval(interval);
             console.clear();
-            // delete require.cache;
             require('../ProtoTypes').start();
             return require(`${global.client.dir}/index`)(DISCORD_TOKEN);
         })
     }
 }
-export class CredentialBroker {
-    constructor() { }
-    async invalidToken() {
-        const token = await prompts({
-            message: 'Token inválido, gere outro em https://discord.dev e insira aqui:',
-            name: 'value',
-            type: 'password'
-        })
-        process.env
-    }
-    checkAll() {
-
-    }
-}
-
 export class TerminalClient {
     constructor() { }
     async start(ket) {
@@ -149,17 +133,23 @@ export class TerminalClient {
                     if (!code.startsWith('.')) return true;
                     delete require.cache[require.resolve(`./CLI`)];
                     const commands = new (require(`./CLI`));
-                    if (!eval(`commands${code}`)) return 'Comando não encontrado, digite .help para ver a lista de comandos.'
-                    else return true
+                    if (!eval(`commands${code.trim().split(/ /g).shift()}`)) return 'Comando não encontrado, digite .help para ver a lista de comandos.'
+                    else return true;
                 }
-            }, { onCancel: () => console.log(gradient('red', 'purple')('Para encerrar o processo digite .exit (para mais informações use .help)')) });
+            }, {
+                onCancel: function () {
+                    console.log(gradient('red', 'purple')('Para encerrar o processo digite .exit (para mais informações use .help)'));
+                    return termEval();
+                }
+            });
             let evaled;
             if (!response.code) return;
             try {
                 if (response.code.startsWith('.')) {
                     delete require.cache[require.resolve(`./CLI`)];
                     const commands = new (require(`./CLI`));
-                    return eval(`commands${response.code}(ket)`);
+                    const args = response.code.trim().split(/ /g)
+                    return await eval(`commands${args.shift()}({ ket, args })`);
                 }
 
                 evaled = await eval(response.code)

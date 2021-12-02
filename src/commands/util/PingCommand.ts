@@ -20,7 +20,7 @@ module.exports = class PingCommand extends CommandStructure {
             slashData: null
         })
     }
-    async executeVanilla(message) {
+    async executeVanilla({ message }) {
         let time = Date.now()
         let msg = await message.channel.createMessage('calculando ping...')
         let totalTime = Date.now() - time

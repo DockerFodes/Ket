@@ -46,6 +46,7 @@ module.exports = class KetClient extends Client {
                     readdir(`${__dirname}/commands/${category}/`, (e, files: string[]) => {
                         files.forEach(async (command: string) => {
                             const comando = new (require(`${__dirname}/commands/${category}/${command}`))(this)
+                            comando.dir = `${__dirname}/commands/${category}/${command}`
                             this.commands.set(comando.config.name, comando)
                             return comando.config.aliases.forEach(aliase => this.aliases.set(aliase, comando.config.name));
                         })
@@ -91,5 +92,23 @@ module.exports = class KetClient extends Client {
             global.client.log('error', 'MODULES MANAGER', 'Houve um erro ao carregar os módulos:', e)
         }
         return this;
+    }
+
+    async reloadCommand(commandName: string) {
+        const comando = this.commands.get(commandName) || this.commands.get(this.aliases.get(commandName))
+		if (!comando) return 'Comando não encontrado';
+        comando.config.aliases.forEach(aliase => this.aliases.delete(aliase));
+		this.commands.delete(comando.config.name);
+		delete require.cache[require.resolve(comando.dir)];
+        try {
+            const command = new (require(comando.dir))(this)
+            command.dir = comando.dir
+            this.commands.set(command.config.name, command)
+            command.config.aliases.forEach(aliase => this.aliases.set(aliase, command.config.name));
+            return true;
+        } catch(e) {
+            return e
+        }
+
     }
 }

@@ -67,7 +67,6 @@ module.exports = class PostgresInteraction {
             console.log(c.blue(`Criando tabela de dados para servidores`));
             await global.client.postgres.query(`CREATE TABLE public.servers (
                 id VARCHAR(20) NOT NULL PRIMARY KEY,
-                commands NUMERIC CHECK(commands > -1) DEFAULT 0,
                 partner BOOLEAN NULL,
                 banned BOOLEAN NULL,
                 banreason TEXT NULL

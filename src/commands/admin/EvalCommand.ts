@@ -1,13 +1,20 @@
 export { }
 const
-    prompts = require('prompts'),
+    axios = require('axios'),
+    bytes = require('bytes'),
+    Canvas = require('canvas'),
     c = require('chalk'),
+    cld = require('child_process'),
+    eris = require('eris'),
+    fs = require('fs'),
     gradient = require("gradient-string"),
-    { CommandStructure, EmbedBuilder } = require("../../components/CommandStructure"),
-    util = require("util"),
     moment = require("moment"),
-    duration = require("moment-duration-format"),
-    { tz } = require('moment-timezone')
+    path = require('path'),
+    prompts = require('prompts'),
+    util = require("util"),
+    { CommandStructure, EmbedBuilder, Decoration } = require("../../components/CommandStructure"),
+    colors = Decoration.colors,
+    db = global.client.db;
 
 module.exports = class EvalCommand extends CommandStructure {
     constructor(ket) {
@@ -29,7 +36,7 @@ module.exports = class EvalCommand extends CommandStructure {
             slashData: null
         })
     }
-    async executeVanilla({ message, args }) {
+    async executeVanilla({ message, args, command }) {
         const ket = this.ket
         let evaled = args.join(" ").replace('```js', '').replace('```', ''), embed;
 
@@ -37,17 +44,19 @@ module.exports = class EvalCommand extends CommandStructure {
             if (args.includes('await')) evaled = await eval(`async function executeEval() {\n${evaled}\n}\nexecuteEval()`)
             else evaled = await eval(evaled)
 
-            embed = new EmbedBuilder()
-                .setTitle('Só sucexo bb')
-                .setColor('green')
-                .setDescription(util.inspect(evaled), 'js')
-            message.channel.createMessage(embed.build())
+            if (command === 'eval') {
+                embed = new EmbedBuilder()
+                    .setTitle('Só sucexo bb')
+                    .setColor('green')
+                    .setDescription(util.inspect(evaled), 'js')
+                return message.channel.createMessage(embed.build())
+            };
         } catch (e) {
             embed = new EmbedBuilder()
                 .setTitle('Ih deu merda viado')
                 .setColor('red')
                 .setDescription(util.inspect(e), 'js')
-            message.channel.createMessage(embed.build())
+            return message.channel.createMessage(embed.build());
         }
 
     }
