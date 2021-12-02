@@ -25,9 +25,7 @@ global.client = {
 }
 module.exports = function start(DISCORD_TOKEN: string) {
     console.log(c.bgBlueBright("[ SHARDING MANAGER ] - Iniciando fragmentação..."))
-    const ket = new KetClient(`Bot ${DISCORD_TOKEN}`, settings.ERIS_LOADER_SETTINGS as ClientOptions)
-
-    return ket.boot().then(() => {
+    return new KetClient(`Bot ${DISCORD_TOKEN}`, settings.ERIS_LOADER_SETTINGS as ClientOptions).boot().then(() => {
         DISCORD_TOKEN = null
         process.env.CLIENT_DISCORD_TOKEN = null
         process.env.BETA_CLIENT_DISCORD_TOKEN = null

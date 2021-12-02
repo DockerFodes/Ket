@@ -3,7 +3,9 @@ const
     c = require('chalk'),
     Postegrego = require('pg');
 module.exports = class PostgresInteraction {
-    constructor() {
+    ket: any
+    constructor(ket) {
+        this.ket = ket
         global.client.postgres = new Postegrego.Client({
             user: process.env.DATABASE_USER,
             password: process.env.DATABASE_PASSWORD,
@@ -55,7 +57,7 @@ module.exports = class PostgresInteraction {
             console.log(c.yellow(`Criando tabela de dados para usuários`));
             await global.client.postgres.query(`CREATE TABLE public.users (
                 id VARCHAR(20) NOT NULL PRIMARY KEY,
-                prefix VARCHAR(3) NOT NULL DEFAULT ',',
+                prefix VARCHAR(3) NOT NULL DEFAULT '${this.ket.config.DEFAULT_PREFIX}',
                 lang VARCHAR(2) DEFAULT 'pt',
                 commands NUMERIC CHECK(commands > -1) DEFAULT 1,
                 banned BOOLEAN NULL,
