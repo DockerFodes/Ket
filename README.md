@@ -22,6 +22,7 @@ npm install -g typescript pm2
 ```
 - Create a file named ".env" and fill in the information below:
 ```env
+    #   BOT SETTINGS
 BOT_OWNERS=["id1", "id2", "..."] # These users have access to developer commands
 TRUSTED_BOTS=["id1", "id2", "..."] # Trusted bots that can use commands
 
@@ -41,12 +42,12 @@ WEBHOOK_GUILD_REMOVE="webhookID | webhookTOKEN"
          
     #   MULTI CLIENT SETTINGS
 CLIENT_DISCORD_TOKEN="token of your bot"
-BETA_CLIENT_DISCORD_TOKEN="Token of your BETA bot (Can be ignored if CLIENT_CANARY is false)"
+BETA_CLIENT_DISCORD_TOKEN="Token of your BETA bot (Can be ignored)"
 ```
 - Now just start:
 ```bash
 npm start
 ```
 
-I hope you like the project :)
+I hope you like the project :) 
 (Ket is still in development, not yet open for public use.)
