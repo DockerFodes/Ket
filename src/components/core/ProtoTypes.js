@@ -1,6 +1,6 @@
 const
 	Eris = require('eris'),
-	{ EmbedBuilder, Decoration } = require('./CommandStructure'),
+	{ EmbedBuilder, Decoration } = require('../CommandStructure'),
 	{ CanvasRenderingContext2D, createCanvas } = require('canvas')
 
 module.exports = class ProtoTypes {
@@ -8,16 +8,16 @@ module.exports = class ProtoTypes {
 		this.ket = ket
 	}
 	static start() {
+		const ket = this.ket
 		/** Eris Structures **/
 
 		/* message.reply() */
-		Object.defineProperty(Eris.Message.prototype, 'reply', ((message, emoji = null) => {
+		Eris.Message.prototype.reply = (message, emoji = null) => {
 			let msgObj;
 			if (typeof message === 'object') msgObj.referencedMessage = this.id
 			else msgObj = { content: emoji ? `${Emoji[emoji]} **| ${message}**` : message, referencedMessage: this.id }
 			return this.channel.createMessage(msgObj)
 		}
-		))
 
 		/* channel.sendErrorEmbed() */
 		Eris.TextChannel.prototype.sendErrorEmbed = async function sendErrorEmbed() {

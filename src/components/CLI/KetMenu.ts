@@ -115,7 +115,7 @@ export class KetMenu {
         return cld.exec('tsc', () => {
             clearInterval(interval);
             console.clear();
-            require('../ProtoTypes').start();
+            require('../core/ProtoTypes').start();
             return require(`${global.client.dir}/index`)(DISCORD_TOKEN);
         })
     }
@@ -143,7 +143,6 @@ export class TerminalClient {
                 }
             });
             let evaled;
-            if (!response.code) return;
             try {
                 if (response.code.startsWith('.')) {
                     delete require.cache[require.resolve(`./CLI`)];
@@ -152,7 +151,7 @@ export class TerminalClient {
                     return await eval(`commands${args.shift()}({ ket, args })`);
                 }
 
-                evaled = await eval(response.code)
+                evaled = await eval(`${response.code}`)
             } catch (e) {
                 global.client.log('error', 'TERMINAL CLIENT', `houve um erro ao executar o seu código:`, e)
             } finally {
