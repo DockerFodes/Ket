@@ -19,23 +19,23 @@ module.exports = class KetClient extends Client {
         super(token, options)
 
         this.config = require('./json/settings.json')
-        this.events = new (require('./components/EventHandler'))(this)
+        this.events = new (require('./components/core/EventHandler'))(this)
         this.commands = new Map()
         this.aliases = new Map()
         this.modules = new Map()
         this.shardUptime = new Map()
     }
     async boot() {
-        this.loadLocales()
-        this.loadCommands()
-        this.loadListeners(`${__dirname}/events/`)
-        this.loadModules()
+        this.loadLocales();
+        this.loadCommands();
+        this.loadListeners(`${__dirname}/events/`);
+        this.loadModules();
         return this.connect();
     }
 
     loadLocales() {
-        const Locales = new (require('./components/LocalesStructure'))(this)
-        Locales.inicialize()
+        const Locales = new (require('./components/core/LocalesStructure'))(this);
+        Locales.inicialize();
         return this;
     }
 
