@@ -1,5 +1,5 @@
-export { }
-delete require.cache[require.resolve('../components/KetUtils')]
+export { };
+delete require.cache[require.resolve('../components/KetUtils')];
 const
     db = global.client.db,
     utils = new (require('../components/KetUtils')),
@@ -7,9 +7,9 @@ const
 
 
 module.exports = class MessageCreateEvent {
-    ket: any
+    ket: any;
     constructor(ket) {
-        this.ket = ket
+        this.ket = ket;
     }
     async start(message) {
         if (message.author?.bot && !process.env.TRUSTED_BOTS.includes(message.author?.id)) return;
@@ -19,34 +19,34 @@ module.exports = class MessageCreateEvent {
         };
 
         let prefix,
-            user = db.users.find(message.author.id)
-        if (!user || !user.prefix) prefix = this.ket.config.DEFAULT_PREFIX
-        else prefix = user.prefix
+            user = db.users.find(message.author.id);
+        if (!user || !user.prefix) prefix = this.ket.config.DEFAULT_PREFIX;
+        else prefix = user.prefix;
 
-        const regexp = new RegExp(`^(${prefix}|<@!?${this.ket.user.id}>)( )*`, 'gi')
+        const regexp = new RegExp(`^(${prefix}|<@!?${this.ket.user.id}>)( )*`, 'gi');
         if (!message.content.match(regexp)) return;
-        const ket = this.ket
-        const args = message.content.replace(regexp, '').trim().split(/ /g)
-        const command = args.shift().toLowerCase()
-        const comando = ket.commands.get(command) || ket.commands.get(ket.aliases.get(command))
+        const ket = this.ket;
+        const args = message.content.replace(regexp, '').trim().split(/ /g);
+        const command = args.shift().toLowerCase();
+        const comando = ket.commands.get(command) || ket.commands.get(ket.aliases.get(command));
         if (!comando) return;
 
-        await utils.checkCache({ ket, message })
-        user = await utils.checkUserGuildData({ message })
-        let t = global.client.t = i18next.getFixedT(user.lang)
+        await utils.checkCache({ ket, message });
+        user = await utils.checkUserGuildData({ message });
+        let t = global.client.t = i18next.getFixedT(user.lang);
         if (await utils.checkPermissions({ ket, message, comando }, t) === false) return;
 
 
-        await message.channel.sendTyping()
+        await message.channel.sendTyping();
 
         try {
-            comando.execute({ ket, message, args, comando, command, db }, t)
+            comando.execute({ ket, message, args, comando, command, db }, t);
         } catch (e) {
             message.reply({
                 embed: {
                     
                 }
-            })
+            });
         }
         return;
     }

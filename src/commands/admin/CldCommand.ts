@@ -1,4 +1,4 @@
-export { }
+export { };
 const
     { exec } = require('child_process'),
     util = require('util'),
@@ -26,7 +26,7 @@ module.exports = class CldCommand extends CommandStructure {
         })
     }
     async execute({ message, args }, t) {
-        const ket = this.ket
+        const ket = this.ket;
         let embed, msg;
         if (!message.editedTimestamp) msg = await message.channel.createMessage({ content: emoji('carregando') }).catch(() => { });
         else msg = await ket.editMessage(global.client.cldMessage.channelID, global.client.cldMessage.messageID, { content: emoji('carregando'), embeds: [], components: [] }).catch(() => { });
@@ -36,23 +36,23 @@ module.exports = class CldCommand extends CommandStructure {
                 embed = new EmbedBuilder()
                     .setTitle('Só sucexo bb')
                     .setColor('green')
-                    .setDescription(b, 'bash')
+                    .setDescription(b, 'bash');
                 msg.edit(embed.build()).catch(() => { });
                 return global.client.cldMessage = {
                     messageID: msg.id,
                     channelID: msg.channel.id
-                }
+                };
             })
         } catch (e) {
             embed = new EmbedBuilder()
                 .setTitle('Ih deu merda viado')
                 .setColor('red')
-                .setDescription(util.inspect(e), 'bash')
+                .setDescription(util.inspect(e), 'bash');
             msg.edit(embed.build()).catch(() => { });
             return global.client.cldMessage = {
                 messageID: msg.id,
                 channelID: msg.channel.id
-            }
+            };
         }
     }
     async slash({ interaction, args }, t) {

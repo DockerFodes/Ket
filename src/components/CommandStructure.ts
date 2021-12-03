@@ -1,6 +1,6 @@
 export class CommandStructure {
-    ket: any
-    config: object
+    ket: any;
+    config: object;
 
     constructor(ket, command) {
         this.config = {
@@ -20,60 +20,60 @@ export class CommandStructure {
             testCommand: command.testCommand || [],
             slashData: command.slashData
         }
-        this.ket = ket
+        this.ket = ket;
     }
 }
 
 export class EmbedBuilder {
-    fields: Array<Object>
-    author: Object
-    description: string
-    color: number
-    file: Array<Object>
-    footer: Object
-    image: any
-    timestamp: any
-    title: string
-    thumbnail: any
-    url: any
+    fields: object[];
+    author: object;
+    description: string;
+    color: number;
+    file: object[];
+    footer: object;
+    image: any;
+    timestamp: any;
+    title: string;
+    thumbnail: any;
+    url: any;
 
     constructor() {
-        this.fields = []
-        this.author = null
-        this.description = null
-        this.color = null
-        this.file = null
-        this.footer = null
-        this.image = null
-        this.timestamp = null
-        this.title = null
-        this.thumbnail = null
-        this.url = null
+        this.fields = [];
+        this.author = null;
+        this.description = null;
+        this.color = null;
+        this.file = null;
+        this.footer = null;
+        this.image = null;
+        this.timestamp = null;
+        this.title = null;
+        this.thumbnail = null;
+        this.url = null;
     }
     setAuthor(name, icon_url, url = null) {
-        this.author = { name, icon_url, url }
-        return this
+        this.author = { name, icon_url, url };
+        return this;
     }
     setTitle(title) {
-        this.title = title
-        return this
+        this.title = title;
+        return this;
     }
     setDescription(description, code = null) {
-        if (code) this.description = `\`\`\`${code}\n${description.toString().substring(0, 3072)}\n\`\`\``
-        else this.description = description.toString().substring(0, 3072)
-        return this
+        if (code) this.description = `\`\`\`${code}\n${description.toString().substring(0, 3072)}\n\`\`\``;
+        else this.description = description.toString().substring(0, 3072);
+        return this;
     }
     addField(name, value, inline = false, code = null) {
-        if (!name || this.fields.length >= 25) return this
-        if (!value) return false
-        if (code) value = `\`\`\`${code}\n${value.toString().substring(0, 1024)}\n\`\`\``
-        else value = value.toString().substring(0, 1024)
-        this.fields.push({ name: name.toString().substring(0, 256), value: value, inline })
-        return this
+        if (!name || this.fields.length >= 25) return this;
+        if (!value) return false;
+        if (code) value = `\`\`\`${code}\n${value.toString().substring(0, 1024)}\n\`\`\``;
+        else value = value.toString().substring(0, 1024);
+        this.fields.push({ name: name.toString().substring(0, 256), value: value, inline });
+        return this;
     }
     addBlankField(inline = false) {
-        this.addField('\u200B', '\u200B', inline)
-        return this
+        this.addField('\u200B', '\u200B', inline);
+        return this;
     }
     setColor(color) {
         enum Colors {
@@ -87,45 +87,45 @@ export class EmbedBuilder {
             hardpurple = "#4b0082",
             purple = "#9400d3",
             pink = "#ff007f",
-        }
-        if (color.startsWith('#')) this.color = parseInt(color.replace('#', ''), 16)
-        else this.color = this.color = parseInt(eval(`Colors.${color}`).replace('#', ''), 16)
-        return this
+        };
+        if (color.startsWith('#')) this.color = parseInt(color.replace('#', ''), 16);
+        else this.color = this.color = parseInt(eval(`Colors.${color}`).replace('#', ''), 16);
+        return this;
     }
     setImage(image, height = null, width = null) {
         this.image = {
             url: image
-        }
-        if (height) this.image.height = height
-        if (width) this.image.width = width
-        return this
+        };
+        if (height) this.image.height = height;
+        if (width) this.image.width = width;
+        return this;
     }
     setTimestamp(timestamp = new Date()) {
-        this.timestamp = timestamp
-        return this
+        this.timestamp = timestamp;
+        return this;
     }
     setUrl(url) {
-        this.url = url
-        return this
+        this.url = url;
+        return this;
     }
     setFooter(text, iconUrl = null) {
         this.footer = {
             text: text.toString().substring(0, 2048),
             icon_url: iconUrl
-        }
-        return this
+        };
+        return this;
     }
     setThumbnail(url) {
-        this.thumbnail = { url }
-        return this
+        this.thumbnail = { url };
+        return this;
     }
     build(content = null) {
-        if (!content) content = '_ _'
-        return { content, embeds: [this] }
+        if (!content) content = '_ _';
+        return { content, embeds: [this] };
     }
 }
 export class Decoration {
-    constructor() {}
+    constructor() { };
     emojis(emoji: string, id = false) {
         let emojis = {
             autorizado: "<:autorizado:765952397595639828>",
@@ -136,10 +136,10 @@ export class Decoration {
             online: '<:online:817023347396706324>',
             idle: '<:idle:817023347723730944>',
             offline: '<:offline:817024931619274762>'
-        }
+        };
         if (emojis[emoji]) {
-            if(id) return String(emojis[emoji]).replace('<:a', '').replace('<:', '').replace('>', '')
-            return String(emojis[emoji])
+            if (id) return String(emojis[emoji]).replace('<:a', '').replace('<:', '').replace('>', '');
+            return String(emojis[emoji]);
         }
     }
     colors(color: string, isNumber = false) {
@@ -154,8 +154,8 @@ export class Decoration {
             hardpurple: "#4b0082",
             purple: "#9400d3",
             pink: "#ff007f",
-        }
-        if (isNumber) return parseInt((colors[color]).replace('#', ''), 16)
-        return colors[color]
+        };
+        if (isNumber) return parseInt((colors[color]).replace('#', ''), 16);
+        return colors[color];
     }
 }

@@ -1,4 +1,4 @@
-export { }
+export { };
 const
     axios = require('axios'),
     bytes = require('bytes'),
@@ -39,7 +39,7 @@ module.exports = class EvalCommand extends CommandStructure {
         })
     }
     async execute({ message, args, command }, t) {
-        const ket = this.ket
+        const ket = this.ket;
         let
             evaled = args.join(" ").replace('```js', '').replace('```', ''),
             embed,
@@ -47,26 +47,26 @@ module.exports = class EvalCommand extends CommandStructure {
         if (!message.editedTimestamp) msg = await message.channel.createMessage({ content: emoji('carregando') }).catch(() => { });
         else msg = await ket.editMessage(global.client.evalMessage.channelID, global.client.evalMessage.messageID, { content: emoji('carregando'), embeds: [], components: [] }).catch(() => { });
         try {
-            if (args.includes('await')) evaled = await eval(`async function executeEval() {\n${evaled}\n}\nexecuteEval()`)
-            else evaled = await eval(evaled)
+            if (args.includes('await')) evaled = await eval(`async function executeEval() {\n${evaled}\n}\nexecuteEval()`);
+            else evaled = await eval(evaled);
 
             if (command === 'eval') {
                 embed = new EmbedBuilder()
                     .setTitle('Só sucexo bb')
                     .setColor('green')
-                    .setDescription(util.inspect(evaled), 'js')
+                    .setDescription(util.inspect(evaled), 'js');
             };
         } catch (e) {
             embed = new EmbedBuilder()
                 .setTitle('Ih deu merda viado')
                 .setColor('red')
-                .setDescription(util.inspect(e), 'js')
+                .setDescription(util.inspect(e), 'js');
         } finally {
             msg.edit(embed.build()).catch(() => { });
             return global.client.evalMessage = {
                 messageID: msg.id,
                 channelID: msg.channel.id
-            }
+            };
         }
 
     }

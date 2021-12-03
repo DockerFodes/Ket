@@ -1,4 +1,4 @@
-export { }
+export { };
 import type { ClientOptions } from "eris";
 const
     KetClient = require('./src/KetClient'),
@@ -13,22 +13,22 @@ require('dotenv').config();
 global.client = {
     dir: __dirname,
     log: function log(type: string = "log", setor = "CLIENT", message: string, error: any = "") {
-        moment.locale("pt-BR")
+        moment.locale("pt-BR");
         switch (type) {
-            case "log": return console.log(c.greenBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`))
+            case "log": return console.log(c.greenBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`));
             case "error":
-                console.error(c.redBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}\n${error}`))
-                return console.error(error)
-            case "shard": return console.log(c.blueBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`))
+                console.error(c.redBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}\n${error}`));
+                return console.error(error);
+            case "shard": return console.log(c.blueBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`));
         }
     }
 }
 module.exports = function start(DISCORD_TOKEN: string) {
-    console.log(c.bgBlueBright("[ SHARDING MANAGER ] - Iniciando fragmentação..."))
+    console.log(c.bgBlueBright("[ SHARDING MANAGER ] - Iniciando fragmentação..."));
     return new KetClient(`Bot ${DISCORD_TOKEN}`, settings.ERIS_LOADER_SETTINGS as ClientOptions).boot().then(() => {
-        DISCORD_TOKEN = null
-        process.env.CLIENT_DISCORD_TOKEN = null
-        process.env.BETA_CLIENT_DISCORD_TOKEN = null
+        DISCORD_TOKEN = null;
+        process.env.CLIENT_DISCORD_TOKEN = null;
+        process.env.BETA_CLIENT_DISCORD_TOKEN = null;
     })
 }
 if (process.argv[2] === '--no-menu') module.exports(process.env.CLIENT_DISCORD_TOKEN);

@@ -9,7 +9,7 @@ const
 export class KetMenu {
     constructor() { }
     async initialMenu() {
-        console.clear()
+        console.clear();
         let menuResponse = await prompts({
             name: 'value',
             message: gradient('yellow', 'red')(`
@@ -30,20 +30,20 @@ export class KetMenu {
             initial: 0,
         }, {
             onCancel: () => process.exit()
-        })
-        console.clear()
+        });
+        console.clear();
         switch (menuResponse.value) {
-            case 0: return process.exit()
-            case 1: global.client.canary = false
+            case 0: return process.exit();
+            case 1: global.client.canary = false;
                 return this.start(process.env.CLIENT_DISCORD_TOKEN);
-            case 2: global.client.canary = true
-                return this.start(process.env.BETA_CLIENT_DISCORD_TOKEN)
-            case 3: return this.logMenu()
+            case 2: global.client.canary = true;
+                return this.start(process.env.BETA_CLIENT_DISCORD_TOKEN);
+            case 3: return this.logMenu();
         }
         return;
     }
     async logMenu() {
-        console.clear()
+        console.clear();
         let logResponse = await prompts({
             name: 'value',
             message: gradient('yellow', 'red')(`
@@ -63,27 +63,27 @@ export class KetMenu {
             initial: 0,
         }, {
             onCancel: () => this.initialMenu()
-        })
-        console.clear()
+        });
+        console.clear();
         if (logResponse.value === 0) return this.initialMenu();
         let logChoices = [
             { title: '- Voltar', value: 0 },
             { title: '- Apagar', value: 1, disabled: false }
-        ]
-        let logs: string = 'bunda'
+        ];
+        let logs: string = 'bunda';
         try {
-            let data = await readFileSync(path.resolve(`${global.client.dir}/../src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.log`), 'utf8')
+            let data = await readFileSync(path.resolve(`${global.client.dir}/../src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.log`), 'utf8');
             if (data === undefined) {
                 logs = 'Nenhum arquivo de log foi encontrado.';
-                logChoices[1].disabled = true
+                logChoices[1].disabled = true;
             }
             else if (data.length === 0) logs = 'Os logs estão vazios.';
-            else logs = data
+            else logs = data;
         } catch (e) {
             logs = 'Nenhum arquivo de log foi encontrado.';
             logChoices[1].disabled = true;
         }
-        console.log(gradient.mind(logs))
+        console.log(gradient.mind(logs));
         let logOptions = await prompts({
             name: 'value',
             message: '',
@@ -92,16 +92,16 @@ export class KetMenu {
             initial: 0,
         }, {
             onCancel: () => this.logMenu()
-        })
+        });
         if (logOptions.value === 1) {
             try {
                 return unlink(`${global.client.dir}/../src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.log`, () => {
-                    console.log('Logs apagados com sucesso')
-                    return setTimeout(() => this.logMenu(), 200)
+                    console.log('Logs apagados com sucesso');
+                    return setTimeout(() => this.logMenu(), 200);
                 })
 
             } catch (e) {
-                return global.client.log('error', 'KET PAINEL', 'Não foi possível apagar o arquivo de log.', e)
+                return global.client.log('error', 'KET PAINEL', 'Não foi possível apagar o arquivo de log.', e);
             }
         }
         else return this.logMenu();
@@ -123,7 +123,7 @@ export class KetMenu {
 export class TerminalClient {
     constructor() { }
     async start(ket) {
-        termEval()
+        termEval();
         async function termEval() {
             const response: any = await prompts({
                 name: 'code',
@@ -133,7 +133,7 @@ export class TerminalClient {
                     if (!code.startsWith('.')) return true;
                     delete require.cache[require.resolve(`./CLI`)];
                     const commands = new (require(`./CLI`));
-                    if (!eval(`commands${code.trim().split(/ /g).shift()}`)) return 'Comando não encontrado, digite .help para ver a lista de comandos.'
+                    if (!eval(`commands${code.trim().split(/ /g).shift()}`)) return 'Comando não encontrado, digite .help para ver a lista de comandos.';
                     else return true;
                 }
             }, {
@@ -147,16 +147,16 @@ export class TerminalClient {
                 if (response.code.startsWith('.')) {
                     delete require.cache[require.resolve(`./CLI`)];
                     const commands = new (require(`./CLI`));
-                    const args = response.code.trim().split(/ /g)
+                    const args = response.code.trim().split(/ /g);
                     return await eval(`commands${args.shift()}({ ket, args })`);
                 }
 
-                evaled = await eval(`${response.code}`)
+                evaled = await eval(`${response.code}`);
             } catch (e) {
-                global.client.log('error', 'TERMINAL CLIENT', `houve um erro ao executar o seu código:`, e)
+                global.client.log('error', 'TERMINAL CLIENT', `houve um erro ao executar o seu código:`, e);
             } finally {
-                console.log(evaled)
-                return termEval()
+                console.log(evaled);
+                return termEval();
             }
         }
     }

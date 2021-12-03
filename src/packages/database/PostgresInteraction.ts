@@ -3,9 +3,9 @@ const
     c = require('chalk'),
     Postegrego = require('pg');
 module.exports = class PostgresInteraction {
-    ket: any
+    ket: any;
     constructor(ket) {
-        this.ket = ket
+        this.ket = ket;
         global.client.postgres = new Postegrego.Client({
             user: process.env.DATABASE_USER,
             password: process.env.DATABASE_PASSWORD,

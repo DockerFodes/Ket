@@ -1,32 +1,26 @@
 module.exports = class EventHandler {
-    ket: any
-    events: Array<any>
-    eventData: any
+    ket: any;
+    events: any[];
+    eventData: any;
 
     constructor(ket) {
-        this.ket = ket
-        this.events = []
+        this.ket = ket;
+        this.events = [];
     }
     add(name: string, func: string, dir: string, data) {
-        this.ket.on(name, (...args) => this.execute({ func, args, data }))
-
-        interface Event {
-            name: string;
-            func: string;
-            dir: string;
-        }
-        let eventData: Event = {
+        this.ket.on(name, (...args) => this.execute({ func, args, data }));
+        let eventData = {
             name: name,
             func: func,
             dir: dir,
-        }
-        return this.events.push(eventData)
+        };
+        return this.events.push(eventData);
     }
     execute({ func, args, data }) {
         return this.events.filter(evento => evento.func === func).map((event) => {
-            delete require.cache[require.resolve(event.dir)]
+            delete require.cache[require.resolve(event.dir)];
             try {
-                new (require(event.dir))(data).start(...args)
+                new (require(event.dir))(data).start(...args);
             } catch (e) {
                 this.ket.emit('error', e, 'EVENTS-HANDLER');
             }
@@ -34,8 +28,8 @@ module.exports = class EventHandler {
         })
     }
     remove(func: string) {
-        if (!this.events.filter(evento => evento.module === func)[0]) return false
-        delete this.events[this.events.findIndex(event => event.module === func)]
-        return true
+        if (!this.events.filter(evento => evento.module === func)[0]) return false;
+        delete this.events[this.events.findIndex(event => event.module === func)];
+        return true;
     }
 }
