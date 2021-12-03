@@ -2,7 +2,9 @@ export { }
 delete require.cache[require.resolve('../components/KetUtils')]
 const
     db = global.client.db,
-    utils = new (require('../components/KetUtils'));
+    utils = new (require('../components/KetUtils')),
+    i18next = require("i18next");
+
 
 module.exports = class MessageCreateEvent {
     ket: any
@@ -31,11 +33,21 @@ module.exports = class MessageCreateEvent {
 
         await utils.checkCache({ ket, message })
         user = await utils.checkUserGuildData({ message })
-        // checkPermissions()
+        let t = global.client.t = i18next.getFixedT(user.lang)
+        if (await utils.checkPermissions({ ket, message, comando }, t) === false) return;
 
 
         await message.channel.sendTyping()
-        comando.executeVanilla({ ket, message, args, comando, command, db })
+
+        try {
+            comando.execute({ ket, message, args, comando, command, db }, t)
+        } catch (e) {
+            message.reply({
+                embed: {
+                    
+                }
+            })
+        }
         return;
     }
 }

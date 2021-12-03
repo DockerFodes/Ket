@@ -1,5 +1,7 @@
 export { }
-const db = global.client.db
+const
+    db = global.client.db,
+    i18next = require('i18next');
 
 module.exports = class Utils {
     constructor() { };
@@ -20,8 +22,20 @@ module.exports = class Utils {
         return;
     }
 
-    checkPermissions() {
-
+    async checkPermissions({ ket, message = null, interaction = null, comando }, t) {
+        let clientPerms = message.channel.guild.members.get(ket.user.id)?.permissions;
+        let missingPermissions = []
+        comando.config.permissions.bot.forEach(perm => {
+            if (!clientPerms.has(perm)) missingPermissions.push(perm)
+        });
+        if (missingPermissions[0]) {
+            message.channel.createMessage(`Eu preciso de permissão de \`${missingPermissions.map(value => t(`permissions.${value}`)).join(', ')}\` para poder executar este comando`)
+                .catch(async () => {
+                    let dmChannel = await message.author.getDMChannel()
+                    dmChannel.createMessage
+                })
+            return false
+        }
     }
 
     getUserId({ message = null, interaction = null }) {
