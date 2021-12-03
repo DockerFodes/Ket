@@ -13,7 +13,9 @@ const
     prompts = require('prompts'),
     util = require("util"),
     { CommandStructure, EmbedBuilder, Decoration } = require("../../components/CommandStructure"),
-    colors = Decoration.colors,
+    Deco = new Decoration(),
+    emoji = Deco.emojis,
+    colors = Deco.colors,
     db = global.client.db;
 
 module.exports = class EvalCommand extends CommandStructure {
@@ -36,10 +38,14 @@ module.exports = class EvalCommand extends CommandStructure {
             slashData: null
         })
     }
-    async executeVanilla({ message, args, command }) {
+    async execute({ message, args, command }, t) {
         const ket = this.ket
-        let evaled = args.join(" ").replace('```js', '').replace('```', ''), embed;
-
+        let
+            evaled = args.join(" ").replace('```js', '').replace('```', ''),
+            embed,
+            msg;
+        if (!message.editedTimestamp) msg = await message.channel.createMessage({ content: emoji('carregando') }).catch(() => { });
+        else msg = await ket.editMessage(global.client.evalMessage.channelID, global.client.evalMessage.messageID, { content: emoji('carregando'), embeds: [], components: [] }).catch(() => { });
         try {
             if (args.includes('await')) evaled = await eval(`async function executeEval() {\n${evaled}\n}\nexecuteEval()`)
             else evaled = await eval(evaled)
@@ -49,14 +55,18 @@ module.exports = class EvalCommand extends CommandStructure {
                     .setTitle('Só sucexo bb')
                     .setColor('green')
                     .setDescription(util.inspect(evaled), 'js')
-                return message.channel.createMessage(embed.build())
             };
         } catch (e) {
             embed = new EmbedBuilder()
                 .setTitle('Ih deu merda viado')
                 .setColor('red')
                 .setDescription(util.inspect(e), 'js')
-            return message.channel.createMessage(embed.build());
+        } finally {
+            msg.edit(embed.build()).catch(() => { });
+            return global.client.evalMessage = {
+                messageID: msg.id,
+                channelID: msg.channel.id
+            }
         }
 
     }

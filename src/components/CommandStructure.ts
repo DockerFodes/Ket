@@ -125,11 +125,8 @@ export class EmbedBuilder {
     }
 }
 export class Decoration {
-    constructor() {
-        this.emojis;
-        this.colors;
-    }
-    async emojis(emoji: string) {
+    constructor() {}
+    emojis(emoji: string, id = false) {
         let emojis = {
             autorizado: "<:autorizado:765952397595639828>",
             negado: "<:negado:765952453203984404>",
@@ -140,9 +137,12 @@ export class Decoration {
             idle: '<:idle:817023347723730944>',
             offline: '<:offline:817024931619274762>'
         }
-        if (emojis[emoji]) return emojis[emoji]
+        if (emojis[emoji]) {
+            if(id) return String(emojis[emoji]).replace('<:a', '').replace('<:', '').replace('>', '')
+            return String(emojis[emoji])
+        }
     }
-    async colors(color: string, isNumber = false) {
+    colors(color: string, isNumber = false) {
         const colors = {
             red: "#ff1500",
             orange: "#ff8c00",
