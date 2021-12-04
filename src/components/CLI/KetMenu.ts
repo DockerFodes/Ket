@@ -152,10 +152,10 @@ export class TerminalClient {
                 }
 
                 evaled = await eval(`${response.code}`);
+                console.log(evaled);
             } catch (e) {
                 global.client.log('error', 'TERMINAL CLIENT', `houve um erro ao executar o seu código:`, e);
             } finally {
-                console.log(evaled);
                 return termEval();
             }
         }

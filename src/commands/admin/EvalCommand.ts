@@ -5,7 +5,7 @@ const
     Canvas = require('canvas'),
     c = require('chalk'),
     cld = require('child_process'),
-    eris = require('eris'),
+    Eris = require('eris'),
     fs = require('fs'),
     gradient = require("gradient-string"),
     moment = require("moment"),
@@ -14,8 +14,8 @@ const
     util = require("util"),
     { CommandStructure, EmbedBuilder, Decoration } = require("../../components/CommandStructure"),
     Deco = new Decoration(),
-    emoji = Deco.emojis,
-    colors = Deco.colors,
+    emoji = Deco.getEmoji,
+    getColor = Deco.getColor,
     db = global.client.db;
 
 module.exports = class EvalCommand extends CommandStructure {
@@ -42,32 +42,25 @@ module.exports = class EvalCommand extends CommandStructure {
         const ket = this.ket;
         let
             evaled = args.join(" ").replace('```js', '').replace('```', ''),
-            embed,
-            msg;
-        if (!message.editedTimestamp) msg = await message.channel.createMessage({ content: emoji('carregando') }).catch(() => { });
-        else msg = await ket.editMessage(global.client.evalMessage.channelID, global.client.evalMessage.messageID, { content: emoji('carregando'), embeds: [], components: [] }).catch(() => { });
+            canReturn = (command === 'eval' ? true : false),
+            embed;
+
         try {
             if (args.includes('await')) evaled = await eval(`async function executeEval() {\n${evaled}\n}\nexecuteEval()`);
             else evaled = await eval(evaled);
 
-            if (command === 'eval') {
-                embed = new EmbedBuilder()
-                    .setTitle('Só sucexo bb')
-                    .setColor('green')
-                    .setDescription(util.inspect(evaled), 'js');
-            };
+            embed = new EmbedBuilder()
+                .setTitle('Só sucexo bb')
+                .setColor('green')
+                .setDescription(util.inspect(evaled), 'js');
         } catch (e) {
             embed = new EmbedBuilder()
                 .setTitle('Ih deu merda viado')
                 .setColor('red')
                 .setDescription(util.inspect(e), 'js');
+            canReturn = true
         } finally {
-            msg.edit(embed.build()).catch(() => { });
-            return global.client.evalMessage = {
-                messageID: msg.id,
-                channelID: msg.channel.id
-            };
+            if (canReturn) message.reply({ embed: embed })
         }
-
     }
 }

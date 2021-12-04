@@ -2,7 +2,7 @@ export { };
 delete require.cache[require.resolve('../components/KetUtils')];
 const
     db = global.client.db,
-    utils = new (require('../components/KetUtils')),
+    { checkCache, checkUserGuildData, checkPermissions, CommandError } = new (require('../components/KetUtils')),
     i18next = require("i18next");
 
 
@@ -19,7 +19,7 @@ module.exports = class MessageCreateEvent {
         };
 
         let prefix,
-            user = db.users.find(message.author.id);
+            user = await db.users.find(message.author.id);
         if (!user || !user.prefix) prefix = this.ket.config.DEFAULT_PREFIX;
         else prefix = user.prefix;
 
@@ -31,22 +31,17 @@ module.exports = class MessageCreateEvent {
         const comando = ket.commands.get(command) || ket.commands.get(ket.aliases.get(command));
         if (!comando) return;
 
-        await utils.checkCache({ ket, message });
-        user = await utils.checkUserGuildData({ message });
+        await checkCache({ ket, message });
+        user = await checkUserGuildData({ message });
         let t = global.client.t = i18next.getFixedT(user.lang);
-        if (await utils.checkPermissions({ ket, message, comando }, t) === false) return;
-
+        if (await checkPermissions({ ket, message, comando }, t) === false) return;
 
         await message.channel.sendTyping();
 
         try {
             comando.execute({ ket, message, args, comando, command, db }, t);
-        } catch (e) {
-            message.reply({
-                embed: {
-                    
-                }
-            });
+        } catch (error) {
+            CommandError({ ket, message, comando, error })
         }
         return;
     }

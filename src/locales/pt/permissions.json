@@ -35,5 +35,7 @@
     "usePrivateThreads": "Usar conversas privadas",
     "usePublicThreads": "Usar conversas públicas",
     "useExternalStickers": "Usar figurinhas externas",
-    "manageThreads": "Gerenciar conversas"
+    "manageThreads": "Gerenciar conversas",
+
+    "missingPerms": "Eu preciso de algumas permissões especiais para esse comando, mas as permissões de `{{missingPerms}}` estão faltando, e elas são essenciais :("
 }  

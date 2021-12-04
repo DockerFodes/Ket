@@ -1,4 +1,4 @@
-export class CommandStructure {
+module.exports.CommandStructure = class CommandStructure {
     ket: any;
     config: object;
 
@@ -24,7 +24,7 @@ export class CommandStructure {
     }
 }
 
-export class EmbedBuilder {
+module.exports.EmbedBuilder = class EmbedBuilder {
     fields: object[];
     author: object;
     description: string;
@@ -120,13 +120,12 @@ export class EmbedBuilder {
         return this;
     }
     build(content = null) {
-        if (!content) content = '_ _';
-        return { content, embeds: [this] };
+        return this;
     }
 }
-export class Decoration {
+module.exports.Decoration = class Decoration {
     constructor() { };
-    emojis(emoji: string, id = false) {
+    getEmoji(emoji: string, id = false) {
         let emojis = {
             autorizado: "<:autorizado:765952397595639828>",
             negado: "<:negado:765952453203984404>",
@@ -142,7 +141,7 @@ export class Decoration {
             return String(emojis[emoji]);
         }
     }
-    colors(color: string, isNumber = false) {
+    getColor(color: string, isNumber = false) {
         const colors = {
             red: "#ff1500",
             orange: "#ff8c00",

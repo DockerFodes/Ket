@@ -1,0 +1,9 @@
+{
+    "embedsFields": {
+        "defaultFooter": "batata",
+
+
+        "errorTitle": "Pane no sistema",
+        "errorDescription": "Alguma coisa está impedindo que este comando funcione, a minha equipe foi alertada sobre o erro, sinto muito pela incoveniência."
+    }
+}

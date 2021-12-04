@@ -3,7 +3,7 @@ const
     { exec } = require('child_process'),
     util = require('util'),
     { CommandStructure, EmbedBuilder, Decoration } = require('../../components/CommandStructure'),
-    emoji = (new Decoration()).emojis;
+    emoji = (new Decoration()).getEmoji;
 
 module.exports = class CldCommand extends CommandStructure {
     constructor(ket) {
@@ -26,10 +26,7 @@ module.exports = class CldCommand extends CommandStructure {
         })
     }
     async execute({ message, args }, t) {
-        const ket = this.ket;
-        let embed, msg;
-        if (!message.editedTimestamp) msg = await message.channel.createMessage({ content: emoji('carregando') }).catch(() => { });
-        else msg = await ket.editMessage(global.client.cldMessage.channelID, global.client.cldMessage.messageID, { content: emoji('carregando'), embeds: [], components: [] }).catch(() => { });
+        let embed;
 
         try {
             await exec(args.join(' '), (a, b) => {
@@ -37,22 +34,14 @@ module.exports = class CldCommand extends CommandStructure {
                     .setTitle('Só sucexo bb')
                     .setColor('green')
                     .setDescription(b, 'bash');
-                msg.edit(embed.build()).catch(() => { });
-                return global.client.cldMessage = {
-                    messageID: msg.id,
-                    channelID: msg.channel.id
-                };
+                message.reply({ embed: embed.build() })
             })
         } catch (e) {
             embed = new EmbedBuilder()
                 .setTitle('Ih deu merda viado')
                 .setColor('red')
                 .setDescription(util.inspect(e), 'bash');
-            msg.edit(embed.build()).catch(() => { });
-            return global.client.cldMessage = {
-                messageID: msg.id,
-                channelID: msg.channel.id
-            };
+            message.reply({ embed: embed.build() })
         }
     }
     async slash({ interaction, args }, t) {

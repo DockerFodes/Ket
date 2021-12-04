@@ -2,7 +2,7 @@ export { };
 const
     { Decoration } = require('../components/CommandStructure'),
     moment = require('moment'),
-    emoji = Decoration.emojis;
+    emoji = (new Decoration()).getEmoji;
 
 module.exports = class ShardReadyEvent {
     ket: any;

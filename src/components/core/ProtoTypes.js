@@ -1,6 +1,7 @@
 const
 	Eris = require('eris'),
 	{ EmbedBuilder, Decoration } = require('../CommandStructure'),
+	getEmoji = new Decoration().getEmoji,
 	{ CanvasRenderingContext2D, createCanvas } = require('canvas');
 
 module.exports = class ProtoTypes {
@@ -8,15 +9,14 @@ module.exports = class ProtoTypes {
 		this.ket = ket;
 	}
 	static start() {
-		const ket = this.ket;
 		/** Eris Structures **/
 
 		/* message.reply() */
-		Eris.Message.prototype.reply = (message, emoji = null) => {
-			let msgObj;
-			if (typeof message === 'object') msgObj.referencedMessage = this.id;
-			else msgObj = { content: emoji ? `${Emoji[emoji]} **| ${message}**` : message, referencedMessage: this.id };
-			return this.channel.createMessage(msgObj);
+		Eris.Message.prototype.reply = async function reply(message, emoji = null) {
+			let msgObj = {};
+			if (typeof message === 'object') (msgObj = message).messageReference = { channelID: this.channel.id, guildID: this.channel.guild.id, messageID: this.id, failIfNotExists: false }
+			else msgObj = { content: (emoji && getEmoji(emoji) ? `${getEmoji(emoji)} **| ${message}**` : message), messageReference: { channelID: this.channel.id, guildID: this.channel.guild.id, messageID: this.id, failIfNotExists: false } }
+			return this.channel.createMessage(msgObj)
 		}
 
 		/* channel.sendErrorEmbed() */
@@ -26,7 +26,7 @@ module.exports = class ProtoTypes {
 		}
 
 		/* user.tag */
-		Object.defineProperty(Eris.User.prototype, "tag", {
+		if (!Eris.User.prototype.tag) Object.defineProperty(Eris.User.prototype, "tag", {
 			get() {
 				return `${this.username}#${this.discriminator}`;
 			}

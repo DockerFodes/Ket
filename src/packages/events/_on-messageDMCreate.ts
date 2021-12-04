@@ -1,4 +1,4 @@
-import { EmbedBuilder } from "../../components/CommandStructure";
+const { EmbedBuilder } = require("../../components/CommandStructure");
 module.exports = class MessageDMCreate {
     ket: any;
     constructor(ket) {
@@ -17,7 +17,7 @@ module.exports = class MessageDMCreate {
             embed.setAuthor(message.author.username, message.author.avatarURL);
             embed.setThumbnail(serverData.guild.iconURL);
             embed.setDescription("batata");
-            userDM.createMessage(embed.build());
+            userDM.createMessage({embed: embed.build()});
         }
         return;
     }
