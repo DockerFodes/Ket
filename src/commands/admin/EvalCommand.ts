@@ -15,8 +15,7 @@ const
     { CommandStructure, EmbedBuilder, Decoration } = require("../../components/CommandStructure"),
     Deco = new Decoration(),
     emoji = Deco.getEmoji,
-    getColor = Deco.getColor,
-    db = global.client.db;
+    getColor = Deco.getColor;
 
 module.exports = class EvalCommand extends CommandStructure {
     constructor(ket) {
@@ -39,7 +38,10 @@ module.exports = class EvalCommand extends CommandStructure {
         })
     }
     async execute({ message, args, command }, t) {
-        const ket = this.ket;
+        const
+            ket = this.ket,
+            db = global.client.db;
+
         let
             evaled = args.join(" ").replace('```js', '').replace('```', ''),
             canReturn = (command === 'eval' ? true : false),

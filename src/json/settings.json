@@ -18,7 +18,7 @@
         "defaultImageFormat": "jpg",
         "defaultImageSize": 2048,
         "getAllUsers": false,
-        "maxShards": 2, // recomendo usar 2 ou mais, mesmo em um bot pequeno
+        "maxShards": 4, // recomendo usar 2 ou mais, mesmo em um bot pequeno
         "allowedMentions": {
             "everyone": false,
             "roles": false,

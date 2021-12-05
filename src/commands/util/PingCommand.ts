@@ -21,12 +21,15 @@ module.exports = class PingCommand extends CommandStructure {
         })
     }
     async execute({ message }, t) {
-        let time = Date.now()
-        let msg = await message.channel.createMessage('calculando ping...')
-        let totalTime = Date.now() - time
-        msg.edit(`tempo de resposta: ${totalTime}ms`)
+        let time = Date.now();
+        let msg = await message.channel.createMessage('calculando ping...');
+        let totalTime = Date.now() - time;
+        msg.edit(`tempo de resposta: ${totalTime}ms`);
     }
     async slash({ interaction }, t) {
-
+        let time = Date.now();
+        await interaction.createMessage('calculando ping...');
+        let totalTime = Date.now() - time;
+        interaction.editOriginalMessage(`tempo de resposta: ${totalTime}ms`);
     }
 }

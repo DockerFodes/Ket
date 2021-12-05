@@ -37,5 +37,5 @@
     "useExternalStickers": "Usar figurinhas externas",
     "manageThreads": "Gerenciar conversas",
 
-    "missingPerms": "Eu preciso de algumas permissões especiais para esse comando, mas as permissões de `{{missingPerms}}` estão faltando, e elas são essenciais :("
+    "missingPerms": "Eu preciso de algumas permissões especiais para poder fazer isso, mas as permissões de `{{missingPerms}}` estão faltando, e elas são essenciais :("
 }  
