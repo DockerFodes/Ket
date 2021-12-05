@@ -1,11 +1,11 @@
 export { };
 import type { ClientOptions } from "eris";
 const
-    { Client } = require('eris'),
+    { Client, Collection } = require('eris'),
     { readdir } = require('fs');
 
 module.exports = class KetClient extends Client {
-    config: object;
+    config: any;
     db: object;
     events: any;
     modules: any;
@@ -18,6 +18,10 @@ module.exports = class KetClient extends Client {
         super(token, options);
 
         this.config = require('./json/settings.json');
+        // this.users = new Collection(this.User, this.config.ERIS_LOADER_SETTINGS.cacheLimit.users)
+        // this.guilds = new Collection(this.Guild, this.config.ERIS_LOADER_SETTINGS.cacheLimit.guilds)
+        // this.options.messageLimit = this.config.ERIS_LOADER_SETTINGS.cacheLimit.messages
+
         this.events = new (require('./components/core/EventHandler'))(this);
         this.commands = new Map();
         this.aliases = new Map();

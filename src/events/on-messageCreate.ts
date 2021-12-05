@@ -12,7 +12,6 @@ module.exports = class MessageCreateEvent {
         this.ket = ket;
     }
     async start(message) {
-        if(message.content === 'teste de velocidade') global.client.speedTest.push(Date.now())
         if (message.author?.bot && !process.env.TRUSTED_BOTS.includes(message.author?.id)) return;
         if (message.channel.type === 1) {
             delete require.cache[require.resolve("../packages/events/_on-messageDMCreate")];
@@ -20,7 +19,9 @@ module.exports = class MessageCreateEvent {
         };
         let server = await db.servers.find(message.channel.guild.id, true),
             user = await db.users.find(message.author.id);
-        if(server.globalchat && message.channel.id === server.globalchat) KetUtils.sendGlobalChat(this.ket, message)
+        if (user?.banned) return;
+        if (server.banned) return message.channel.guild.leave()
+        if (server.globalchat && message.channel.id === server.globalchat) KetUtils.sendGlobalChat(this.ket, message)
 
         const regexp = new RegExp(`^(${!user || !user.prefix ? this.ket.config.DEFAULT_PREFIX : user.prefix}|<@!?${this.ket.user.id}>)( )*`, 'gi');
         if (!message.content.match(regexp)) return;

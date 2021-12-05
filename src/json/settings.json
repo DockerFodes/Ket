@@ -30,6 +30,11 @@
             "ratelimiterOffset": 0
         },
         "restMode": true,
+        "cacheLimit": {
+            "users": 100,
+            "messages": 16,
+            "channels": "500"
+        },
         "intents": [
             "guilds",
             "guildMembers",
