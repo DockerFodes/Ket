@@ -1,6 +1,6 @@
 const
 	Eris = require('eris'),
-	{ EmbedBuilder, Decoration } = require('../CommandStructure'),
+	{ EmbedBuilder, Decoration } = require('../Commands/CommandStructure'),
 	getEmoji = new Decoration().getEmoji,
 	{ CanvasRenderingContext2D, createCanvas } = require('canvas');
 
