@@ -2,7 +2,7 @@ export { };
 delete require.cache[require.resolve('../components/KetUtils')];
 const
     db = global.client.db,
-    KetUtils = new (require('../components/KetUtils')),
+    KetUtils = new (require('../components/KetUtils'))(),
     i18next = require("i18next");
 
 
