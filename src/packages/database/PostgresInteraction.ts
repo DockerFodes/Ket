@@ -1,10 +1,11 @@
 export { };
+import Eris from "eris";
 const
     c = require('chalk'),
     Postegrego = require('pg');
 module.exports = class PostgresInteraction {
     ket: any;
-    constructor(ket) {
+    constructor(ket: Eris.Client) {
         this.ket = ket;
         global.client.postgres = new Postegrego.Client({
             user: process.env.DATABASE_USER,
@@ -89,7 +90,7 @@ module.exports = class PostgresInteraction {
         return global.client.postgres.end();
     };
     /* Users Functions */
-    async createUser(data: any, returnValue = false) {
+    async createUser(data: any, returnValue: boolean = false) {
         let values = [];
         for (let i in Object.entries(data)) {
             let str = String(eval('data.' + Object.keys(data)[i])).replace(new RegExp(`'`, 'g'), `''`);

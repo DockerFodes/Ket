@@ -5,14 +5,14 @@ const
     { readdir } = require('fs');
 
 module.exports = class KetClient extends Client {
-    config: any;
+    config: object;
     db: object;
     events: any;
     modules: any;
-    shardUptime: object;
     postgres: object;
     commands: any;
     aliases: any;
+    shardUptime: object;
 
     constructor(token: string, options: ClientOptions) {
         super(token, options);
@@ -37,21 +37,21 @@ module.exports = class KetClient extends Client {
     }
 
     loadLocales() {
-        const Locales = new (require('./components/core/LocalesStructure'))(this);
+        const Locales = new (require('./components/core/LocalesStructure'))();
         Locales.inicialize();
         return this;
     }
 
     loadCommands() {
         try {
-            readdir(`${__dirname}/commands/`, (e, categories: string[]) => {
+            readdir(`${__dirname}/commands/`, (_e: any, categories: string[]) => {
                 categories.forEach(category => {
-                    readdir(`${__dirname}/commands/${category}/`, (e, files: string[]) => {
+                    readdir(`${__dirname}/commands/${category}/`, (_e: any, files: string[]) => {
                         files.forEach(async (command: string) => {
                             const comando = new (require(`${__dirname}/commands/${category}/${command}`))(this);
                             comando.dir = `${__dirname}/commands/${category}/${command}`;
                             this.commands.set(comando.config.name, comando);
-                            return comando.config.aliases.forEach(aliase => this.aliases.set(aliase, comando.config.name));
+                            return comando.config.aliases.forEach((aliase: any) => this.aliases.set(aliase, comando.config.name));
                         })
                     })
                 })
@@ -64,10 +64,10 @@ module.exports = class KetClient extends Client {
 
     loadListeners(path: string) {
         try {
-            readdir(path, (e, files: string[]) => {
+            readdir(path, (_e: any, files: string[]) => {
                 files.forEach((fileName: string) => {
                     if (fileName.startsWith('_')) return;
-                    this.events.add(fileName.split(".")[0].replace('on-', ''), `${fileName}_EVENT`, `${__dirname}/events/${fileName}`, this);
+                    this.events.add(fileName.split(".")[0].replace('on-', ''), `${__dirname}/events/${fileName}`);
                 })
             })
         } catch (e) {
@@ -78,10 +78,10 @@ module.exports = class KetClient extends Client {
 
     loadModules() {
         try {
-            readdir(`${__dirname}/packages/`, (e, categories: string[]) => {
-                categories.forEach(category => {
-                    readdir(`${__dirname}/packages/${category}/`, (e, modules: string[]) => {
-                        modules.forEach(async file => {
+            readdir(`${__dirname}/packages/`, (_e: any, categories: string[]) => {
+                categories.forEach((category: string) => {
+                    readdir(`${__dirname}/packages/${category}/`, (_e: any, modules: string[]) => {
+                        modules.forEach(async (file: string) => {
                             if (file.startsWith("_")) return;
                             const module = new (require(`${__dirname}/packages/${category}/${file}`))(this);
                             this.modules.set(file.split('.')[0], module);
@@ -100,14 +100,14 @@ module.exports = class KetClient extends Client {
     async reloadCommand(commandName: string) {
         const comando = this.commands.get(commandName) || this.commands.get(this.aliases.get(commandName));
 		if (!comando) return 'Comando não encontrado';
-        comando.config.aliases.forEach(aliase => this.aliases.delete(aliase));
+        comando.config.aliases.forEach((aliase: any) => this.aliases.delete(aliase));
 		this.commands.delete(comando.config.name);
 		delete require.cache[require.resolve(comando.dir)];
         try {
             const command = new (require(comando.dir))(this);
             command.dir = comando.dir;
             this.commands.set(command.config.name, command);
-            command.config.aliases.forEach(aliase => this.aliases.set(aliase, command.config.name));
+            command.config.aliases.forEach((aliase: any) => this.aliases.set(aliase, command.config.name));
             return true;
         } catch(e) {
             return e;

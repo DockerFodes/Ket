@@ -1,35 +1,41 @@
+import Eris from "eris"
+interface event {
+    name: string;
+    dir: string;
+}
 module.exports = class EventHandler {
-    ket: any;
-    events: any[];
+    ket: Eris.Client;
+    events: event[];
     eventData: any;
 
     constructor(ket) {
         this.ket = ket;
         this.events = [];
     }
-    add(name: string, func: string, dir: string, data) {
-        this.ket.on(name, (...args) => this.execute({ func, args, data }));
+    add(name: string, dir: string) {
+        if (name === 'ready') this.ket.once(name, (...args) => this.execute(name, args));
+        this.ket.on(name, (...args) => this.execute(name, args));
+
         let eventData = {
             name: name,
-            func: func,
-            dir: dir,
+            dir: dir
         };
         return this.events.push(eventData);
     }
-    execute({ func, args, data }) {
-        return this.events.filter(evento => evento.func === func).map((event) => {
+    execute(name: string, args) {
+        return this.events.filter(evento => evento.name === name).forEach((event) => {
             delete require.cache[require.resolve(event.dir)];
             try {
-                new (require(event.dir))(data).start(...args);
+                new (require(event.dir))(this.ket).start(...args);
             } catch (e) {
-                this.ket.emit('error', e, 'EVENTS-HANDLER');
+                this.ket.emit('error', e);
             }
             return;
         })
     }
-    remove(func: string) {
-        if (!this.events.filter(evento => evento.module === func)[0]) return false;
-        delete this.events[this.events.findIndex(event => event.module === func)];
+    remove(name: string) {
+        if (!this.events.filter(event => event.name === name)[0]) return false;
+        delete this.events[this.events.findIndex(event => event.name === name)];
         return true;
     }
 }

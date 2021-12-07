@@ -1,4 +1,5 @@
 export { }
+import Eris from "eris";
 const
     prompts = require('prompts'),
     gradient = require('gradient-string'),
@@ -122,7 +123,7 @@ export class KetMenu {
 }
 export class TerminalClient {
     constructor() { }
-    async start(ket) {
+    async start(ket: Eris.Client) {
         termEval();
         async function termEval() {
             const response: any = await prompts({
@@ -132,7 +133,7 @@ export class TerminalClient {
                 validate: async (code) => {
                     if (!code.startsWith('.')) return true;
                     delete require.cache[require.resolve(`./CLI`)];
-                    const commands = new (require(`./CLI`));
+                    const commands = new (require(`./CLI`))();
                     if (!eval(`commands${code.trim().split(/ /g).shift()}`)) return 'Comando não encontrado, digite .help para ver a lista de comandos.';
                     else return true;
                 }
@@ -146,7 +147,7 @@ export class TerminalClient {
             try {
                 if (response.code.startsWith('.')) {
                     delete require.cache[require.resolve(`./CLI`)];
-                    const commands = new (require(`./CLI`));
+                    const commands = new (require(`./CLI`))();
                     const args = response.code.trim().split(/ /g);
                     return await eval(`commands${args.shift()}({ ket, args })`);
                 }

@@ -1,4 +1,5 @@
 export { };
+import Eris from "eris";
 const
     { exec } = require('child_process'),
     util = require('util'),
@@ -6,7 +7,7 @@ const
     emoji = (new Decoration()).getEmoji;
 
 module.exports = class CldCommand extends CommandStructure {
-    constructor(ket) {
+    constructor(ket: Eris.Client) {
         super(ket, {
             name: 'cld',
             aliases: [],
@@ -21,15 +22,16 @@ module.exports = class CldCommand extends CommandStructure {
                 DM: true,
                 Threads: true
             },
+            dontType: false,
             testCommand: ['node -v'],
             slashData: null
         })
     }
-    async execute({ message, args }, t) {
-        let embed;
+    async execute({ message, args }) {
+        let embed: typeof EmbedBuilder;
 
         try {
-            await exec(args.join(' '), (a, b) => {
+            await exec(args.join(' '), (_a: string, b: string) => {
                 embed = new EmbedBuilder()
                     .setTitle('Só sucexo bb')
                     .setColor('green')
@@ -44,7 +46,7 @@ module.exports = class CldCommand extends CommandStructure {
             message.reply({ embed: embed.build() })
         }
     }
-    async slash({ interaction, args }, t) {
+    async slash({ interaction, args }) {
 
     }
 }

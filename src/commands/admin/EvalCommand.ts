@@ -1,11 +1,11 @@
 export { };
+import Eris from "eris"
 const
     axios = require('axios'),
     bytes = require('bytes'),
     Canvas = require('canvas'),
     c = require('chalk'),
     cld = require('child_process'),
-    Eris = require('eris'),
     fs = require('fs'),
     gradient = require("gradient-string"),
     moment = require("moment"),
@@ -18,7 +18,7 @@ const
     getColor = Deco.getColor;
 
 module.exports = class EvalCommand extends CommandStructure {
-    constructor(ket) {
+    constructor(ket: Eris.Client) {
         super(ket, {
             name: 'eval',
             aliases: ['e'],
@@ -33,6 +33,7 @@ module.exports = class EvalCommand extends CommandStructure {
                 DM: true,
                 Threads: true
             },
+            dontType: false,
             testCommand: ['message.channel.createMessage("alow")'],
             slashData: null
         })
@@ -45,7 +46,7 @@ module.exports = class EvalCommand extends CommandStructure {
         let
             evaled = args.join(" ").replace('```js', '').replace('```', ''),
             canReturn = (command === 'eval' ? true : false),
-            embed;
+            embed: typeof EmbedBuilder;
 
         try {
             if (args.includes('await')) evaled = await eval(`async function executeEval() {\n${evaled}\n}\nexecuteEval()`);

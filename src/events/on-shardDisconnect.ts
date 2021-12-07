@@ -1,10 +1,12 @@
+import Eris from "eris"
+
 module.exports = class ShardDisconnect {
     ket: any;
-    constructor(ket) {
+    constructor(ket: Eris.Client) {
         this.ket = ket;
     }
-    async start(error, shardID) {
-        global.client.log('error', "SHARDING MANAGER", `Shard ${shardID} morreu`);
+    async start(error: string, shardID: number) {
+        global.client.log('error', "SHARDING MANAGER", `Shard ${shardID} morreu:`, error);
         return this.ket.shardUptime.set(shardID, {
             shardID,
             uptime: NaN

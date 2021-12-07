@@ -1,3 +1,6 @@
+export { };
+import Eris from "eris";
+
 module.exports.CommandStructure = class CommandStructure {
     ket: any;
     config: object;
@@ -17,10 +20,39 @@ module.exports.CommandStructure = class CommandStructure {
                 DM: true,
                 Threads: true
             },
+            dontType: command.dontType || false,
             testCommand: command.testCommand || [],
             slashData: command.slashData
         }
         this.ket = ket;
+    }
+    async findUser(message: any, text: string, argsPosition: number) {
+        argsPosition = (!argsPosition ? 0 : Number(argsPosition));
+        let search: string,
+            user: Eris.User;
+
+        if (!Array.isArray(text)) search = text;
+        else search = text[argsPosition];
+
+        if (!isNaN(Number(search))) {
+            try {
+                if (this.ket.users.has(search)) user = this.ket.users.get(search);
+                else {
+                    user = await this.ket.users.getRESTUser(search);
+                    if (!user) user = message.author;
+                }
+            } catch (e) {
+                user = message.author;
+            }
+        } else {
+            try {
+                let member: Eris.Member = message.mentions[0] || message.guild.members.find(m => m.user.username.toLowerCase() === search.toLowerCase() || m.displayName.toLowerCase() === search.toLowerCase() || m.user.username.toLowerCase().startsWith(search.toLowerCase()) || m.displayName.toLowerCase().startsWith(search.toLowerCase()) || m.user.username.toLowerCase().includes(search.toLowerCase()) || m.displayName.toLowerCase().includes(search.toLowerCase()));
+                user = member.user;
+            } catch (e) {
+                user = message.author;
+            }
+        }
+        return user;
     }
 }
 

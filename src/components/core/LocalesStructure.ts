@@ -5,16 +5,11 @@ const
     i18nbackend = require('i18next-node-fs-backend');
 
 module.exports = class LocaleStructure {
-    languages: string[];
-    ns: string[];
-    constructor() {
-        this.languages = ["pt", "en", "es"];
-        this.ns = ["commands", "events", "permissions"];
-    }
+    constructor() {}
     async inicialize() {
         try {
             i18next.use(i18nbackend).init({
-                ns: this.ns,
+                ns: ["commands", "events", "permissions"],
                 preload: readdirSync(`${global.client.dir}/src/locales`),
                 fallbackLng: "pt",
                 backend: {

@@ -1,12 +1,13 @@
 export { };
+import Eris from "eris"
 const
     c = require('chalk'),
     gradient = require('gradient-string'),
     { TerminalClient } = require('../components/CLI/KetMenu');
 
 module.exports = class ReadyEvent {
-    ket: any;
-    constructor(ket) {
+    ket: Eris.Client;
+    constructor(ket: any) {
         this.ket = ket;
     }
     async start() {
