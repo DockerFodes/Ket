@@ -13,12 +13,21 @@
             "channel": "802053941809381386" // canal para enviar embed de informações quando o bot ficar online
         }
     },
+    "globalchat": {
+        "editLimit": 3,
+        "allowedLinks": [
+            "https://media.discordapp.net/attachments/",
+            "https://cdn.discordapp.com/attachments/",
+            "https://tenor.com/view/",
+            "https://giphy.com/gifs/"
+        ]
+    },
     "ERIS_LOADER_SETTINGS": {
         "compress": true,
         "defaultImageFormat": "jpg",
         "defaultImageSize": 2048,
         "getAllUsers": false,
-        "maxShards": 4, // recomendo usar 2 ou mais, mesmo em um bot pequeno
+        "maxShards": 1, // recomendo usar 2 ou mais, mesmo em um bot pequeno
         "allowedMentions": {
             "everyone": false,
             "roles": false,

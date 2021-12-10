@@ -1,4 +1,5 @@
 export { };
+import Eris from "eris";
 const
     { inspect } = require('util'),
     db = global.client.db,
@@ -6,7 +7,10 @@ const
     axios = require('axios');
 
 module.exports = class Utils {
-    constructor() { };
+    ket: any;
+    constructor(ket: Eris.Client) {
+        this.ket = ket;
+    }
 
     async checkCache({ ket, message = null, interaction = null }) {
         let
@@ -34,7 +38,6 @@ module.exports = class Utils {
         let comando = { config: { permissions: { bot: ['manageChannels', 'manageWebhooks', 'manageMessages'] } } },
             user = await this.checkUserGuildData({ message }),
             t = i18next.getFixedT(user.lang);
-
 
         await this.checkCache({ ket, message });
         if (await this.checkPermissions({ ket, message, comando }, t) === false) return;
@@ -78,8 +81,8 @@ module.exports = class Utils {
             if (await this.checkPermissions({ ket, channel, comando }, t) === false) return;
             if (!webhook) {
                 webhook = await channel.getWebhooks();
-                webhook = webhook.filter(webhook => webhook.name === 'Ket Global Chat' && webhook.user.id === ket.user.id)[0];
-                if (!webhook) webhook = await channel.createWebhook({ name: 'Ket Global Chat' });
+                webhook = webhook.filter(w => w.name === 'Ket Global Chat' && w.user.id === ket.user.id)[0];
+                if (!webhook) webhook = await channel.createWebhook({ name: 'Ket Global Chat', options: { type: 1 } });
                 ket.webhooks.set(message.channel.id, webhook);
             }
             if (message.messageReference) msgObj.embed = {
@@ -97,12 +100,12 @@ module.exports = class Utils {
         })
         let i = 0
         function save() {
-            if (i++ > 50) return global.client.log('error', 'Global Chat', `o cache de mensagens de webhooks está inconsistente, desativando save do banco de dados com ${guilds.length - msgs.length} não salvas.`, '')
+            if (i++ > 10) return global.client.log('error', 'Global Chat', `o cache de mensagens de webhooks está inconsistente, desativando save do banco de dados com ${guilds.length - msgs.length} não salvas.`, '')
             if (msgs.length !== guilds.length) return setTimeout(() => save(), 300);
             else db.globalchat.create({
                 id: message.id,
                 author: message.author.id,
-                editCount: 0,
+                editcount: 0,
                 messages: `{${msgs.join(',')}}`
             })
         }
@@ -111,17 +114,15 @@ module.exports = class Utils {
 
     msgFilter(content: string) {
         if (!content) return '_ _';
-        const regex = /(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li|club)|discordapp\.com\/invite|discord\.com\/invite)\/.+[a-z]/gi;
-        if (regex.exec(content)) {
-            return content
-                .replace('https:', '')
-                .replace(/((?:discord\.gg|discordapp\.com\/invite|discord\.com\/invite))/g, '`convite bloqueado`')
-                .replace(/(\/)/g, '');
-        }
+        const regex = /(https?:\/\/)?(www\.)?(http?:\/\/)?(discord\.(gg|io|me|li|club|ga|net|tk|ml)|discordapp\.com\/invite|discord\.com\/invite)\/.+[a-z]/gi;
+        if (regex.exec(content)) content = content.replace(regex, '`convite bloqueado`')
         if (content.includes('http')) {
-            let arrayContent = content.trim().split(/ /g);
+            let arrayContent = content.trim().split(/ /g),
+                config = require('../json/settings.json');
             arrayContent.forEach(text => {
-                if(text.startsWith('https://media.discordapp.net/attachments/') || text.startsWith('https://cdn.discordapp.com/attachments/')) return;
+                for (let i in config.globalchat.allowedLinks) {
+                    if (text.startsWith(config.globalchat.allowedLinks[i])) return;
+                }
                 if (text.includes('http')) return content = content.replace(new RegExp(text, 'g'), '`link bloqueado`');
             })
         }
@@ -162,12 +163,16 @@ module.exports = class Utils {
             me = guild.members.get(ket.user.id),
             user = (interaction ? interaction.member.user : message.author);
 
-        // channel
+        message.reply({
+            embed: {
+
+            }
+        })
 
         ket.createMessage(ket.config.channels.erros, {
             embed: {
                 title: `Deu merda no comando ${comando.config.name}`,
-                description: `Autor: \`${user.tag}\` (ID: ${user.id})\nGuild: \`${guild?.name}\` (ID: ${guild?.id})\nChannel: \`${channel.name}\` (ID: ${channel.id}, Tipo: ${channel.type}, NSFW: ${channel.nsfw})\nEu: Nick: \`${me.nick}\`, Permissions: ${me.permissions}`,
+                description: `Autor: \`${user?.tag}\` (ID: ${user.id})\nGuild: \`${guild?.name}\` (ID: ${guild?.id})\nChannel: \`${channel?.name}\` (ID: ${channel.id}, Tipo: ${channel?.type}, NSFW: ${channel?.nsfw})\nEu: Nick: \`${me?.nick}\`, Permissions: ${me?.permissions}`,
                 fields: [
                     {
                         name: 'Erro:',

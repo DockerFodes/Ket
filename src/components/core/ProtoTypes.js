@@ -14,8 +14,13 @@ module.exports = class ProtoTypes {
 		/* message.reply() */
 		Eris.Message.prototype.reply = async function reply(message, emoji = null) {
 			let msgObj = {};
-			if (typeof message === 'object') (msgObj = message).messageReference = { channelID: this.channel.id, guildID: this.channel.guild.id, messageID: this.id, failIfNotExists: false }
-			else msgObj = { content: (emoji && getEmoji(emoji) ? `${getEmoji(emoji)} **| ${message}**` : message), messageReference: { channelID: this.channel.id, guildID: this.channel.guild.id, messageID: this.id, failIfNotExists: false } }
+			if (typeof message === 'object') {
+				msgObj = {
+					...message,
+					messageReference: { channelID: this.channel.id, guildID: this.guildID, messageID: this.id, failIfNotExists: false }
+				}
+				if(emoji && msgObj.embed) msgObj.embed.description = (getEmoji(emoji).mention ? `${getEmoji(emoji).mention} **| ${msgObj.embed.description}**` : msgObj.embed.description)
+			} else msgObj = { content: (emoji && getEmoji(emoji).mention ? `${getEmoji(emoji).mention} **| ${message}**` : message), messageReference: { channelID: this.channel.id, guildID: this.channel.guild.id, messageID: this.id, failIfNotExists: false } }
 			return this.channel.createMessage(msgObj)
 		}
 

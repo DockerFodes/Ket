@@ -95,7 +95,7 @@ module.exports = class PostgresInteraction {
             console.log(c.green(`Criando tabela de dados para globalchat`))
             await global.client.postgres.query(`CREATE TABLE public.globalchat (
                 id VARCHAR(20) NOT NULL PRIMARY KEY,
-                editCount NUMERIC DEFAULT 0,
+                editcount NUMERIC DEFAULT 0,
                 messages VARCHAR(40)[] NULL,
                 author VARCHAR(20) NOT NULL
               );`);

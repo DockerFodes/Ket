@@ -98,19 +98,23 @@ module.exports = class KetClient extends Client {
         return this;
     }
 
+    reload(dir: string) {
+        delete require.cache[require.resolve(dir)]
+    }
+
     async reloadCommand(commandName: string) {
         const comando = this.commands.get(commandName) || this.commands.get(this.aliases.get(commandName));
-		if (!comando) return 'Comando não encontrado';
+        if (!comando) return 'Comando não encontrado';
         comando.config.aliases.forEach((aliase: any) => this.aliases.delete(aliase));
-		this.commands.delete(comando.config.name);
-		delete require.cache[require.resolve(comando.dir)];
+        this.commands.delete(comando.config.name);
+        delete require.cache[require.resolve(comando.dir)];
         try {
             const command = new (require(comando.dir))(this);
             command.dir = comando.dir;
             this.commands.set(command.config.name, command);
             command.config.aliases.forEach((aliase: any) => this.aliases.set(aliase, command.config.name));
             return true;
-        } catch(e) {
+        } catch (e) {
             return e;
         }
 

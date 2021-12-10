@@ -6,6 +6,6 @@ module.exports = class RawRESTEvent {
         this.ket = ket;
     }
     async start(req) {
-        console.log(req.body)
+        // console.log(req.body)
     }
 }

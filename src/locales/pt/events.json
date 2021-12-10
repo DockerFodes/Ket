@@ -1,9 +1,10 @@
 {
-    "embedsFields": {
-        "defaultFooter": "batata",
-
-
-        "errorTitle": "Pane no sistema",
-        "errorDescription": "Alguma coisa está impedindo que este comando funcione, a minha equipe foi alertada sobre o erro, sinto muito pela incoveniência."
+    "defaultFooter": "batata",
+    "error": {
+        "title": "Pane no sistema",
+        "desc": "Alguma coisa está impedindo que este comando funcione, a minha equipe foi alertada sobre o erro, sinto muito pela incoveniência.\n```js{{error}}```"
+    },
+    "globalchat": {
+        "editLimitDesc": "Você não pode editar a mesma mensagem mais de 3 vezes no chat global, editar mensagens demais é perigoso pra mim :("
     }
 }

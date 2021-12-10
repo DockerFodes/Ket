@@ -107,21 +107,21 @@ module.exports.EmbedBuilder = class EmbedBuilder {
         this.addField('\u200B', '\u200B', inline);
         return this;
     }
-    setColor(color) {
-        enum Colors {
-            red = "#ff1500",
-            orange = "#ff8c00",
-            yellow = "#fdff00",
-            green = "#25ff00",
-            hardgreen = "#0d7200",
-            blue = "#2391ff",
-            hardblue = "#0025ff",
-            hardpurple = "#4b0082",
-            purple = "#9400d3",
-            pink = "#ff007f",
+    setColor(color: any) {
+        const colors = {
+            red: "#ff1500",
+            orange: "#ff8c00",
+            yellow: "#fdff00",
+            green: "#25ff00",
+            hardgreen: "#0d7200",
+            blue: "#2391ff",
+            hardblue: "#0025ff",
+            hardpurple: "#4b0082",
+            purple: "#9400d3",
+            pink: "#ff007f",
         };
-        if (color.startsWith('#')) this.color = parseInt(color.replace('#', ''), 16);
-        else this.color = this.color = parseInt(eval(`Colors.${color}`).replace('#', ''), 16);
+        if (colors[color]) this.color = parseInt((colors[color]).replace('#', ''), 16);
+        else this.color = parseInt((color.replace('#', '')), 16)
         return this;
     }
     setImage(image, height = null, width = null) {
@@ -151,29 +151,35 @@ module.exports.EmbedBuilder = class EmbedBuilder {
         this.thumbnail = { url };
         return this;
     }
-    build(content = null) {
+    build() {
         return this;
     }
 }
 module.exports.Decoration = class Decoration {
     constructor() { };
-    getEmoji(emoji: string, id = false) {
+    getEmoji(emoji: string) {
         let emojis = {
             autorizado: "<:autorizado:765952397595639828>",
             negado: "<:negado:765952453203984404>",
             cristal: "<a:cristal:789542971011104808>",
             carregando: "<a:carregando:765952420575444994>",
             axo: "<a:axo:904961545811951636>",
+            sireneBlue: "<a:emergencia2:783149286342787102>",
+            sireneRed: "<a:emergencia:770106111381864458>",
             online: '<:online:817023347396706324>',
             idle: '<:idle:817023347723730944>',
             offline: '<:offline:817024931619274762>'
         };
-        if (emojis[emoji]) {
-            if (id) return String(emojis[emoji]).replace('<:a', '').replace('<:', '').replace('>', '');
-            return String(emojis[emoji]);
+        const emojiFilter = String(emojis[emoji]).replace('<a:', '').replace('<:', '').replace('>', '').trim().split(':')
+        const emojiObj = {
+            name: emojiFilter[0],
+            id: (emojiFilter[1] !== undefined) ? emojiFilter[1] : emojiFilter[0],
+            mention: String(emojis[emoji]),
+            reaction: (emojiFilter[1] !== undefined) ? `${emojiFilter[0]}:${emojiFilter[1]}` : `${emojiFilter[0]}`
         }
+        return emojiObj;
     }
-    getColor(color: string, isNumber = false) {
+    getColor(color: string, toNumber = true) {
         const colors = {
             red: "#ff1500",
             orange: "#ff8c00",
@@ -186,7 +192,9 @@ module.exports.Decoration = class Decoration {
             purple: "#9400d3",
             pink: "#ff007f",
         };
-        if (isNumber) return parseInt((colors[color]).replace('#', ''), 16);
-        return colors[color];
+        if (colors[color]) {
+            if (toNumber) return parseInt((colors[color]).replace('#', ''), 16);
+            return colors[color];
+        } else return parseInt((color.replace('#', '')), 16)
     }
 }
