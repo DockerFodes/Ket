@@ -1,7 +1,7 @@
 export { };
 import Eris from "eris"
 const
-    { Decoration } = require('../components/CommandStructure'),
+    { Decoration } = require('../components/Commands/CommandStructure'),
     moment = require('moment'),
     emoji = (new Decoration()).getEmoji;
 
@@ -18,7 +18,7 @@ module.exports = class ShardReadyEvent {
         });
         // async function infoEmbed(shardID, ket) {
         //     let embed = {
-        //         title: `${emoji('axo')} **Bot Info** ${emoji('axo')}`, description: `Bot Uptime 🗓️: \`\`\`fix\n${ket.startTime === 0 ? 'Iniciando...' : moment.duration(Date.now() - ket.startTime).format(" dd[d] hh[h] mm[m] ss[s]")}\`\`\` `,
+        //         title: `${emoji('axo')} **Bot Info** ${emoji('axo')}`, description: `Bot Uptime 🗓️: \`\`\`fix\n${ket.startTime === 0 ? 'Iniciando...' : moment.duration(Date.now() - ket.startTime).}\`\`\` `,
         //         fields: [{ name: `Servers 🌎:`, value: `\`\`\`cs\n${ket.guilds.size}\`\`\``, inline: true }, { name: `Users 👥:`, value: `\`\`\`cs\n${ket.users.size}\`\`\``, inline: true },
         //         { name: `RAM 🎞️:`, value: `\`\`\`fix\n${Math.round(process.memoryUsage().rss / 1024 / 1024)}MB\`\`\``, inline: true }
         //         ]

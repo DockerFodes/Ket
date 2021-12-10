@@ -14,7 +14,7 @@ module.exports = class EventHandler {
     }
     add(name: string, dir: string) {
         if (name === 'ready') this.ket.once(name, (...args) => this.execute(name, args));
-        this.ket.on(name, (...args) => this.execute(name, args));
+        else this.ket.on(name, (...args) => this.execute(name, args));
 
         let eventData = {
             name: name,

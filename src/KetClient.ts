@@ -24,6 +24,7 @@ module.exports = class KetClient extends Client {
 
         this.events = new (require('./components/core/EventHandler'))(this);
         this.commands = new Map();
+        this.webhooks = new Map();
         this.aliases = new Map();
         this.modules = new Map();
         this.shardUptime = new Map();
@@ -90,7 +91,7 @@ module.exports = class KetClient extends Client {
                     })
                 })
             })
-            global.client.log('log', 'MODULES MANAGER', '√ Módulos inicializados com sucesso');
+            global.client.log('log', 'MODULES MANAGER', '√ Módulos inicializados');
         } catch (e) {
             global.client.log('error', 'MODULES MANAGER', 'Houve um erro ao carregar os módulos:', e);
         }

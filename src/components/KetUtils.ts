@@ -40,22 +40,26 @@ module.exports = class Utils {
         if (await this.checkPermissions({ ket, message, comando }, t) === false) return;
 
         let
-            guilds = await db.servers.getAll(),
+            guildsData = await db.servers.getAll(),
+            guilds = guildsData.filter(guild => guild.globalchat && guild.globalchat != message.channel.id),
             msgObj = {
                 username: message.author.username,
                 avatarURL: message.author.dynamicAvatarURL('jpg', 256),
                 content: this.msgFilter(message.content),
                 embed: null,
                 file: [],
+                wait: true,
                 allowedMentions: {
                     everyone: false,
                     roles: false,
                     users: false
                 }
-            };
+            },
+            msg,
+            msgs = [];
 
         if (message.attachments[0]) {
-            message.attachments.forEach(async (att) => {
+            await message.attachments.forEach(async (att) => {
                 let buffer = await axios({
                     url: att.url,
                     method: 'get',
@@ -65,39 +69,62 @@ module.exports = class Utils {
             });
         }
 
-        if (message.messageReference) {
-            let msg = await ket.getMessage(message.messageReference.channelID, message.messageReference.messageID);
-            msgObj.embed = {
+        if (message.messageReference) msg = await ket.getMessage(message.messageReference.channelID, message.messageReference.messageID);
+
+        guilds.forEach(async (g, i) => {
+            let
+                channel = ket.guilds.get(g.id).channels.get(g.globalchat),
+                webhook = ket.webhooks.get(message.channel.id);
+            if (await this.checkPermissions({ ket, channel, comando }, t) === false) return;
+            if (!webhook) {
+                webhook = await channel.getWebhooks();
+                webhook = webhook.filter(webhook => webhook.name === 'Ket Global Chat' && webhook.user.id === ket.user.id)[0];
+                if (!webhook) webhook = await channel.createWebhook({ name: 'Ket Global Chat' });
+                ket.webhooks.set(message.channel.id, webhook);
+            }
+            if (message.messageReference) msgObj.embed = {
                 color: '16717848',
                 author: { name: msg.author.username, icon_url: msg.author.dynamicAvatarURL('jpg') },
                 description: this.msgFilter(msg.content),
                 image: (msg.attachments[0] ? { url: msg.attachments[0].url } : null)
             }
-        }
-        return guilds.filter(guild => guild.globalchat && guild.globalchat != message.channel.id).forEach(async (g, i) => {
-            let
-                channel = ket.guilds.get(g.id).channels.get(g.globalchat),
-                webhook;
-            if (await this.checkPermissions({ ket, channel, comando }, t) === false) return;
-
-
-            webhook = await channel.getWebhooks();
-            webhook = webhook.filter(webhook => webhook.name === 'Ket Global Chat' && webhook.user.id === ket.user.id)[0];
-
-            if (!webhook) webhook = await channel.createWebhook({
-                name: 'Ket Global Chat',
-                options: { type: 1 }
-            });
             function send() {
-                if (msgObj.file.length != message.attachments?.length) return setTimeout(() => send(), 10);
-                else ket.executeWebhook(webhook.id, webhook.token, msgObj);
+                if (i++ > 50) return global.client.log('error', 'Global Chat', 'Lentidão para gerar imagens, mais de 50 functions chamadas não retornaram', '')
+                if (msgObj.file.length != message.attachments?.length) return setTimeout(() => send(), 50);
+                else ket.executeWebhook(webhook.id, webhook.token, msgObj).then(msg => msgs.push(`${msg.id}|${msg.guildID}`)).catch((e) => console.error(e));
             }
             return send();
-        });
+        })
+        let i = 0
+        function save() {
+            if (i++ > 50) return global.client.log('error', 'Global Chat', `o cache de mensagens de webhooks está inconsistente, desativando save do banco de dados com ${guilds.length - msgs.length} não salvas.`, '')
+            if (msgs.length !== guilds.length) return setTimeout(() => save(), 300);
+            else db.globalchat.create({
+                id: message.id,
+                author: message.author.id,
+                editCount: 0,
+                messages: `{${msgs.join(',')}}`
+            })
+        }
+        return save();
     }
 
-    msgFilter(content) {
-        if (!content) content = '_ _'
+    msgFilter(content: string) {
+        if (!content) return '_ _'
+        const regex = /(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li|club)|discordapp\.com\/invite|discord\.com\/invite)\/.+[a-z]/gi
+        if (regex.exec(content)) {
+            return content
+                .replace('https:', '')
+                .replace(/((?:discord\.gg|discordapp\.com\/invite|discord\.com\/invite))/g, '`convite bloqueado`')
+                .replace(/(\/)/g, '');
+        }
+        if (content.includes('http')) {
+            let arrayContent = content.trim().split(/ /g)
+            arrayContent.forEach(text => {
+                if (text.includes('http')) return content = content.replace(new RegExp(text, 'g'), '`link bloqueado`')
+            })
+        }
+
         return content
     }
 

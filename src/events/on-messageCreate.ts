@@ -12,7 +12,7 @@ module.exports = class MessageCreateEvent {
     constructor(ket: Eris.Client) {
         this.ket = ket;
     }
-    async start(message: any /*Eris.Message*/) {
+    async start(message: any) {
         if (message.author?.bot && !process.env.TRUSTED_BOTS.includes(message.author?.id) || !message.content) return;
         if (message.channel.type === 1) {
             delete require.cache[require.resolve("../packages/events/_on-messageDMCreate")];
@@ -32,7 +32,6 @@ module.exports = class MessageCreateEvent {
             comando = ket.commands.get(command) || ket.commands.get(ket.aliases.get(command));
         if (!comando) return;
         if ([10, 11, 12].includes(message.channel.type) && !comando.config.access.Threads) return;
-
         await KetUtils.checkCache({ ket, message });
         user = await KetUtils.checkUserGuildData({ message });
         let t = global.client.t = i18next.getFixedT(user.lang);

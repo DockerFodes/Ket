@@ -29,6 +29,12 @@ module.exports = class PostgresInteraction {
                 find: this.findServer,
                 getAll: this.getAllServers
             },
+            globalchat: {
+                create: this.createMessage,
+                update: this.updateMessage,
+                find: this.findMessage,
+                getAll: this.getAllMessages
+            },
             commands: {
                 create: this.createCommand,
                 update: this.updateCommand,
@@ -83,13 +89,26 @@ module.exports = class PostgresInteraction {
                 maintenance BOOLEAN NULL,
                 reason TEXT DEFAULT NULL
               );`);
+        }; try {
+            await global.client.postgres.query(`SELECT * FROM globalchat`);
+        } catch (e) {
+            console.log(c.green(`Criando tabela de dados para globalchat`))
+            await global.client.postgres.query(`CREATE TABLE public.globalchat (
+                id VARCHAR(20) NOT NULL PRIMARY KEY,
+                editCount NUMERIC DEFAULT 0,
+                messages VARCHAR(40)[] NULL,
+                author VARCHAR(20) NOT NULL
+              );`);
         }
         return;
     };
     async end() {
         return global.client.postgres.end();
     };
-    /* Users Functions */
+
+
+
+    /* User Functions */
     async createUser(data: any, returnValue: boolean = false) {
         let values = [];
         for (let i in Object.entries(data)) {
@@ -122,7 +141,9 @@ module.exports = class PostgresInteraction {
         return search.rows;
     };
 
-    /* Servers Functions */
+
+
+    /* Server Functions */
     async createServer(data: any, returnValue = false) {
         let values = [];
         for (let i in Object.entries(data)) {
@@ -155,7 +176,44 @@ module.exports = class PostgresInteraction {
         return search.rows;
     };
 
-    /* Commands Functions */
+
+
+    /* Global Chat Functions */
+    async createMessage(data: any, returnValue: boolean = false) {
+        let values = [];
+        for (let i in Object.entries(data)) {
+            let str = String(eval('data.' + Object.keys(data)[i])).replace(new RegExp(`'`, 'g'), `''`);
+            typeof str === 'string' ? values.push(`'${str}'`) : values.push(str);
+        };
+        await global.client.postgres.query(`INSERT INTO globalchat (${Object.keys(data).join(', ')}) VALUES(${values.join(', ')})`);
+        if (returnValue) return await global.client.db.globalchat.find(data.id);
+        return;
+    };
+    async updateMessage(index: string, data: object, returnValue = false) {
+        let str = [];
+        for (let [key, value] of Object.entries(data)) typeof value === 'string' ? str.push(`${key} = '${value.replace(new RegExp(`'`, 'g'), `''`)}'`) : str.push(`${key} = ${value}`);
+        await global.client.postgres.query(`UPDATE globalchat SET
+            ${str.join(`,\n`)}
+            WHERE id = '${index}';
+        `);
+        if (returnValue) return await global.client.db.globalchat.find(index);
+        return;
+    };
+    async findMessage(id: string, key = 'id', createIfNull = false) {
+        let search = await global.client.postgres.query(`SELECT * FROM globalchat WHERE ${key} = '${id}';`);
+        if (!search.rows[0] && id !== null && createIfNull) {
+            await global.client.db.globalchat.create({ id: id });
+            return await global.client.db.globalchat.find(id);
+        } else return search.rows[0];
+    };
+    async getAllMessages() {
+        let search = await global.client.postgres.query(`SELECT * FROM globalchat;`);
+        return search.rows;
+    };
+
+
+
+    /* Command Functions */
     async createCommand(data: any, returnValue: boolean = null) {
         let values = [];
         for (let i in Object.entries(data)) {

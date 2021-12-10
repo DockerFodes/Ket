@@ -1,5 +1,5 @@
 import Eris from "eris"
-const { EmbedBuilder } = require("../../components/CommandStructure");
+const { EmbedBuilder } = require("../../components/Commands/CommandStructure");
 module.exports = class MessageDMCreate {
     ket: Eris.Client;
     constructor(ket: Eris.Client) {

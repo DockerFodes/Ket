@@ -12,7 +12,7 @@ const
     path = require('path'),
     prompts = require('prompts'),
     util = require("util"),
-    { CommandStructure, EmbedBuilder, Decoration } = require("../../components/CommandStructure"),
+    { CommandStructure, EmbedBuilder, Decoration } = require("../../components/Commands/CommandStructure"),
     Deco = new Decoration(),
     emoji = Deco.getEmoji,
     getColor = Deco.getColor;

@@ -20,7 +20,7 @@ module.exports = class LocaleStructure {
                 },
                 returnEmptyString: false
             });
-            return global.client.log('shard', 'LOCALES MANAGER', 'Locales carregados com sucesso.');
+            return global.client.log('shard', 'LOCALES MANAGER', 'Locales carregados');
         } catch (err) {
             return global.client.log('error', 'LOCALES MANAGER', "Houve um erro ao carregar os locales", err);
         }
