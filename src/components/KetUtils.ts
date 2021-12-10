@@ -110,8 +110,8 @@ module.exports = class Utils {
     }
 
     msgFilter(content: string) {
-        if (!content) return '_ _'
-        const regex = /(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li|club)|discordapp\.com\/invite|discord\.com\/invite)\/.+[a-z]/gi
+        if (!content) return '_ _';
+        const regex = /(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li|club)|discordapp\.com\/invite|discord\.com\/invite)\/.+[a-z]/gi;
         if (regex.exec(content)) {
             return content
                 .replace('https:', '')
@@ -119,13 +119,13 @@ module.exports = class Utils {
                 .replace(/(\/)/g, '');
         }
         if (content.includes('http')) {
-            let arrayContent = content.trim().split(/ /g)
+            let arrayContent = content.trim().split(/ /g);
             arrayContent.forEach(text => {
-                if (text.includes('http')) return content = content.replace(new RegExp(text, 'g'), '`link bloqueado`')
+                if(text.startsWith('https://media.discordapp.net/attachments/') || text.startsWith('https://cdn.discordapp.com/attachments/')) return;
+                if (text.includes('http')) return content = content.replace(new RegExp(text, 'g'), '`link bloqueado`');
             })
         }
-
-        return content
+        return content;
     }
 
     async checkPermissions({ ket, message = null, channel = null, interaction = null, comando, notReply = null }, t) {
