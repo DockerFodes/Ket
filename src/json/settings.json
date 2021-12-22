@@ -4,13 +4,13 @@
     "SUPPORT_SERVER": "https://discord.gg/zzrctuz9Sa",
     "BOT_INVITE": "https://discord.com/oauth2/authorize?client_id=777938917117919255&scope=bot+applications.commands&permissions=872423560",
     "channels": {
-        "database": "827392570681589790", // canal para enviar backups do banco de dados
-        "erros": "916745097712922685", // canal para enviar reports de erros
-        "commandLogs": "916745050162098186", // canal para enviar logs de comandos
-        "suggestions": "835893819765030922", // canal para enviar sugestões
+        "database": "827392570681589790",
+        "erros": "916745097712922685",
+        "commandLogs": "916745050162098186",
+        "suggestions": "835893819765030922",
         "startupMessage": {
             "id": "",
-            "channel": "802053941809381386" // canal para enviar embed de informações quando o bot ficar online
+            "channel": "802053941809381386"
         }
     },
     "globalchat": {
@@ -26,8 +26,8 @@
         "compress": true,
         "defaultImageFormat": "jpg",
         "defaultImageSize": 2048,
-        "getAllUsers": false,
-        "maxShards": 1, // recomendo usar 2 ou mais, mesmo em um bot pequeno
+        "getAllUsers": true,
+        "maxShards": 2,
         "allowedMentions": {
             "everyone": false,
             "roles": false,
@@ -39,27 +39,18 @@
             "ratelimiterOffset": 0
         },
         "restMode": true,
+        "messageLimit": 16,
         "cacheLimit": {
             "users": 100,
-            "messages": 16,
-            "channels": "500"
+            "channels": 500
         },
         "intents": [
             "guilds",
             "guildMembers",
-            //"guildBans",
-            //"guildEmojisAndStickers",
-            //"guildIntegrations",
-            //"guildWebhooks",
-            //"guildInvites",
-            //"guildVoiceStates",
+            "guildWebhooks",
             "guildMessages",
-            //"guildPresences",
-            //"guildMessageReactions",
-            //"guildMessageTyping",
-            "directMessages"//,
-            //"directMessageReactions",
-            //"directMessageTyping"
+            "guildPresences",
+            "directMessages"
         ]
     }    
 }

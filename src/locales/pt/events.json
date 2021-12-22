@@ -1,8 +1,9 @@
 {
+    "no-threads": "Ops, esse comando não pode ser executado em threads, tente em um chat normal :)",
     "defaultFooter": "batata",
     "error": {
         "title": "Pane no sistema",
-        "desc": "Alguma coisa está impedindo que este comando funcione, a minha equipe foi alertada sobre o erro, sinto muito pela incoveniência.\n```js{{error}}```"
+        "desc": "Alguma coisa está impedindo que este comando funcione, a minha equipe foi alertada sobre o erro, sinto muito pela incoveniência.\n```js\n{{error}}```"
     },
     "globalchat": {
         "editLimitDesc": "Você não pode editar a mesma mensagem mais de 3 vezes no chat global, editar mensagens demais é perigoso pra mim :("
