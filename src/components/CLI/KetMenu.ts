@@ -113,12 +113,12 @@ export class KetMenu {
             console.clear();
             console.log(gradient(colors[Math.floor(Math.random() * colors.length)])('Aguarde um momento, os arquivos estão sendo compilados.'));
         }, 100);
-        return cld.exec('tsc', () => {
+        // return cld.exec('tsc', () => {
             clearInterval(interval);
             console.clear();
             require('../core/ProtoTypes').start();
             return require(`${global.client.dir}/index`)(DISCORD_TOKEN);
-        })
+        // })
     }
 }
 export class TerminalClient {
