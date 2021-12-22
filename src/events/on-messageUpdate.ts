@@ -1,4 +1,4 @@
-import Eris from "eris"
+import Eris, { GuildChannel } from "eris"
 const KetUtils = new (require('../components/KetUtils'))(),
     config = require('../json/settings.json'),
     db = global.client.db,
@@ -12,15 +12,25 @@ module.exports = class MessageUpdateEvent {
         this.ket = ket;
     }
     async start(newMessage: any, oldMessage: Eris.Message) {
-        if (newMessage.author?.bot) return;
-        if (String(oldMessage?.content).trim() !== String(newMessage?.content).trim()) {
+        if (String(oldMessage?.content).trim() !== String(newMessage?.content).trim() && !newMessage.author?.bot) {
             const guild = await db.servers.find(newMessage.guildID)
-            if (newMessage.channel.id === guild.globalchat) {
-                let user = await db.users.find(newMessage.author.id),
-                    msgData = await db.globalchat.find(newMessage.id),
-                    t = i18next.getFixedT(user.lang);
-                if (user.banned || !msgData) return;
-                if (Number(msgData.editcount) >= config.globalchat.editLimit) return newMessage.reply({
+
+            if (newMessage.channel.id !== guild.globalchat) return this.ket.emit("messageCreate", newMessage);
+
+            const user = await db.users.find(newMessage.author.id),
+                msgData = await db.globalchat.find(newMessage.id),
+                t = i18next.getFixedT(user.lang);
+
+            if (user.banned || !msgData) return;
+
+            if (Date.now() > newMessage.timestamp + (15 * 1000 * 60) || Number(msgData.editcount) >= config.globalchat.editLimit) {
+                if (Number(msgData.editcount) >= config.globalchat.editLimit + 1) return;
+
+                global.client.postgres.query(`UPDATE globalchat SET
+                editcount = editcount + 1
+                WHERE id = '${msgData.id}';`);
+
+                return newMessage.reply({
                     embed: {
                         thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/918721199029231716/error.gif' },
                         color: Deco.getColor('red'),
@@ -28,30 +38,29 @@ module.exports = class MessageUpdateEvent {
                         description: t('events:globalchat.editLimitDesc')
                     }
                 }, 'negado')
-
-                msgData.messages.forEach(async data => {
-                    let msgID = data.split('|')[0],
-                        guildData = await db.servers.find(data.split('|')[1]),
-                        channel: any = this.ket.guilds.get(guildData.id).channels.get(guildData.globalchat),
-                        webhook = this.ket.webhooks.get(newMessage.channel.id);
-                    if (!webhook) {
-                        webhook = await channel.getWebhooks();
-                        webhook = webhook.filter(w => w.name === 'Ket Global Chat' && w.user.id === this.ket.user.id)[0];
-                        if (!webhook) return;
+            }
+            msgData.messages.forEach(async data => {
+                let msgID = data.split('|')[0],
+                    guildData = await db.servers.find(data.split('|')[1]),
+                    channel: any = this.ket.guilds.get(guildData.id).channels.get(guildData.globalchat),
+                    webhook = this.ket.webhooks.get(channel.id);
+                if (!webhook) {
+                    webhook = await channel.getWebhooks();
+                    webhook = webhook.filter(w => w.name === 'Ket Global Chat' && w.user.id === this.ket.user.id)[0];
+                    if (!webhook) return;
+                }
+                this.ket.editWebhookMessage(webhook.id, webhook.token, msgID, {
+                    content: KetUtils.msgFilter(newMessage.cleanContent),
+                    allowedMentions: {
+                        everyone: false,
+                        roles: false,
+                        users: false
                     }
-                    this.ket.editWebhookMessage(webhook.id, webhook.token, msgID, {
-                        content: KetUtils.msgFilter(newMessage.content),
-                        allowedMentions: {
-                            everyone: false,
-                            roles: false,
-                            users: false
-                        }
-                    })
-                })
-                global.client.postgres.query(`UPDATE globalchat SET
-                    editcount = editcount + 1
-                    WHERE id = '${msgData.id}';`)
-            } else return this.ket.emit("messageCreate", newMessage);
+                }).catch(() => { })
+            })
+            global.client.postgres.query(`UPDATE globalchat SET
+            editcount = editcount + 1
+            WHERE id = '${msgData.id}';`)
         }
     }
 }
