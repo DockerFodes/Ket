@@ -14,6 +14,7 @@
         }
     },
     "globalchat": {
+        "monitoringGuild": "761424522259202108", // um servidor privado, para a equipe moderar o chat global
         "editLimit": 3,
         "allowedLinks": [
             "https://media.discordapp.net/attachments/",
