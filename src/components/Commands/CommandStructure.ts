@@ -91,15 +91,15 @@ module.exports.EmbedBuilder = class EmbedBuilder {
         return this;
     }
     setDescription(description, code = null) {
-        if (code) this.description = `\`\`\`${code}\n${description.toString().substring(0, 3072)}\n\`\`\``;
-        else this.description = description.toString().substring(0, 3072);
+        this.description = description.toString().substring(0, 3072)
+        if (code) this.description = `\`\`\`${code}\n${this.description}\n\`\`\``;
         return this;
     }
     addField(name, value, inline = false, code = null) {
         if (!name || this.fields.length >= 25) return this;
         if (!value) return false;
-        if (code) value = `\`\`\`${code}\n${value.toString().substring(0, 1024)}\n\`\`\``;
-        else value = value.toString().substring(0, 1024);
+        value = value.toString().substring(0, 1024);
+        if (code) value = `\`\`\`${code}\n${value}\`\`\``;
         this.fields.push({ name: name.toString().substring(0, 256), value: value, inline });
         return this;
     }

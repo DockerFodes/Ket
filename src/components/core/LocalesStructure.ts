@@ -2,7 +2,7 @@ export { };
 const
     { readdirSync } = require('fs'),
     i18next = require('i18next'),
-    i18nbackend = require('i18next-node-fs-backend');
+    i18nbackend = require('i18next-fs-backend');
 
 module.exports = class LocaleStructure {
     constructor() {}

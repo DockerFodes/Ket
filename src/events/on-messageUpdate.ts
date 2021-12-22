@@ -12,7 +12,7 @@ module.exports = class MessageUpdateEvent {
         this.ket = ket;
     }
     async start(newMessage: any, oldMessage: Eris.Message) {
-        if (newMessage.author.bot) return;
+        if (newMessage.author?.bot) return;
         if (String(oldMessage?.content).trim() !== String(newMessage?.content).trim()) {
             const guild = await db.servers.find(newMessage.guildID)
             if (newMessage.channel.id === guild.globalchat) {
