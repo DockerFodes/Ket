@@ -6,6 +6,6 @@
         "desc": "Alguma coisa está impedindo que este comando funcione, a minha equipe foi alertada sobre o erro, sinto muito pela incoveniência.\n```js\n{{error}}```"
     },
     "globalchat": {
-        "editLimitDesc": "Você não pode editar a mesma mensagem mais de 3 vezes no chat global, editar mensagens demais é perigoso pra mim :("
+        "editLimitDesc": "Você não pode editar uma mensagem se ela já foi editada 3 vezes ou foi enviada a mais de 15 minutos, editar mensagens demais é perigoso pra mim :("
     }
 }
