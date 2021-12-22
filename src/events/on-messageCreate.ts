@@ -26,35 +26,28 @@ module.exports = class MessageCreateEvent {
         if (server.banned) return message.channel.guild.leave();
         if (server.globalchat && message.channel.id === server.globalchat) KetUtils.sendGlobalChat(this.ket, message);
 
-        const regexp = new RegExp(`^(${!user || !user.prefix ? this.ket.config.DEFAULT_PREFIX : user.prefix}|<@!?${this.ket.user.id}>)( )*`, 'gi');
+        const regexp = new RegExp(`^(${((!user || !user.prefix) ? this.ket.config.DEFAULT_PREFIX : user.prefix).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}|<@!?${this.ket.user.id}>)( )*`, 'gi')
         if (!message.content.match(regexp)) return;
         const ket = this.ket,
-            args: string[] = message.content.replace(regexp, '').trim().split(/ /g);
-        let command: string | null = args.shift().toLowerCase(),
-            comando = ket.commands.get(command) || ket.commands.get(ket.aliases.get(command));
-
-        if (!comando) {
-            let totalCommands: string[] = [];
-            ket.commands.forEach((command: any) => totalCommands.push(command.config.name))
-            command = KetUtils.findResult(command, totalCommands)
-            comando = ket.commands.get(command)
-            if (!comando) return;
-        }
+            args: string[] = message.content.replace(regexp, '').trim().split(/ /g),
+            commandName: string | null = args.shift().toLowerCase(),
+            comando = ket.commands.get(commandName) || ket.commands.get(ket.aliases.get(commandName));
+        let t = global.client.t = i18next.getFixedT(user.lang || 'pt');
+        if (!comando) if (await KetUtils.commandNotFound({ ket, message, comando, commandName }, t) !== true) return;
 
         await KetUtils.checkCache({ ket, message });
         user = await KetUtils.checkUserGuildData({ message });
-        let t = global.client.t = i18next.getFixedT(user.lang);
+        t = global.client.t = i18next.getFixedT(user.lang);
         if (await KetUtils.checkPermissions({ ket, message, comando }, t) === false) return;
 
-        new Promise(async (res, rej) => {
+        return new Promise(async (res, rej) => {
             try {
                 comando.dontType ? null : await message.channel.sendTyping();
-                await comando.execute({ ket, message, args, comando, command, db }, t);
-                KetUtils.sendCommandLog({ ket, message, args, command })
+                await comando.execute({ ket, message, args, comando, commandName, db }, t);
+                KetUtils.sendCommandLog({ ket, message, args, commandName })
             } catch (error) {
-                return KetUtils.CommandError({ ket, message, args, comando, error })
+                return KetUtils.CommandError({ ket, message, args, comando, error }, t)
             }
         })
-        return
     }
 }

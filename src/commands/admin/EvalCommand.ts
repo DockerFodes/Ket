@@ -38,14 +38,14 @@ module.exports = class EvalCommand extends CommandStructure {
             slashData: null
         })
     }
-    async execute({ message, args, command }, t) {
+    async execute({ message, args, commandName }, t) {
         const
             ket = this.ket,
             db = global.client.db;
 
         let
             evaled = args.join(" ").replace('```js', '').replace('```', ''),
-            canReturn = (command === 'eval' ? true : false),
+            canReturn = (commandName === 'eval' ? true : false),
             embed: typeof EmbedBuilder;
 
         try {
