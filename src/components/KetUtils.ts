@@ -1,5 +1,5 @@
 export { };
-import Eris, { GuildChannel } from "eris";
+import Eris from "eris";
 const
     { inspect } = require('util'),
     i18next = require('i18next'),
@@ -37,7 +37,7 @@ module.exports = class Utils {
         return await db.users.find(userCache.id, true);
     }
 
-    async sendGlobalChat(ket, target: Eris.Message) {
+    async sendGlobalChat(ket, target: /*Eris.Message*/ any) {
         let comando = {
             config: {
                 permissions: { bot: ['manageChannels', 'manageWebhooks', 'manageMessages'] },
@@ -56,7 +56,7 @@ module.exports = class Utils {
             msgObj = {
                 username: target.author.username,
                 avatarURL: target.author.dynamicAvatarURL('jpg', 256),
-                content: this.msgFilter(target.cleanContent),
+                content: this.msgFilter(target.filtredContent),
                 embeds: null,
                 file: [],
                 stickerIDs: null,
@@ -67,7 +67,7 @@ module.exports = class Utils {
                     users: false
                 }
             },
-            msg: Eris.Message,
+            msg,
             msgs = [];
 
         if (target.attachments[0]) {
@@ -88,7 +88,7 @@ module.exports = class Utils {
             msgObj.embeds = [{
                 color: getColor('green'),
                 author: { name: msg.author.username, icon_url: msg.author.dynamicAvatarURL('jpg') },
-                description: this.msgFilter(msg.cleanContent, 128),
+                description: this.msgFilter(msg.filtredContent, 128),
                 image: (msg.attachments[0] ? { url: msg.attachments[0].url } : null)
             }]
         }
@@ -159,7 +159,7 @@ module.exports = class Utils {
             canal: Eris.GuildChannel = !channel ? target.channel : channel,
             guild: Eris.Guild = canal.guild,
             me: Eris.Member = guild.members.get(ket.user.id),
-            user: Eris.User = (target instanceof Eris.Message ? target.author : target.member.user.id),
+            user: Eris.User = target ? (target instanceof Eris.Message ? target.author : target.member.user.id) : null,
             missingPermissions: string[] = [],
             translatedPerms: string;
 

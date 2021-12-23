@@ -31,9 +31,12 @@ module.exports = class MessageCreateEvent {
             comando = ket.commands.get(commandName) || ket.commands.get(ket.aliases.get(commandName));
         let t = global.client.t = i18next.getFixedT(user.lang || 'pt');
         if (!comando) if (await KetUtils.commandNotFound({ ket, message, comando, commandName }, t) !== true) return;
+        if (comando.config.access.onlyDevs && !process.env.BOT_OWNERS.includes(message.author.id)) {
+            
+        }
 
-        await KetUtils.checkCache({ ket, message });
-        user = await KetUtils.checkUserGuildData( message );
+            await KetUtils.checkCache({ ket, target: message });
+        user = await KetUtils.checkUserGuildData(message);
         t = global.client.t = i18next.getFixedT(user.lang);
         if (await KetUtils.checkPermissions({ ket, target: message, comando }, t) === false) return;
 

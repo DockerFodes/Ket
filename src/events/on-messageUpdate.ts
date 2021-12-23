@@ -30,14 +30,16 @@ module.exports = class MessageUpdateEvent {
                 editcount = editcount + 1
                 WHERE id = '${msgData.id}';`);
 
-                return newMessage.reply({
-                    embed: {
-                        thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/918721199029231716/error.gif' },
-                        color: getColor('red'),
-                        title: `${getEmoji('sireneRed').mention} ${t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
-                        description: t('events:globalchat.editLimitDesc')
+                return this.ket.say({
+                    target: newMessage, emoji: 'negado', content: {
+                        embeds: {
+                            thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/918721199029231716/error.gif' },
+                            color: getColor('red'),
+                            title: `${getEmoji('sireneRed').mention} ${t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
+                            description: t('events:globalchat.editLimitDesc')
+                        }
                     }
-                }, 'negado')
+                })
             }
             msgData.messages.forEach(async data => {
                 let msgID = data.split('|')[0],
@@ -50,7 +52,7 @@ module.exports = class MessageUpdateEvent {
                     if (!webhook) return;
                 }
                 this.ket.editWebhookMessage(webhook.id, webhook.token, msgID, {
-                    content: KetUtils.msgFilter(newMessage.cleanContent),
+                    content: KetUtils.msgFilter(newMessage.filtredContent),
                     allowedMentions: {
                         everyone: false,
                         roles: false,

@@ -42,6 +42,7 @@ module.exports = class EvalCommand extends CommandStructure {
             db = global.client.db;
 
         let
+            message = (target instanceof Eris.Message ? target : target.message),
             evaled = args.join(" ").replace('```js', '').replace('```', ''),
             canReturn = (commandName === 'eval' ? true : false),
             embed: typeof EmbedBuilder;

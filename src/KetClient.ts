@@ -42,8 +42,7 @@ module.exports = class KetClient extends Client {
     }
 
     loadLocales() {
-        const Locales = new (require('./components/core/LocalesStructure'))();
-        Locales.inicialize();
+        require('./components/core/LocalesStructure')()
         return this;
     }
 
@@ -54,7 +53,7 @@ module.exports = class KetClient extends Client {
                     readdir(`${__dirname}/commands/${category}/`, (_e: any, files: string[]) => {
                         files.forEach(async (command: string) => {
                             const comando = new (require(`${__dirname}/commands/${category}/${command}`))(this);
-                            comando.dir = `${__dirname}/commands/${category}/${command}`;
+                            comando.config.dir = `${__dirname}/commands/${category}/${command}`;
                             this.commands.set(comando.config.name, comando);
                             return comando.config.aliases.forEach((aliase: any) => this.aliases.set(aliase, comando.config.name));
                         })
@@ -111,10 +110,10 @@ module.exports = class KetClient extends Client {
         if (!comando) return 'Comando não encontrado';
         comando.config.aliases.forEach((aliase: any) => this.aliases.delete(aliase));
         this.commands.delete(comando.config.name);
-        delete require.cache[require.resolve(comando.dir)];
+        delete require.cache[require.resolve(comando.config.dir)];
         try {
-            const command = new (require(comando.dir))(this);
-            command.dir = comando.dir;
+            const command = new (require(comando.config.dir))(this);
+            command.config.dir = comando.config.dir;
             this.commands.set(command.config.name, command);
             command.config.aliases.forEach((aliase: any) => this.aliases.set(aliase, command.config.name));
             return true;

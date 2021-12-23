@@ -2,7 +2,7 @@ export { };
 import Eris from "eris";
 const
     { exec } = require('child_process'),
-    util = require('util'),
+    { inspect } = require('util'),
     { CommandStructure, EmbedBuilder } = require('../../components/Commands/CommandStructure');
 
 module.exports = class CldCommand extends CommandStructure {
@@ -26,7 +26,7 @@ module.exports = class CldCommand extends CommandStructure {
             slashData: null
         })
     }
-    async execute({ message, args }) {
+    async execute({ target, args }) {
         let embed: typeof EmbedBuilder;
 
         try {
@@ -35,17 +35,14 @@ module.exports = class CldCommand extends CommandStructure {
                     .setTitle('Só sucexo bb')
                     .setColor('green')
                     .setDescription(b, 'bash');
-                message.reply({ embed: embed.build() })
+                this.ket.say({ target, content: { embeds: [embed.build()] } })
             })
         } catch (e) {
             embed = new EmbedBuilder()
                 .setTitle('Ih deu merda viado')
                 .setColor('red')
-                .setDescription(util.inspect(e), 'bash');
-            message.reply({ embed: embed.build() })
+                .setDescription(inspect(e), 'bash');
+            this.ket.say({ target, content: { embeds: [embed.build()] } })
         }
-    }
-    async slash({ interaction, args }) {
-
     }
 }
