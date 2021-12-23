@@ -7,7 +7,7 @@ const
     DidYouMean = require('didyoumean'),
     db = global.client.db,
     { Decoration, EmbedBuilder } = require('./Commands/CommandStructure'),
-    Deco = new Decoration();
+    { getEmoji, getColor } = Decoration;
 
 module.exports = class Utils {
     ket: any;
@@ -86,7 +86,7 @@ module.exports = class Utils {
             else msg = await ket.getMessage(message.messageReference.channelID, message.messageReference.messageID);
             if (!msg) return;
             msgObj.embeds = [{
-                color: Deco.getColor('green'),
+                color: getColor('green'),
                 author: { name: msg.author.username, icon_url: msg.author.dynamicAvatarURL('jpg') },
                 description: this.msgFilter(msg.cleanContent, 128),
                 image: (msg.attachments[0] ? { url: msg.attachments[0].url } : null)
@@ -167,8 +167,8 @@ module.exports = class Utils {
         if ([10, 11, 12].includes(canal.type) && !comando.config.access.Threads) {
             message.reply({
                 embed: {
-                    color: Deco.getColor('red'),
-                    title: `${Deco.getEmoji('sireneRed').mention} ${t('events:no-threads')}`
+                    color: getColor('red'),
+                    title: `${getEmoji('sireneRed').mention} ${t('events:no-threads')}`
                 }
             }, 'negado')
             return false
@@ -213,16 +213,16 @@ module.exports = class Utils {
 
         message.reply({
             embed: {
-                color: Deco.getColor('red'),
+                color: getColor('red'),
                 thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/918721199029231716/error.gif' },
-                title: `${Deco.getEmoji('sireneRed').mention} ${t('events:error.title')} ${Deco.getEmoji('sireneBlue').mention}`,
+                title: `${getEmoji('sireneRed').mention} ${t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
                 description: t('events:error.desc', { error: error })
             }
         }, 'negado')
 
         ket.createMessage(ket.config.channels.erros, {
             embed: {
-                color: Deco.getColor('red'),
+                color: getColor('red'),
                 title: `Erro no ${comando.config.name}`,
                 description: `Author: \`${user?.tag}\` (ID: ${user.id})\nGuild: \`${guild?.name}\` (ID: ${guild?.id})\nChannel: \`${channel?.name}\` (ID: ${channel.id}, Tipo: ${channel?.type}, NSFW: ${channel?.nsfw})\nEu: Nick: \`${me?.nick}\`, Permissions: ${me?.permissions}`,
                 fields: [

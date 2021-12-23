@@ -4,7 +4,7 @@ const KetUtils = new (require('../components/KetUtils'))(),
     db = global.client.db,
     i18next = require('i18next'),
     { Decoration } = require('../components/Commands/CommandStructure'),
-    Deco = new Decoration;
+    { getEmoji, getColor } = Decoration;
 
 module.exports = class MessageUpdateEvent {
     ket: any;
@@ -33,8 +33,8 @@ module.exports = class MessageUpdateEvent {
                 return newMessage.reply({
                     embed: {
                         thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/918721199029231716/error.gif' },
-                        color: Deco.getColor('red'),
-                        title: `${Deco.getEmoji('sireneRed').mention} ${t('events:error.title')} ${Deco.getEmoji('sireneBlue').mention}`,
+                        color: getColor('red'),
+                        title: `${getEmoji('sireneRed').mention} ${t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
                         description: t('events:globalchat.editLimitDesc')
                     }
                 }, 'negado')

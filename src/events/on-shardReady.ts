@@ -3,7 +3,7 @@ import Eris from "eris"
 const
     { Decoration } = require('../components/Commands/CommandStructure'),
     moment = require('moment'),
-    emoji = (new Decoration()).getEmoji;
+    emoji = Decoration.getEmoji;
 
 module.exports = class ShardReadyEvent {
     ket: any;

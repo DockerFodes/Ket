@@ -4,9 +4,7 @@ delete require.cache[require.resolve('../components/KetUtils')];
 const
     db = global.client.db,
     KetUtils = new (require('../components/KetUtils'))(),
-    i18next = require("i18next"),
-    { Decoration } = require('../components/Commands/CommandStructure'),
-    Deco = new Decoration;
+    i18next = require("i18next");
 
 
 module.exports = class MessageCreateEvent {
