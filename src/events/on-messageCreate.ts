@@ -33,9 +33,9 @@ module.exports = class MessageCreateEvent {
         if (!comando) if (await KetUtils.commandNotFound({ ket, message, comando, commandName }, t) !== true) return;
 
         await KetUtils.checkCache({ ket, message });
-        user = await KetUtils.checkUserGuildData({ message });
+        user = await KetUtils.checkUserGuildData( message );
         t = global.client.t = i18next.getFixedT(user.lang);
-        if (await KetUtils.checkPermissions({ ket, message, comando }, t) === false) return;
+        if (await KetUtils.checkPermissions({ ket, target: message, comando }, t) === false) return;
 
         return new Promise(async (res, rej) => {
             try {

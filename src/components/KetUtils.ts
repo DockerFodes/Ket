@@ -1,5 +1,5 @@
 export { };
-import Eris from "eris";
+import Eris, { GuildChannel } from "eris";
 const
     { inspect } = require('util'),
     i18next = require('i18next'),
@@ -15,10 +15,10 @@ module.exports = class Utils {
         this.ket = ket;
     }
 
-    async checkCache({ ket, message = null, interaction = null }) {
+    async checkCache({ ket, target }) {
         let
-            user = (interaction ? interaction.member.user : message.author),
-            channel = (interaction ? interaction.channel : message.channel),
+            user = (target instanceof Eris.Message ? target.author : target.member.user),
+            channel = target.channel,
             guild = channel.guild;
 
         if (!ket.users.has(user.id)) user = await ket.getRESTUser(user.id);
@@ -28,35 +28,35 @@ module.exports = class Utils {
         return;
     }
 
-    async checkUserGuildData({ message = null, interaction = null }) {
-        let
-            userCache = (interaction ? interaction.member.user : message.author),
-            guildCache = (interaction ? interaction.channel.guild : message.channel.guild);
+    async checkUserGuildData(target: any) {
 
-        await db.servers.find(guildCache.id, true)
+        let
+            userCache = (target instanceof Eris.Message ? target.author : target.member.user);
+
+        await db.servers.find(target.guildID, true)
         return await db.users.find(userCache.id, true);
     }
 
-    async sendGlobalChat(ket, message: Eris.Message) {
+    async sendGlobalChat(ket, target: Eris.Message) {
         let comando = {
             config: {
                 permissions: { bot: ['manageChannels', 'manageWebhooks', 'manageMessages'] },
                 access: { Threads: true }
             }
         },
-            user = await this.checkUserGuildData({ message }),
+            user = await this.checkUserGuildData(target),
             t = i18next.getFixedT(user.lang);
 
-        await this.checkCache({ ket, message });
-        if (await this.checkPermissions({ ket, message, comando }, t) === false) return;
+        await this.checkCache({ ket, target });
+        if (await this.checkPermissions({ ket, target, comando }, t) === false) return;
 
         let
             guildsData = await db.servers.getAll(),
-            guilds = guildsData.filter(guild => guild.globalchat && guild.globalchat != message.channel.id),
+            guilds = guildsData.filter(guild => guild.globalchat && guild.globalchat != target.channel.id),
             msgObj = {
-                username: message.author.username,
-                avatarURL: message.author.dynamicAvatarURL('jpg', 256),
-                content: this.msgFilter(message.cleanContent),
+                username: target.author.username,
+                avatarURL: target.author.dynamicAvatarURL('jpg', 256),
+                content: this.msgFilter(target.cleanContent),
                 embeds: null,
                 file: [],
                 stickerIDs: null,
@@ -70,8 +70,8 @@ module.exports = class Utils {
             msg: Eris.Message,
             msgs = [];
 
-        if (message.attachments[0]) {
-            message.attachments.forEach(async (att: Eris.Attachment) => {
+        if (target.attachments[0]) {
+            target.attachments.forEach(async (att: Eris.Attachment) => {
                 let buffer = await axios({
                     url: att.url,
                     method: 'get',
@@ -80,10 +80,10 @@ module.exports = class Utils {
                 msgObj.file.push({ file: buffer.data, name: att.filename })
             });
         }
-        if (message.stickerItems) msgObj.content = `https://media.discordapp.net/stickers/${message.stickerItems[0].id}.png`
-        if (message.messageReference) {
-            if (message.channel.messages.has(message.messageReference.messageID)) msg = message.channel.messages.get(message.messageReference.messageID);
-            else msg = await ket.getMessage(message.messageReference.channelID, message.messageReference.messageID);
+        if (target.stickerItems) msgObj.content = `https://media.discordapp.net/stickers/${target.stickerItems[0].id}.png`
+        if (target.messageReference) {
+            if (target.channel.messages.has(target.messageReference.messageID)) msg = target.channel.messages.get(target.messageReference.messageID);
+            else msg = await ket.getMessage(target.messageReference.channelID, target.messageReference.messageID);
             if (!msg) return;
             msgObj.embeds = [{
                 color: getColor('green'),
@@ -105,7 +105,7 @@ module.exports = class Utils {
             }
             function send() {
                 if (i++ > 50) return global.client.log('error', 'Global Chat', 'Lentidão para gerar imagens, mais de 50 functions chamadas não retornaram', '')
-                if (msgObj.file.length != message.attachments?.length) return setTimeout(() => send(), 50);
+                if (msgObj.file.length != target.attachments?.length) return setTimeout(() => send(), 50);
                 else ket.executeWebhook(webhook.id, webhook.token, msgObj).then((msg: Eris.Message) => msgs.push(`${msg.id}|${msg.guildID}`)).catch(() => { });
             }
             return send();
@@ -115,8 +115,8 @@ module.exports = class Utils {
             if (i++ > 10) return global.client.log('error', 'Global Chat', `o cache de mensagens de webhooks está inconsistente, desativando save do banco de dados com ${guilds.length - msgs.length} não salvas.`, '')
             if (msgs.length !== guilds.length) return setTimeout(() => save(), 300);
             else db.globalchat.create({
-                id: message.id,
-                author: message.author.id,
+                id: target.id,
+                author: target.author.id,
                 editcount: 0,
                 messages: `{${msgs.join(',')}}`
             })
@@ -154,30 +154,32 @@ module.exports = class Utils {
         return content.substring(0, maxLength);
     }
 
-    async checkPermissions({ ket, message = null, channel = null, interaction = null, comando, notReply = null }, t) {
+    async checkPermissions({ ket, target = null, channel = null, comando, notReply = null }, t) {
         let
-            canal: Eris.GuildChannel = !channel ? (interaction ? interaction.channel : message.channel) : channel,
+            canal: Eris.GuildChannel = !channel ? target.channel : channel,
             guild: Eris.Guild = canal.guild,
             me: Eris.Member = guild.members.get(ket.user.id),
-            user: Eris.User = (interaction ? interaction.member?.user : message?.author),
+            user: Eris.User = (target instanceof Eris.Message ? target.author : target.member.user.id),
             missingPermissions: string[] = [],
             translatedPerms: string;
 
         if (!canal) return false;
         if ([10, 11, 12].includes(canal.type) && !comando.config.access.Threads) {
-            message.reply({
-                embed: {
-                    color: getColor('red'),
-                    title: `${getEmoji('sireneRed').mention} ${t('events:no-threads')}`
-                }
-            }, 'negado')
+            ket.say({
+                target, content: {
+                    embeds: {
+                        color: getColor('red'),
+                        title: `${getEmoji('sireneRed').mention} ${t('events:no-threads')}`
+                    }
+                }, emoji: 'negado'
+            })
             return false
         }
 
         comando.config.permissions.bot.forEach((perm) => !me.permissions.has(perm) ? missingPermissions.push(perm) : {});
         translatedPerms = missingPermissions.map(value => t(`permissions:${value}`)).join(', ');
         if (missingPermissions[0] && !notReply) {
-            (message ? canal : interaction).createMessage(t('permissions:missingPerms', { missingPerms: translatedPerms }))
+            ket.say({ target, content: t('permissions:missingPerms', { missingPerms: translatedPerms }), embed: false, emoji: 'negado' })
                 .catch(async () => {
                     let dmChannel = await user.getDMChannel();
                     dmChannel.createMessage(t('permissions:missingPerms', { missingPerms: translatedPerms }))

@@ -29,9 +29,9 @@ module.exports = class InteractionCreateEvent {
         let t = global.client.t = i18next.getFixedT(user.lang || 'pt');
 
         await KetUtils.checkCache({ ket, interaction });
-        user = await KetUtils.checkUserGuildData({ interaction });
+        user = await KetUtils.checkUserGuildData( interaction );
         t = global.client.t = i18next.getFixedT(user.lang);
-        if (await KetUtils.checkPermissions({ ket, interaction, comando }, t) === false) return;
+        if (await KetUtils.checkPermissions({ ket, target: interaction, comando }, t) === false) return;
 
         return new Promise(async (res, rej) => {
             try {
