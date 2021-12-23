@@ -6,7 +6,6 @@ const
     KetUtils = new (require('../components/KetUtils'))(),
     i18next = require("i18next");
 
-
 module.exports = class MessageCreateEvent {
     ket: any;
     constructor(ket: Eris.Client) {
@@ -40,8 +39,9 @@ module.exports = class MessageCreateEvent {
 
         return new Promise(async (res, rej) => {
             try {
+                let target = message
                 comando.dontType ? null : await message.channel.sendTyping();
-                await comando.execute({ ket, message, args, comando, commandName, db }, t);
+                await comando.execute({ ket, target, args, comando, commandName, db }, t);
                 KetUtils.sendCommandLog({ ket, message, args, commandName })
             } catch (error) {
                 return KetUtils.CommandError({ ket, message, args, comando, error }, t)

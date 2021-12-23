@@ -206,19 +206,22 @@ module.exports = class Utils {
 
     CommandError({ ket, message, args, interaction, comando, error }, t) {
         let
-            channel = (interaction ? interaction.channel : message.channel),
+            target = (interaction ? interaction : message),
+            channel = target.channel,
             guild = (channel.type === 1 ? null : channel.guild),
             me = guild.members.get(ket.user.id),
             user = (interaction ? interaction.member.user : message.author);
 
-        message.reply({
-            embed: {
-                color: getColor('red'),
-                thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/918721199029231716/error.gif' },
-                title: `${getEmoji('sireneRed').mention} ${t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
-                description: t('events:error.desc', { error: error })
-            }
-        }, 'negado')
+        ket.say({
+            target, content: {
+                embeds: {
+                    color: getColor('red'),
+                    thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/918721199029231716/error.gif' },
+                    title: `${getEmoji('sireneRed').mention} ${t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
+                    description: t('events:error.desc', { error: error })
+                }
+            }, emoji: 'negado', flags: 64
+        })
 
         ket.createMessage(ket.config.channels.erros, {
             embed: {

@@ -36,7 +36,7 @@ module.exports = class EvalCommand extends CommandStructure {
             slashData: null
         })
     }
-    async execute({ message, args, commandName }, t) {
+    async execute({ target, args, commandName }, t) {
         const
             ket = this.ket,
             db = global.client.db;
@@ -61,7 +61,7 @@ module.exports = class EvalCommand extends CommandStructure {
                 .setDescription(util.inspect(e), 'js');
             canReturn = true
         } finally {
-            if (canReturn) message.reply({ embed: embed })
+            if (canReturn) ket.say({ target, content: { embeds: [embed.build()] }})
         }
     }
 }

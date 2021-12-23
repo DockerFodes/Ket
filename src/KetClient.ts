@@ -5,7 +5,7 @@ const
     { Client, Collection } = require('eris'),
     { readdir } = require('fs'),
     { Decoration } = require('./components/Commands/CommandStructure'),
-    { getEmoji } = Decoration;
+    { getEmoji, getColor } = Decoration;
 
 module.exports = class KetClient extends Client {
     config: object;
@@ -146,34 +146,54 @@ module.exports = class KetClient extends Client {
         return user;
     }
 
-    async say({ message = null, interaction = null, content, emoji = null, embed = true, type = 'reply' }) {
+    async say({ target, content, emoji = null, embed = true, type = 'reply', message = null, interaction = null }) {
         if (!content) return;
-        let target = (message ? message : interaction),
-            user = (message ? target.author : target.User);
+        if(target instanceof Eris.Message) message = target
+        else interaction = target
+        let user = this.users.get(message ? target.author.id : target.member.user.id);
 
 
-        let msgObj = {
-            content: '_ _',
-            embeds: [],
+        let msg, msgObj = {
+            content: '',
+            color: getColor('green'),
+            embeds: embed ? [{
+                title: '',
+                description: ''
+            }] : [],
             components: [],
             flags: 0,
-            messageReference: {
+            messageReference: message && type === 'reply' ? {
                 channelID: target.channel.id,
                 guildID: target.guildID,
                 messageID: target.id,
                 failIfNotExists: false
-            }
+            } : null
         }
-        if (typeof content === 'object') msgObj = Object.assign(msgObj, content);
+        if (typeof content === 'object') {
+            msgObj = Object.assign(msgObj, content);
+            content = content.embeds[0].description;
+        }
         else (embed ? msgObj.embeds[0].description = content : msgObj.content = content);
 
         if (emoji) {
             content = (getEmoji(emoji).mention ? `${getEmoji(emoji).mention} **| ${content}**` : content);
             embed ? msgObj.embeds[0].description = content : msgObj.content = content;
         }
-        if (type !== 'reply' || interaction) msgObj.messageReference = null
 
-        if (message?.editedTimestamp && user?.lastCommand) return user.lastCommand = await target.channel.editMessage(user.lastCommand.id, msgObj).catch(() => { });
-        else return user.lastCommand = await (message ? target.channel : target).createMessage(msgObj).catch(() => { });
+        if (message) {
+            if ((message?.editedTimestamp && user?.lastCommand) || type === 'edit') msg = await target.channel.editMessage(user.lastCommand.msg.id, msgObj).catch(() => { });
+            else msg = await target.channel.createMessage(msgObj).catch(() => { });
+
+            user.lastCommand = {
+                message: message,
+                msg: msg
+            }
+        } else {
+            switch (type) {
+                case 'reply': return target.createMessage(msgObj).catch(() => { });
+                case 'edit': return target.editOriginalMessage(msgObj).catch(() => { });
+            }
+
+        }
     }
 }

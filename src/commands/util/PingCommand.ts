@@ -22,16 +22,10 @@ module.exports = class PingCommand extends CommandStructure {
             slashData: null
         })
     }
-    async execute({ message }, t) {
+    async execute({ target }, t) {
         let time = Date.now();
-        let msg = await message.channel.createMessage('calculando ping...');
+        await this.ket.say({ target, content: 'calculando o ping...', embed: false });
         let totalTime = Date.now() - time;
-        msg.edit(`tempo de resposta: ${totalTime}ms`);
-    }
-    async slash({ interaction }, t) {
-        let time = Date.now();
-        await interaction.createMessage('calculando ping...');
-        let totalTime = Date.now() - time;
-        interaction.editOriginalMessage(`tempo de resposta: ${totalTime}ms`);
+        this.ket.say({ target, content: `tempo de resposta: ${totalTime}ms`, type: 'edit' })
     }
 }
