@@ -8,7 +8,7 @@ const
     { getEmoji, getColor } = Decoration;
 
 module.exports = class KetClient extends Client {
-    config: object;
+    config: any;
     db: object;
     events: any;
     modules: any;
@@ -21,9 +21,10 @@ module.exports = class KetClient extends Client {
         super(token, options);
 
         this.config = require('./json/settings.json');
+
         // this.users = new Collection(this.User, this.config.ERIS_LOADER_SETTINGS.cacheLimit.users)
         // this.guilds = new Collection(this.Guild, this.config.ERIS_LOADER_SETTINGS.cacheLimit.guilds)
-        // this.options.messageLimit = this.config.ERIS_LOADER_SETTINGS.cacheLimit.messages
+        this.options.messageLimit = this.config.ERIS_LOADER_SETTINGS.cacheLimit.messages
 
         this.events = new (require('./components/core/EventHandler'))(this);
         this.commands = new Map();
@@ -37,7 +38,7 @@ module.exports = class KetClient extends Client {
         this.loadCommands();
         this.loadListeners(`${__dirname}/events/`);
         this.loadModules();
-        return this.connect();
+        return super.connect();
     }
 
     loadLocales() {

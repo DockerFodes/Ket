@@ -20,7 +20,7 @@ module.exports = class ReadyEvent {
         global.client.log('log', "CLIENT", `Sessão iniciada como ${c.bgGreen(c.white(this.ket.user.tag))}`);
         console.log(gradient('red', 'yellow')("◆ ▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬ ◆"));
         global.client.log('log', "CLIENT", `Operante em ${this.ket.guilds.size} templos com ${this.ket.users.size} subordinados`);
-        (new TerminalClient).start(this.ket);
+        TerminalClient(this.ket);
         /*        return setInterval(() => {
                     return global.infoEmbed(NaN, this.ket)
                 }, 2000)
