@@ -1,5 +1,4 @@
 export { };
-import Eris from "eris";
 
 module.exports.CommandStructure = class CommandStructure {
     ket: any;
@@ -25,34 +24,6 @@ module.exports.CommandStructure = class CommandStructure {
             slashData: command.slashData
         }
         this.ket = ket;
-    }
-    async findUser(message: any, text: string, argsPosition: number) {
-        argsPosition = (!argsPosition ? 0 : Number(argsPosition));
-        let search: string,
-            user: Eris.User;
-
-        if (!Array.isArray(text)) search = text;
-        else search = text[argsPosition];
-
-        if (!isNaN(Number(search))) {
-            try {
-                if (this.ket.users.has(search)) user = this.ket.users.get(search);
-                else {
-                    user = await this.ket.users.getRESTUser(search);
-                    if (!user) user = message.author;
-                }
-            } catch (e) {
-                user = message.author;
-            }
-        } else {
-            try {
-                let member: Eris.Member = message.mentions[0] || message.guild.members.find(m => m.user.username.toLowerCase() === search.toLowerCase() || m.displayName.toLowerCase() === search.toLowerCase() || m.user.username.toLowerCase().startsWith(search.toLowerCase()) || m.displayName.toLowerCase().startsWith(search.toLowerCase()) || m.user.username.toLowerCase().includes(search.toLowerCase()) || m.displayName.toLowerCase().includes(search.toLowerCase()));
-                user = member.user;
-            } catch (e) {
-                user = message.author;
-            }
-        }
-        return user;
     }
 }
 
@@ -155,9 +126,9 @@ module.exports.EmbedBuilder = class EmbedBuilder {
         return this;
     }
 }
-module.exports.Decoration = class Decoration {
-    constructor() { };
-    getEmoji(emoji: string) {
+
+module.exports.Decoration = {
+    getEmoji: function getEmoji(emoji: string) {
         let emojis = {
             autorizado: "<:autorizado:765952397595639828>",
             negado: "<:negado:765952453203984404>",
@@ -178,8 +149,8 @@ module.exports.Decoration = class Decoration {
             reaction: (emojiFilter[1] !== undefined) ? `${emojiFilter[0]}:${emojiFilter[1]}` : `${emojiFilter[0]}`
         }
         return emojiObj;
-    }
-    getColor(color: string, toNumber = true) {
+    },
+    getColor: function getColor(color: string, toNumber = true) {
         const colors = {
             red: "#ff1500",
             orange: "#ff8c00",
