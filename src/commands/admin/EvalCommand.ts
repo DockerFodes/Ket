@@ -13,9 +13,7 @@ const
     prompts = require('prompts'),
     util = require("util"),
     { CommandStructure, EmbedBuilder, Decoration } = require("../../components/Commands/CommandStructure"),
-    Deco = new Decoration(),
-    emoji = Deco.getEmoji,
-    getColor = Deco.getColor;
+    { getEmoji, getColor } = Decoration;
 
 module.exports = class EvalCommand extends CommandStructure {
     constructor(ket: Eris.Client) {

@@ -3,7 +3,7 @@ import Eris from "eris";
 const
     { exec } = require('child_process'),
     util = require('util'),
-    { CommandStructure, EmbedBuilder, Decoration } = require('../../components/Commands/CommandStructure');
+    { CommandStructure, EmbedBuilder } = require('../../components/Commands/CommandStructure');
 
 module.exports = class CldCommand extends CommandStructure {
     constructor(ket: Eris.Client) {

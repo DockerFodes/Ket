@@ -1,8 +1,11 @@
 export { };
 import type { ClientOptions } from "eris";
+import Eris from "eris";
 const
     { Client, Collection } = require('eris'),
-    { readdir } = require('fs');
+    { readdir } = require('fs'),
+    { Decoration } = require('./components/Commands/CommandStructure'),
+    { getEmoji } = Decoration;
 
 module.exports = class KetClient extends Client {
     config: object;
@@ -118,5 +121,59 @@ module.exports = class KetClient extends Client {
             return e;
         }
 
+    }
+
+    async findUser(message: any, text: string, returnMember: boolean = false, argsPosition: number = 0) {
+        let search: string,
+            user;
+
+        if (Array.isArray(text)) search = text[argsPosition].toLowerCase();
+        else search = text.toLowerCase();
+
+        try {
+            if (isNaN(Number(search))) user = message.mentions[0] || message.channel.guild.members.find((m: Eris.Member) => m.user.username.toLowerCase() === search || String(m.nick).toLowerCase() === search || m.user.username.startsWith(search) || String(m.nick).startsWith(search) || m.user.username.includes(search) || String(m.nick).includes(search));
+            else {
+                if (this.users.has(search)) user = this.users.get(search);
+                else user = await this.getRESTUser(search);
+            }
+        } catch (e) {
+            if (returnMember) user = message.member;
+            else user = message.author;
+        }
+        if (user instanceof Eris.User && returnMember) user = message.channel.guild.members.get(user.id);
+        if (user instanceof Eris.Member && !returnMember) user = this.users.get(user.user.id);
+
+        return user;
+    }
+
+    async say({ message = null, interaction = null, content, emoji = null, embed = true, type = 'reply' }) {
+        if (!content) return;
+        let target = (message ? message : interaction),
+            user = (message ? target.author : target.User);
+
+
+        let msgObj = {
+            content: '_ _',
+            embeds: [],
+            components: [],
+            flags: 0,
+            messageReference: {
+                channelID: target.channel.id,
+                guildID: target.guildID,
+                messageID: target.id,
+                failIfNotExists: false
+            }
+        }
+        if (typeof content === 'object') msgObj = Object.assign(msgObj, content);
+        else (embed ? msgObj.embeds[0].description = content : msgObj.content = content);
+
+        if (emoji) {
+            content = (getEmoji(emoji).mention ? `${getEmoji(emoji).mention} **| ${content}**` : content);
+            embed ? msgObj.embeds[0].description = content : msgObj.content = content;
+        }
+        if (type !== 'reply' || interaction) msgObj.messageReference = null
+
+        if (message?.editedTimestamp && user?.lastCommand) return user.lastCommand = await target.channel.editMessage(user.lastCommand.id, msgObj).catch(() => { });
+        else return user.lastCommand = await (message ? target.channel : target).createMessage(msgObj).catch(() => { });
     }
 }
