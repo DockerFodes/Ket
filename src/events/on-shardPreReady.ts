@@ -1,6 +1,6 @@
 import Eris from "eris";
 
-module.exports = class ShardResumeEvent {
+module.exports = class ShardPreReadyEvent {
     ket: Eris.Client;
     constructor(ket: Eris.Client) {
         this.ket = ket;
