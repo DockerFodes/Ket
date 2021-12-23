@@ -1,7 +1,7 @@
 const
 	Eris = require('eris'),
 	{ EmbedBuilder, Decoration } = require('../Commands/CommandStructure'),
-	getEmoji = new Decoration().getEmoji,
+	{ getEmoji } = Decoration,
 	{ CanvasRenderingContext2D, createCanvas } = require('canvas');
 
 module.exports = class ProtoTypes {
