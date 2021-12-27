@@ -12,9 +12,11 @@ module.exports = class ReadyEvent {
     }
     async start() {
         let status = [
-            { name: 'no vasco', type: 1 },
-            { name: 'sua mãe da janela', type: 1 },
-            { name: 'sua mãe na panela', type: 1 }
+            { name: 'no vasco', type: 0 },
+            { name: 'sua mãe da janela', type: 0 },
+            { name: 'sua mãe na panela', type: 0 },
+            { name: "mais um gol do vasco", type: 1},
+            { name: "os gemidos da sua mãe", type: 2} 
         ]
         setInterval(() => this.ket.editStatus("dnd", status[Math.floor(Math.random() * status.length)]), 10000)
         global.client.log('log', "CLIENT", `Sessão iniciada como ${c.bgGreen(c.white(this.ket.user.tag))}`);
