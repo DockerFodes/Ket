@@ -56,6 +56,7 @@ To start just type:
 npm start
 ```
 and press ENTER in the menu
+> ⚠️ To skip the menu use `npm run direct-mode`
 
 ### I hope you like the project :) 
 
