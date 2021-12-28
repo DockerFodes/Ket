@@ -1,8 +1,9 @@
 # ⭐ Ket Discord Bot ⭐
 ✨ Ket is an excellent Discord bot made in TypeScript using Eris with lots of awesome features ✨
+> ⚠️ Ket is still in the early stages of its development
 
 ## Features:
-<h3> 📣 Global chat </h3>
+##### 📣 Global chat
 - [x] Send messages
 - [x] Upload images/videos/gifs
 - [x] Send stickers and allowed links
@@ -10,13 +11,13 @@
 - [x] Delete messages
 - [ ] Command to identify users
 
-<h3> 🌎 Multi-Languages </h3>
+##### 🌎 Multi-Languages
 - [x] 🇧🇷 Português - Brasil
 - [ ] 🇺🇸 English - USA
 - [ ] 🇪🇸 Spanish - Spain
 - [ ] 🇫🇷 Française - France
 
-<h3> Commands: </h3>
+##### Commands:
 - [ ] under development...
 
 - - - -
@@ -24,12 +25,11 @@
 # How to install 🤔
 ### `1 -` 🛠️ Download and install the necessary tools to get started
 There's not much to see here, but if you want to run Ket on your machine you'll need:
-- NodeJS
-> ⚠️ Recommended version: 14.18.2, Download: https://nodejs.org/pt-br/
-- PostgreSQL
-> ⚠️ Recommended version: 12 or higher, Download: https://www.postgresql.org/download/
-- GIT CLI
-> ⚠️ Download: https://git-scm.com/downloads
+- [NodeJS](https://nodejs.org/pt-br/)
+> ⚠️ Recommended version: 14.18.2
+- [PostgreSQL](https://www.postgresql.org/download/)
+> ⚠️ Recommended version: 12 or higher
+- [GIT CLI](https://git-scm.com/downloads)
 
 ### `2 -` 📁 Download the above files or clone the repository:
 ```bash
