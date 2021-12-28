@@ -1,6 +1,9 @@
 {
-    "BOT SETTINGS": "",
+            "BOT SETTINGS": "",
     "DEFAULT_PREFIX": ",",
+    "DEVS": ["340626138076282900", "568493382884917258", "389080559714041856", "883461315769819208"],
+    "TRUSTED_BOTS": ["777938917117919255", "789123515882012683", "737044809650274325", "297153970613387264"],
+
     "SUPPORT_SERVER": "https://discord.gg/zzrctuz9Sa",
     "BOT_INVITE": "https://discord.com/oauth2/authorize?client_id=777938917117919255&scope=bot+applications.commands&permissions=872423560",
     "channels": {
@@ -21,7 +24,8 @@
             "https://cdn.discordapp.com/attachments/",
             "https://tenor.com/view/",
             "https://giphy.com/gifs/",
-            "prnt.sc",
+            "https://prnt.sc/",
+            "https://crunchyroll.com/",
 
             // Lojas de jogos grátis
             "https://gog.com/game/",
@@ -62,6 +66,7 @@
             "guildMembers",
             "guildWebhooks",
             "guildMessages",
+            "guildMessageTyping",
             "guildPresences",
             "directMessages"
         ]

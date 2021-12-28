@@ -91,7 +91,6 @@ module.exports = class Utils {
                 method: 'get',
                 responseType: 'arraybuffer'
             })
-            console.log('imagem carregada')
             msgObj.file.push({ file: buffer.data, name: context.attachments[i].filename })
         }
 
@@ -106,7 +105,6 @@ module.exports = class Utils {
                 if (!webhook) webhook = await channel.createWebhook({ name: 'Ket Global Chat', options: { type: 1 } });
                 ket.webhooks.set(channel.id, webhook);
             }
-            console.log('webhook enviado')
             return ket.executeWebhook(webhook.id, webhook.token, msgObj).then((msg: Eris.Message) => msgs.push(`${msg.id}|${msg.guildID}`)).catch(() => { });
         })
         let i = 0

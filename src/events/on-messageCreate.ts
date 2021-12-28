@@ -12,7 +12,7 @@ module.exports = class MessageCreateEvent {
         this.ket = ket;
     }
     async start(message: any) {
-        if (message.author?.bot && !process.env.TRUSTED_BOTS.includes(message.author?.id)) return;
+        if (message.author?.bot && !this.ket.config.TRUSTED_BOTS.includes(message.author?.id)) return;
         if (message.channel.type === 1) {
             delete require.cache[require.resolve("../packages/events/_on-messageDMCreate")];
             return new (require("../packages/events/_on-messageDMCreate"))(this).start(message);
@@ -31,7 +31,7 @@ module.exports = class MessageCreateEvent {
             comando = ket.commands.get(commandName) || ket.commands.get(ket.aliases.get(commandName));
         let t = global.client.t = i18next.getFixedT(user?.lang || 'pt');
         if (!comando) if (await KetUtils.commandNotFound({ ket, message, comando, commandName }, t) !== true) return;
-        if (comando.config.permissions.onlyDevs && !process.env.BOT_OWNERS.includes(message.author.id)) return;
+        if (comando.config.permissions.onlyDevs && !ket.config.DEVS.includes(message.author.id)) return;
 
             await KetUtils.checkCache({ ket, context: message });
         user = await KetUtils.checkUserGuildData(message);

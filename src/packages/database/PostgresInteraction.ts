@@ -11,8 +11,7 @@ let PgConfig: typeof Client = {
     host: process.env.DATABASE_HOST,
     port: Number(process.env.DATABASE_PORT),
 }
-
-// if (process.env.SSL_MODE) PgConfig.ssl = { rejectUnauthorized: false };
+if (process.env.SSL_MODE !== 'false') console.log('vai tomar no cu')
 
 module.exports = class PostgresInteraction {
     ket: any;
