@@ -2,7 +2,7 @@ export { };
 import Eris from "eris";
 delete require.cache[require.resolve('../components/KetUtils')];
 const
-    db = global.client.db,
+    db = global.session.db,
     KetUtils = new (require('../components/KetUtils'))(),
     i18next = require("i18next");
 
@@ -26,11 +26,11 @@ module.exports = class InteractionCreateEvent {
             args: string[] = [],
             commandName: string = interaction.data.name,
             comando = ket.commands.get(commandName) || ket.commands.get(ket.aliases.get(commandName));
-        let t = global.client.t = i18next.getFixedT(user.lang || 'pt');
+        let t = global.session.t = i18next.getFixedT(user.lang || 'pt');
 
         await KetUtils.checkCache({ ket, context: interaction });
         user = await KetUtils.checkUserGuildData( interaction );
-        t = global.client.t = i18next.getFixedT(user.lang);
+        t = global.session.t = i18next.getFixedT(user.lang);
         if (await KetUtils.checkPermissions({ ket, context: interaction, comando }, t) === false) return;
 
         return new Promise(async (res, rej) => {

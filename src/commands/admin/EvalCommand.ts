@@ -39,7 +39,7 @@ module.exports = class EvalCommand extends CommandStructure {
     async execute({ context, args, commandName }, t) {
         const
             ket = this.ket,
-            db = global.client.db;
+            db = global.session.db;
 
         let
             message = (context instanceof Eris.Message ? context : context.message),

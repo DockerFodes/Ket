@@ -35,9 +35,9 @@ export class KetMenu {
         console.clear();
         switch (menuResponse.value) {
             case 0: return process.exit();
-            case 1: global.client.canary = false;
+            case 1: global.session.canary = false;
                 return this.start(process.env.CLIENT_DISCORD_TOKEN);
-            case 2: global.client.canary = true;
+            case 2: global.session.canary = true;
                 return this.start(process.env.BETA_CLIENT_DISCORD_TOKEN);
             case 3: return this.logMenu();
         }
@@ -73,7 +73,7 @@ export class KetMenu {
         ];
         let logs: string = 'bunda';
         try {
-            let data = await readFileSync(path.resolve(`${global.client.dir}/../src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.log`), 'utf8');
+            let data = await readFileSync(path.resolve(`${global.session.dir}/../src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.log`), 'utf8');
             if (data === undefined) {
                 logs = 'Nenhum arquivo de log foi encontrado.';
                 logChoices[1].disabled = true;
@@ -96,13 +96,13 @@ export class KetMenu {
         });
         if (logOptions.value === 1) {
             try {
-                return unlink(`${global.client.dir}/../src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.log`, () => {
+                return unlink(`${global.session.dir}/../src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.log`, () => {
                     console.log('Logs apagados com sucesso');
                     return setTimeout(() => this.logMenu(), 200);
                 })
 
             } catch (e) {
-                return global.client.log('error', 'KET PAINEL', 'Não foi possível apagar o arquivo de log.', e);
+                return global.session.log('error', 'KET PAINEL', 'Não foi possível apagar o arquivo de log.', e);
             }
         }
         else return this.logMenu();
@@ -116,7 +116,7 @@ export class KetMenu {
         // return cld.exec('tsc', () => {
         clearInterval(interval);
         console.clear();
-        return require(`${global.client.dir}/index`)(DISCORD_TOKEN);
+        return require(`${global.session.dir}/index`)(DISCORD_TOKEN);
         // })
     }
 }
@@ -152,7 +152,7 @@ export async function TerminalClient(ket) {
             evaled = await eval(`${response.code}`);
             console.log(evaled);
         } catch (e) {
-            global.client.log('error', 'TERMINAL CLIENT', `houve um erro ao executar o seu código:`, e);
+            global.session.log('error', 'TERMINAL CLIENT', `houve um erro ao executar o seu código:`, e);
         } finally {
             return termEval();
         }

@@ -1,5 +1,5 @@
 import Eris from "eris"
-const db = global.client.db;
+const db = global.session.db;
 module.exports = class MessageDeleteEvent {
     ket: any;
     constructor(ket: Eris.Client) {

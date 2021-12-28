@@ -2,7 +2,7 @@ export { };
 import Eris from "eris";
 delete require.cache[require.resolve('../components/KetUtils')];
 const
-    db = global.client.db,
+    db = global.session.db,
     KetUtils = new (require('../components/KetUtils'))(),
     i18next = require("i18next");
 
@@ -29,13 +29,13 @@ module.exports = class MessageCreateEvent {
             args: string[] = message.content.replace(regexp, '').trim().split(/ /g),
             commandName: string | null = args.shift().toLowerCase(),
             comando = ket.commands.get(commandName) || ket.commands.get(ket.aliases.get(commandName));
-        let t = global.client.t = i18next.getFixedT(user?.lang || 'pt');
+        let t = global.session.t = i18next.getFixedT(user?.lang || 'pt');
         if (!comando) if (await KetUtils.commandNotFound({ ket, message, comando, commandName }, t) !== true) return;
         if (comando.config.permissions.onlyDevs && !ket.config.DEVS.includes(message.author.id)) return;
 
             await KetUtils.checkCache({ ket, context: message });
         user = await KetUtils.checkUserGuildData(message);
-        t = global.client.t = i18next.getFixedT(user?.lang);
+        t = global.session.t = i18next.getFixedT(user?.lang);
         if (await KetUtils.checkPermissions({ ket, context: message, comando }, t) === false) return;
 
         return new Promise(async (res, rej) => {

@@ -30,7 +30,6 @@ module.exports = class KetClient extends Client {
         this.commands = new Map();
         this.webhooks = new Map();
         this.aliases = new Map();
-        this.modules = new Map();
         this.shardUptime = new Map();
     }
     async boot() {
@@ -61,7 +60,7 @@ module.exports = class KetClient extends Client {
                 })
             })
         } catch (e) {
-            global.client.log('error', 'COMMANDS HANDLER', 'Erro ao carregar comandos:', e);
+            global.session.log('error', 'COMMANDS HANDLER', 'Erro ao carregar comandos:', e);
         }
         return this;
     }
@@ -75,7 +74,7 @@ module.exports = class KetClient extends Client {
                 })
             })
         } catch (e) {
-            global.client.log('error', "EVENTS LOADER", `Erro ao carregar eventos:`, e);
+            global.session.log('error', "EVENTS LOADER", `Erro ao carregar eventos:`, e);
         }
         return this;
     }
@@ -87,22 +86,17 @@ module.exports = class KetClient extends Client {
                     readdir(`${__dirname}/packages/${category}/`, (_e: any, modules: string[]) => {
                         modules.forEach(async (file: string) => {
                             if (file.startsWith("_")) return;
-                            const module = new (require(`${__dirname}/packages/${category}/${file}`))(this);
-                            this.modules.set(file.split('.')[0], module);
-                            return module.inicialize();
+                            const moduleFunc = require(`${__dirname}/packages/${category}/${file}`);
+                            return moduleFunc(this);
                         })
                     })
                 })
             })
-            global.client.log('log', 'MODULES MANAGER', '√ Módulos inicializados');
+            global.session.log('log', 'MODULES MANAGER', '√ Módulos inicializados');
         } catch (e) {
-            global.client.log('error', 'MODULES MANAGER', 'Houve um erro ao carregar os módulos:', e);
+            global.session.log('error', 'MODULES MANAGER', 'Houve um erro ao carregar os módulos:', e);
         }
         return this;
-    }
-
-    reload(dir: string) {
-        delete require.cache[require.resolve(dir)]
     }
 
     async reloadCommand(commandName: string) {
@@ -148,7 +142,7 @@ module.exports = class KetClient extends Client {
 
     async say({ context, content, emoji = null, embed = true, type = 'reply', message = null, interaction = null }) {
         if (!content) return;
-        if(context instanceof Eris.Message) message = context
+        if (context instanceof Eris.Message) message = context
         else interaction = context
         let user = this.users.get(message ? context.author.id : context.member.user.id);
 

@@ -7,7 +7,7 @@
         "build": "echo Compilando arquivos... && tsc",
         "direct-mode": "npm run build && node dist/index.js --no-menu",
         "no-compile": "cross-env NODE_ENV=production node --expose-gc dist/index.js",
-        "start": "npm run build && cross-env NODE_ENV=production node --expose-gc dist/index.js",
+        "start": "npm run build && cross-env NODE_ENV=production node --expose-gc --trace-warnings dist/index.js",
         "start-ts": "ts-node-dev --ignore-watch ./ index.ts"
     },
     "repository": {

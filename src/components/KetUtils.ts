@@ -5,7 +5,7 @@ const
     i18next = require('i18next'),
     axios = require('axios'),
     DidYouMean = require('didyoumean'),
-    db = global.client.db,
+    db = global.session.db,
     { Decoration, EmbedBuilder } = require('./Commands/CommandStructure'),
     { getEmoji, getColor } = Decoration;
 
@@ -109,7 +109,7 @@ module.exports = class Utils {
         })
         let i = 0
         function save() {
-            if (i++ > 10) return global.client.log('error', 'Global Chat', `o cache de mensagens de webhooks está inconsistente, desativando save do banco de dados com ${guilds.length - msgs.length} não salvas.`, '')
+            if (i++ > 10) return global.session.log('error', 'Global Chat', `o cache de mensagens de webhooks está inconsistente, desativando save do banco de dados com ${guilds.length - msgs.length} não salvas.`, '')
             if (msgs.length !== guilds.length) return setTimeout(() => save(), 300);
             else db.globalchat.create({
                 id: context.id,

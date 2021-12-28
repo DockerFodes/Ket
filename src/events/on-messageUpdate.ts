@@ -1,7 +1,7 @@
 import Eris, { GuildChannel } from "eris"
 const KetUtils = new (require('../components/KetUtils'))(),
     config = require('../json/settings.json'),
-    db = global.client.db,
+    db = global.session.db,
     i18next = require('i18next'),
     { Decoration } = require('../components/Commands/CommandStructure'),
     { getEmoji, getColor } = Decoration;
@@ -26,7 +26,7 @@ module.exports = class MessageUpdateEvent {
             if (Date.now() > newMessage.timestamp + (15 * 1000 * 60) || Number(msgData.editcount) >= config.globalchat.editLimit) {
                 if (Number(msgData.editcount) >= config.globalchat.editLimit + 1) return;
 
-                global.client.postgres.query(`UPDATE globalchat SET
+                global.session.postgres.query(`UPDATE globalchat SET
                 editcount = editcount + 1
                 WHERE id = '${msgData.id}';`);
 
@@ -60,7 +60,7 @@ module.exports = class MessageUpdateEvent {
                     }
                 }).catch(() => { })
             })
-            global.client.postgres.query(`UPDATE globalchat SET
+            global.session.postgres.query(`UPDATE globalchat SET
             editcount = editcount + 1
             WHERE id = '${msgData.id}';`)
         }

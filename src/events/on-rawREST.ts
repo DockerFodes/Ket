@@ -19,7 +19,7 @@ module.exports = class RawRESTEvent {
                 };
             if (req.resp.headers['x-ratelimit-global'] || req.resp.headers['x-ratelimit-scope'] === 'global') info.isGlobal = 'ss, tomou no cu'
 
-            global.client.log('error', 'RATE LIMIT', `fudeu deu rate limit`, `     no escopo ${c.green(req.resp.headers['x-ratelimit-scope'])} por fazer ${c.yellow('(cofcof merda)')} um total de ${c.green(info.limit)} requests para ${c.green(info.method)} on ${c.green(info.route)}\n     reseta em: ${c.green(info.reset)}`)
+            global.session.log('error', 'RATE LIMIT', `fudeu deu rate limit`, `     no escopo ${c.green(req.resp.headers['x-ratelimit-scope'])} por fazer ${c.yellow('(cofcof merda)')} um total de ${c.green(info.limit)} requests para ${c.green(info.method)} on ${c.green(info.route)}\n     reseta em: ${c.green(info.reset)}`)
         }
     }
 }

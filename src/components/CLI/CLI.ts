@@ -13,8 +13,8 @@ module.exports = {
 
     c() { this.compile(); },
     async compile() {
-        global.client.log('shard', 'TERMINAL CLIENT', 'Compilando arquivos...');
-        return require('child_process').exec(`tsc`, (a, res) => !res ? global.client.log('log', 'COMPILER', 'Arquivos compilados com sucesso') : global.client.log('error', 'COMPILER', 'Houve um erro ao compilar os arquivos:', res));
+        global.session.log('shard', 'TERMINAL CLIENT', 'Compilando arquivos...');
+        return require('child_process').exec(`tsc`, (a, res) => !res ? global.session.log('log', 'COMPILER', 'Arquivos compilados com sucesso') : global.session.log('error', 'COMPILER', 'Houve um erro ao compilar os arquivos:', res));
     },
 
     e() { this.exit(); },
@@ -49,8 +49,8 @@ module.exports = {
 
         else {
             let data = await ket.reloadCommand(args[0]);
-            if (data === true) return global.client.log('log', 'TERMINAL CLIENT', `Comando ${args[0]} foi recarregando`);
-            else return global.client.log('error', 'TERMINAL CLIENT', `Erro ao recarregar o comando ${args[0]}:`, data);
+            if (data === true) return global.session.log('log', 'TERMINAL CLIENT', `Comando ${args[0]} foi recarregando`);
+            else return global.session.log('error', 'TERMINAL CLIENT', `Erro ao recarregar o comando ${args[0]}:`, data);
         }
     },
 

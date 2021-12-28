@@ -26,7 +26,8 @@ module.exports = class EventHandler {
         return this.events.filter(evento => evento.name === name).forEach((event) => {
             delete require.cache[require.resolve(event.dir)];
             try {
-                new (require(event.dir))(this.ket).start(...args);
+                let e = new (require(event.dir))(this.ket)
+                e.start(...args);
             } catch (e) {
                 this.ket.emit('error', e);
             }

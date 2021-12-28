@@ -9,9 +9,9 @@ module.exports = async function inicialize() {
         i18next.use(i18nbackend).init({
             ns: ["commands", "events", "permissions"],
             defaultNS: "commands",
-            preload: readdirSync(`${global.client.dir}/src/locales`),
+            preload: readdirSync(`${global.session.dir}/src/locales`),
             fallbackLng: "pt",
-            backend: { loadPath: `${global.client.dir}/src/locales/{{lng}}/{{ns}}.json` },
+            backend: { loadPath: `${global.session.dir}/src/locales/{{lng}}/{{ns}}.json` },
             interpolation: {
                 escapeValue: false,
                 useRawValueToEscape: true
@@ -19,8 +19,8 @@ module.exports = async function inicialize() {
             returnEmptyString: false,
             returnObjects: true
         });
-        return global.client.log('shard', 'LOCALES MANAGER', 'Locales carregados');
+        return global.session.log('shard', 'LOCALES MANAGER', 'Locales carregados');
     } catch (err) {
-        return global.client.log('error', 'LOCALES MANAGER', "Houve um erro ao carregar os locales", err);
+        return global.session.log('error', 'LOCALES MANAGER', "Houve um erro ao carregar os locales", err);
     }
 }
