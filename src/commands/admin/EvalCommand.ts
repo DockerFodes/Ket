@@ -36,13 +36,13 @@ module.exports = class EvalCommand extends CommandStructure {
             slashData: null
         })
     }
-    async execute({ target, args, commandName }, t) {
+    async execute({ context, args, commandName }, t) {
         const
             ket = this.ket,
             db = global.client.db;
 
         let
-            message = (target instanceof Eris.Message ? target : target.message),
+            message = (context instanceof Eris.Message ? context : context.message),
             evaled = args.join(" ").replace('```js', '').replace('```', ''),
             canReturn = (commandName === 'eval' ? true : false),
             embed: typeof EmbedBuilder;
@@ -62,7 +62,7 @@ module.exports = class EvalCommand extends CommandStructure {
                 .setDescription(util.inspect(e), 'js');
             canReturn = true
         } finally {
-            if (canReturn) ket.say({ target, content: { embeds: [embed.build()] }})
+            if (canReturn) ket.say({ context, content: { embeds: [embed.build()] } })
         }
     }
 }

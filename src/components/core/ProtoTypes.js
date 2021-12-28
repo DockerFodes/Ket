@@ -24,12 +24,6 @@ module.exports = class ProtoTypes {
 			return this.channel.createMessage(msgObj)
 		}
 
-		/* channel.sendErrorEmbed() */
-		Eris.TextChannel.prototype.sendErrorEmbed = async function sendErrorEmbed() {
-			let embed = new EmbedBuilder()
-				.setAuthor()
-		}
-
 		if (!Eris.Message.prototype.filtredContent) Object.defineProperty(Eris.Message.prototype, 'filtredContent', {
 			get() {
 				let filtredContent = this.content || ""
@@ -37,17 +31,16 @@ module.exports = class ProtoTypes {
 				let authorName = this.author.username;
 				if (this.channel.guild) {
 					const member = this.channel.guild.members.get(this.author.id);
-					if (member && member.nick)
-						authorName = member.nick;
+					if (member && member.nick) authorName = member.nick;
 				}
-				filtredContent = filtredContent.replace(new RegExp(`<@!?${this.author.id}>`, "g"), "@\u200b" + authorName);
+				filtredContent = filtredContent.replace(new RegExp(`<@!?${this.author.id}>`, "g"), `@\u200b${authorName}`);
 
 				if (this.mentions) {
 					this.mentions.forEach((mention) => {
 						if (this.channel.guild) {
 							const member = this.channel.guild.members.get(mention.id);
 							if (member && member.nick)
-							filtredContent = filtredContent.replace(new RegExp(`<@!?${mention.id}>`, "g"), "@\u200b" + member.nick);
+								filtredContent = filtredContent.replace(new RegExp(`<@!?${mention.id}>`, "g"), `@\u200b${member.username}`);
 						}
 						filtredContent = filtredContent.replace(new RegExp(`<@!?${mention.id}>`, "g"), "@\u200b" + mention.username);
 					});
@@ -56,15 +49,14 @@ module.exports = class ProtoTypes {
 				if (this.channel.guild && this.roleMentions) {
 					for (const roleID of this.roleMentions) {
 						const role = this.channel.guild.roles.get(roleID);
-						const roleName = role ? role.name : "deleted-role";
-						filtredContent = filtredContent.replace(new RegExp(`<@&${roleID}>`, "g"), "@\u200b" + roleName);
+						filtredContent = filtredContent.replace(new RegExp(`<@&${roleID}>`, "g"), `@\u200b${role ? role.name : "deleted-role"}`);
 					}
 				}
 
 				this.channelMentions.forEach((id) => {
 					const channel = this._client.getChannel(id);
 					if (channel && channel.name)
-					filtredContent = filtredContent.replace(`<#${channel.id}>`, `#${channel.name}`);
+						filtredContent = filtredContent.replace(`<#${channel.id}>`, `#${channel.name ? channel.name : 'deleted-channel'}`);
 				});
 
 				return filtredContent;

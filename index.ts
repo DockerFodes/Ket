@@ -19,11 +19,12 @@ global.client = {
             case "shard": return console.log(c.blueBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`));
             case "error":
                 console.error(c.redBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}\n${error}`));
-                return console.error(error);
+                // return console.error(error);
         }
     }
 }
 module.exports = function start(DISCORD_TOKEN: string) {
+    require('./src/components/core/ProtoTypes').start();
     console.log(c.bgBlueBright("[ SHARDING MANAGER ] - Iniciando fragmentação..."));
     return new KetClient(`Bot ${DISCORD_TOKEN}`, settings.ERIS_LOADER_SETTINGS as ClientOptions).boot().then(() => {
         DISCORD_TOKEN = null;
@@ -43,8 +44,10 @@ process
         } catch (e) {
             global.client.log('error', 'DATABASE', `x Houve um erro ao encerrar a conexão com o banco de dados:`, e);
         } finally {
-            return process.exit();
+            process.exit();
+            process.kill(process.pid, null);
         }
+        process.kill(process.pid, null);
     })
     .on('unhandledRejection', (reason, p) => global.client.log('error', "ANTI-CRASH", `SCRIPT REJEITADO:`, reason))
     .on("uncaughtException", (err, o) => global.client.log('error', 'ANTI-CRASH', `CATCH ERROR:`, err))

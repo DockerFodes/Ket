@@ -2,18 +2,23 @@ export { };
 import Eris from "eris";
 const
     c = require('chalk'),
-    Postegrego = require('pg');
+    { Client } = require('pg');
+
+let PgConfig: typeof Client = {
+    database: process.env.DATABASE_NAME,
+    password: process.env.DATABASE_PASSWORD,
+    user: process.env.DATABASE_USER,
+    host: process.env.DATABASE_HOST,
+    port: Number(process.env.DATABASE_PORT),
+}
+
+// if (process.env.SSL_MODE) PgConfig.ssl = { rejectUnauthorized: false };
+
 module.exports = class PostgresInteraction {
     ket: any;
     constructor(ket: Eris.Client) {
         this.ket = ket;
-        global.client.postgres = new Postegrego.Client({
-            user: process.env.DATABASE_USER,
-            password: process.env.DATABASE_PASSWORD,
-            host: process.env.DATABASE_HOST,
-            port: Number(process.env.DATABASE_PORT),
-            database: process.env.DATABASE
-        });
+        global.client.postgres = new Client(PgConfig);
         global.client.db = {
             ready: false,
             disconnect: this.end,

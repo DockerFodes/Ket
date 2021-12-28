@@ -116,7 +116,6 @@ export class KetMenu {
         // return cld.exec('tsc', () => {
         clearInterval(interval);
         console.clear();
-        require('../core/ProtoTypes').start();
         return require(`${global.client.dir}/index`)(DISCORD_TOKEN);
         // })
     }

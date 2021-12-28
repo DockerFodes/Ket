@@ -146,11 +146,11 @@ module.exports = class KetClient extends Client {
         return user;
     }
 
-    async say({ target, content, emoji = null, embed = true, type = 'reply', message = null, interaction = null }) {
+    async say({ context, content, emoji = null, embed = true, type = 'reply', message = null, interaction = null }) {
         if (!content) return;
-        if(target instanceof Eris.Message) message = target
-        else interaction = target
-        let user = this.users.get(message ? target.author.id : target.member.user.id);
+        if(context instanceof Eris.Message) message = context
+        else interaction = context
+        let user = this.users.get(message ? context.author.id : context.member.user.id);
 
 
         let msg, msgObj = {
@@ -163,9 +163,9 @@ module.exports = class KetClient extends Client {
             components: [],
             flags: 0,
             messageReference: message && type === 'reply' ? {
-                channelID: target.channel.id,
-                guildID: target.guildID,
-                messageID: target.id,
+                channelID: context.channel.id,
+                guildID: context.guildID,
+                messageID: context.id,
                 failIfNotExists: false
             } : null
         }
@@ -181,8 +181,8 @@ module.exports = class KetClient extends Client {
         }
 
         if (message) {
-            if ((message?.editedTimestamp && user?.lastCommand) || type === 'edit') msg = await target.channel.editMessage(user.lastCommand.msg.id, msgObj).catch(() => { });
-            else msg = await target.channel.createMessage(msgObj).catch(() => { });
+            if ((message?.editedTimestamp && user?.lastCommand) || type === 'edit') msg = await context.channel.editMessage(user.lastCommand.msg.id, msgObj).catch(() => { });
+            else msg = await context.channel.createMessage(msgObj).catch(() => { });
 
             user.lastCommand = {
                 message: message,
@@ -190,8 +190,8 @@ module.exports = class KetClient extends Client {
             }
         } else {
             switch (type) {
-                case 'reply': return target.createMessage(msgObj).catch(() => { });
-                case 'edit': return target.editOriginalMessage(msgObj).catch(() => { });
+                case 'reply': return context.createMessage(msgObj).catch(() => { });
+                case 'edit': return context.editOriginalMessage(msgObj).catch(() => { });
             }
 
         }

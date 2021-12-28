@@ -26,7 +26,7 @@ module.exports = class CldCommand extends CommandStructure {
             slashData: null
         })
     }
-    async execute({ target, args }) {
+    async execute({ context, args }) {
         let embed: typeof EmbedBuilder;
 
         try {
@@ -35,14 +35,14 @@ module.exports = class CldCommand extends CommandStructure {
                     .setTitle('Só sucexo bb')
                     .setColor('green')
                     .setDescription(b, 'bash');
-                this.ket.say({ target, content: { embeds: [embed.build()] } })
+                this.ket.say({ context, content: { embeds: [embed.build()] } })
             })
         } catch (e) {
             embed = new EmbedBuilder()
                 .setTitle('Ih deu merda viado')
                 .setColor('red')
                 .setDescription(inspect(e), 'bash');
-            this.ket.say({ target, content: { embeds: [embed.build()] } })
+            this.ket.say({ context, content: { embeds: [embed.build()] } })
         }
     }
 }

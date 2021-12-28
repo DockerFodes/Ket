@@ -22,7 +22,7 @@ module.exports = class EventHandler {
         };
         return this.events.push(eventData);
     }
-    execute(name: string, args) {
+    execute(name: string, args: any[]) {
         return this.events.filter(evento => evento.name === name).forEach((event) => {
             delete require.cache[require.resolve(event.dir)];
             try {

@@ -28,16 +28,16 @@ module.exports = class InteractionCreateEvent {
             comando = ket.commands.get(commandName) || ket.commands.get(ket.aliases.get(commandName));
         let t = global.client.t = i18next.getFixedT(user.lang || 'pt');
 
-        await KetUtils.checkCache({ ket, target: interaction });
+        await KetUtils.checkCache({ ket, context: interaction });
         user = await KetUtils.checkUserGuildData( interaction );
         t = global.client.t = i18next.getFixedT(user.lang);
-        if (await KetUtils.checkPermissions({ ket, target: interaction, comando }, t) === false) return;
+        if (await KetUtils.checkPermissions({ ket, context: interaction, comando }, t) === false) return;
 
         return new Promise(async (res, rej) => {
             try {
-                let target = interaction
+                let context = interaction
                 comando.dontType ? null : await interaction.defer();
-                await comando.execute({ ket, target, args, comando, commandName, db }, t);
+                await comando.execute({ ket, context, args, comando, commandName, db }, t);
                 // KetUtils.sendCommandLog({ ket, message, args, commandName })
             } catch (error) {
                 return KetUtils.CommandError({ ket, interaction, args, comando, error }, t)

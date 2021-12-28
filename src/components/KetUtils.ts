@@ -15,10 +15,10 @@ module.exports = class Utils {
         this.ket = ket;
     }
 
-    async checkCache({ ket, target }) {
+    async checkCache({ ket, context }) {
         let
-            user = (target instanceof Eris.Message ? target.author : target.member.user),
-            channel = target.channel,
+            user = (context instanceof Eris.Message ? context.author : context.member.user),
+            channel = context.channel,
             guild = channel.guild;
 
         if (!ket.users.has(user.id)) user = await ket.getRESTUser(user.id);
@@ -28,35 +28,35 @@ module.exports = class Utils {
         return;
     }
 
-    async checkUserGuildData(target: any) {
+    async checkUserGuildData(context: any) {
 
         let
-            userCache = (target instanceof Eris.Message ? target.author : target.member.user);
+            userCache = (context instanceof Eris.Message ? context.author : context.member.user);
 
-        await db.servers.find(target.guildID, true)
+        await db.servers.find(context.guildID, true)
         return await db.users.find(userCache.id, true);
     }
 
-    async sendGlobalChat(ket, target: /*Eris.Message*/ any) {
+    async sendGlobalChat(ket, context: /*Eris.Message*/ any) {
         let comando = {
             config: {
                 permissions: { bot: ['manageChannels', 'manageWebhooks', 'manageMessages'] },
                 access: { Threads: true }
             }
         },
-            user = await this.checkUserGuildData(target),
+            user = await this.checkUserGuildData(context),
             t = i18next.getFixedT(user.lang);
 
-        await this.checkCache({ ket, target });
-        if (await this.checkPermissions({ ket, target, comando }, t) === false) return;
+        await this.checkCache({ ket, context });
+        if (await this.checkPermissions({ ket, context, comando }, t) === false) return;
 
         let
             guildsData = await db.servers.getAll(),
-            guilds = guildsData.filter(guild => guild.globalchat && guild.globalchat != target.channel.id),
+            guilds = guildsData.filter(guild => guild.globalchat && guild.globalchat != context.channel.id),
             msgObj = {
-                username: target.author.username,
-                avatarURL: target.author.dynamicAvatarURL('jpg', 256),
-                content: this.msgFilter(target.filtredContent),
+                username: context.author.username,
+                avatarURL: context.author.dynamicAvatarURL('jpg', 256),
+                content: this.msgFilter(context.filtredContent),
                 embeds: null,
                 file: [],
                 stickerIDs: null,
@@ -68,31 +68,34 @@ module.exports = class Utils {
                 }
             },
             msg,
-            msgs = [];
+            msgs: string[] = [];
 
-        if (target.attachments[0]) {
-            target.attachments.forEach(async (att: Eris.Attachment) => {
-                let buffer = await axios({
-                    url: att.url,
-                    method: 'get',
-                    responseType: 'arraybuffer'
-                })
-                msgObj.file.push({ file: buffer.data, name: att.filename })
-            });
-        }
-        if (target.stickerItems) msgObj.content = `https://media.discordapp.net/stickers/${target.stickerItems[0].id}.png`
-        if (target.messageReference) {
-            if (target.channel.messages.has(target.messageReference.messageID)) msg = target.channel.messages.get(target.messageReference.messageID);
-            else msg = await ket.getMessage(target.messageReference.channelID, target.messageReference.messageID);
-            if (!msg) return;
-            msgObj.embeds = [{
+        if (context.messageReference) {
+            context.channel.messages.has(context.messageReference.messageID)
+                ? msg = context.channel.messages.get(context.messageReference.messageID)
+                : msg = await ket.getMessage(context.messageReference.channelID, context.messageReference.messageID);
+                
+            !msg ? null : msgObj.embeds = [{
                 color: getColor('green'),
                 author: { name: msg.author.username, icon_url: msg.author.dynamicAvatarURL('jpg') },
-                description: this.msgFilter(msg.filtredContent, 128),
-                image: (msg.attachments[0] ? { url: msg.attachments[0].url } : null)
+                description: this.msgFilter(msg.filtredContent, 64),
+                image: (msg.attachments[0] ? { url: `${msg.attachments[0].url}?size=128` } : null)
             }]
         }
-        guilds.forEach(async (g, i: number) => {
+
+        if (context.stickerItems) msgObj.content = `https://media.discordapp.net/stickers/${context.stickerItems[0].id}.png?size=240`
+
+        if (context.attachments[0]) for (let i in context.attachments) {
+            let buffer = await axios({
+                url: context.attachments[i].url,
+                method: 'get',
+                responseType: 'arraybuffer'
+            })
+            console.log('imagem carregada')
+            msgObj.file.push({ file: buffer.data, name: context.attachments[i].filename })
+        }
+
+        guilds.forEach(async (g) => {
             let
                 channel = ket.guilds.get(g.id).channels.get(g.globalchat),
                 webhook = ket.webhooks.get(channel.id);
@@ -103,20 +106,16 @@ module.exports = class Utils {
                 if (!webhook) webhook = await channel.createWebhook({ name: 'Ket Global Chat', options: { type: 1 } });
                 ket.webhooks.set(channel.id, webhook);
             }
-            function send() {
-                if (i++ > 50) return global.client.log('error', 'Global Chat', 'Lentidão para gerar imagens, mais de 50 functions chamadas não retornaram', '')
-                if (msgObj.file.length != target.attachments?.length) return setTimeout(() => send(), 50);
-                else ket.executeWebhook(webhook.id, webhook.token, msgObj).then((msg: Eris.Message) => msgs.push(`${msg.id}|${msg.guildID}`)).catch(() => { });
-            }
-            return send();
+            console.log('webhook enviado')
+            return ket.executeWebhook(webhook.id, webhook.token, msgObj).then((msg: Eris.Message) => msgs.push(`${msg.id}|${msg.guildID}`)).catch(() => { });
         })
         let i = 0
         function save() {
             if (i++ > 10) return global.client.log('error', 'Global Chat', `o cache de mensagens de webhooks está inconsistente, desativando save do banco de dados com ${guilds.length - msgs.length} não salvas.`, '')
             if (msgs.length !== guilds.length) return setTimeout(() => save(), 300);
             else db.globalchat.create({
-                id: target.id,
-                author: target.author.id,
+                id: context.id,
+                author: context.author.id,
                 editcount: 0,
                 messages: `{${msgs.join(',')}}`
             })
@@ -125,48 +124,42 @@ module.exports = class Utils {
     }
 
     msgFilter(content: string, maxLength: number = 1990) {
-        //modificar node_modules/eris/lib/structures/Message.js:338 para permitir emojis
-
-
         const isInvite: RegExp = /(http|https|www)?(:\/\/|\.)?(discord\.(gg|io|me|li|club|ga|net|tk|ml)|discordapp\.com\/invite|discord\.com\/invite)\/.+[a-z]/gi,
             isPishing: RegExp = /(http|https|www)?(:\/\/|\.)?(d(l|1)|.*.cord|cor\.|steam|eam|gift|gfit|free|nitro|n1tro|nltro)(\.|)([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])/gi,
-            // isUrl1: RegExp = /^(?:(?:https?|ftp):\/\/)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/;
-            isUrl2: RegExp = /(?:\b[a-z\d\b.-]*\s*(?:[://]+)(?:\s*[://]{2,}\s*)[^<>\s]*)|\b(?:(?:(?:[^\s!@#$%^&*()_=+[\]{}\|;:'",.<>/?]*)(?:\.|\.\s|\s\.|\s\.\s|@)+)+(?:url|gl|ly|app|ac|ad|aero|ae|af|ag|ai|al|am|an|ao|aq|arpa|ar|asia|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|biz|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|cat|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|coop|com|co|cr|cu|cv|cx|cy|cz|de|dj|dk|dm|do|dz|ec|edu|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|info|int|in|io|iq|ir|is|it|je|jm|jobs|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mobi|mo|mp|mq|mr|ms|mt|museum|mu|mv|mw|mx|my|mz|name|na|nc|net|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pro|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tl|tm|tn|to|tp|travel|tr|tt|tv|tw|tz|ua|ug|uk|um|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|xn--0zwm56d|xn--11b5bs3a9aj6g|xn--80akhbyknj4f|xn--9t4b11yi5a|xn--deba0ad|xn--g6w251d|xn--hgbk6aj7f53bba|xn--hlcj6aya9esc7a|xn--jxalpdlp|xn--kgbechtv|xn--zckzah|ye|yt|yu|za|zm|zw)|(?:(?:[0-9]|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.){3}(?:[0-9]|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5]))(?:[;/][^#?<>\s]*)?(?:\?[^#<>\s]*)?(?:#[^<>\s]*)?(?!\w)/gi;
+            isUrl: RegExp = /(?:\b[a-z\d\b.-]*\s*(?:[://]+)(?:\s*[://]{2,}\s*)[^<>\s]*)|\b(?:(?:(?:[^\s!@#$%^&*()_=+[\]{}\|;:'",.<>/?]*)(?:\.|\.\s|\s\.|\s\.\s|@)+)+(?:url|gl|ly|app|ac|ad|aero|ae|af|ag|ai|al|am|an|ao|aq|arpa|ar|asia|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|biz|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|cat|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|coop|com|co|cr|cu|cv|cx|cy|cz|de|dj|dk|dm|do|dz|ec|edu|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|info|int|in|io|iq|ir|is|it|je|jm|jobs|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mobi|mo|mp|mq|mr|ms|mt|museum|mu|mv|mw|mx|my|mz|name|na|nc|net|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pro|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tl|tm|tn|to|tp|travel|tr|tt|tv|tw|tz|ua|ug|uk|um|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|xn--0zwm56d|xn--11b5bs3a9aj6g|xn--80akhbyknj4f|xn--9t4b11yi5a|xn--deba0ad|xn--g6w251d|xn--hgbk6aj7f53bba|xn--hlcj6aya9esc7a|xn--jxalpdlp|xn--kgbechtv|xn--zckzah|ye|yt|yu|za|zm|zw)|(?:(?:[0-9]|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.){3}(?:[0-9]|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5]))(?:[;/][^#?<>\s]*)?(?:\?[^#<>\s]*)?(?:#[^<>\s]*)?(?!\w)/gi;
 
         if (!content) return '_ _';
         if (isInvite.exec(content)) content = content.replace(isInvite, '`link de convite bloqueado`')
         if (isPishing.exec(content)) content = content.replace(isPishing, '`link de website banido`')
-        // if (isUrl1.exec(content)) content = content.replace(isUrl1, '`link bloqueado`')
-        if (isUrl2.exec(content)) content = content.replace(isUrl2, '`link bloqueado`')
+        if (isUrl.exec(content)) {
+            let arrayContent: string[] = content.trim().split(/ /g),
+                config = require('../json/settings.json');
 
+            arrayContent.forEach(text => {
+                if (!isUrl.exec(text)) return;
+                for (let i in config.globalchat.allowedLinks)
+                    if (text.startsWith(config.globalchat.allowedLinks[i])) return;
 
-        // if (content.includes('http')) {
-        //     let arrayContent: string[] = content.trim().split(/ /g),
-        //         config = require('../json/settings.json');
-        //     arrayContent.forEach(text => {
-        //         for (let i in config.globalchat.allowedLinks) {
-        //             if (text.startsWith(config.globalchat.allowedLinks[i])) return;
-        //         }
-        //         if (text.includes('http')) return content = content.replace(new RegExp(text, 'g'), '`link bloqueado`');
-        //     })
-        // }
+                return content = content.replace(text, '`link bloqueado`');
+            })
+        }
 
-        return content.substring(0, maxLength);
+        return content.length > maxLength ? `${content.substring(0, maxLength)}...` : content
     }
 
-    async checkPermissions({ ket, target = null, channel = null, comando, notReply = null }, t) {
+    async checkPermissions({ ket, context = null, channel = null, comando, notReply = null }, t) {
         let
-            canal: Eris.GuildChannel = !channel ? target.channel : channel,
+            canal: Eris.GuildChannel = !channel ? context.channel : channel,
             guild: Eris.Guild = canal.guild,
             me: Eris.Member = guild.members.get(ket.user.id),
-            user: Eris.User = target ? (target instanceof Eris.Message ? target.author : target.member.user.id) : null,
+            user: Eris.User = context ? (context instanceof Eris.Message ? context.author : context.member.user.id) : null,
             missingPermissions: string[] = [],
             translatedPerms: string;
 
         if (!canal) return false;
         if ([10, 11, 12].includes(canal.type) && !comando.config.access.Threads) {
             ket.say({
-                target, content: {
+                context, content: {
                     embeds: {
                         color: getColor('red'),
                         title: `${getEmoji('sireneRed').mention} ${t('events:no-threads')}`
@@ -179,7 +172,7 @@ module.exports = class Utils {
         comando.config.permissions.bot.forEach((perm) => !me.permissions.has(perm) ? missingPermissions.push(perm) : {});
         translatedPerms = missingPermissions.map(value => t(`permissions:${value}`)).join(', ');
         if (missingPermissions[0] && !notReply) {
-            ket.say({ target, content: t('permissions:missingPerms', { missingPerms: translatedPerms }), embed: false, emoji: 'negado' })
+            ket.say({ context, content: t('permissions:missingPerms', { missingPerms: translatedPerms }), embed: false, emoji: 'negado' })
                 .catch(async () => {
                     let dmChannel = await user.getDMChannel();
                     dmChannel.createMessage(t('permissions:missingPerms', { missingPerms: translatedPerms }))
@@ -208,14 +201,14 @@ module.exports = class Utils {
 
     CommandError({ ket, message, args, interaction, comando, error }, t) {
         let
-            target = (interaction ? interaction : message),
-            channel = target.channel,
+            context = (interaction ? interaction : message),
+            channel = context.channel,
             guild = (channel.type === 1 ? null : channel.guild),
             me = guild.members.get(ket.user.id),
             user = (interaction ? interaction.member.user : message.author);
 
         ket.say({
-            target, content: {
+            context, content: {
                 embeds: {
                     color: getColor('red'),
                     thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/918721199029231716/error.gif' },

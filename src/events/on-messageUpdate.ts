@@ -31,7 +31,7 @@ module.exports = class MessageUpdateEvent {
                 WHERE id = '${msgData.id}';`);
 
                 return this.ket.say({
-                    target: newMessage, emoji: 'negado', content: {
+                    context: newMessage, emoji: 'negado', content: {
                         embeds: {
                             thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/918721199029231716/error.gif' },
                             color: getColor('red'),
