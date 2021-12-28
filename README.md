@@ -1,5 +1,16 @@
-# ⭐ Ket ⭐
-✨ Ket is an excellent bot for Discord made in TypeScript using Eris ✨
+# ⭐ Ket Discord Bot ⭐
+✨ Ket is an excellent Discord bot made in TypeScript using Eris with lots of awesome features ✨
+
+## Features:
+#### Global chat
+[x] Send messages
+[x] Upload images/videos/gifs
+[x] Send stickers and allowed links
+[x] Update messages
+[x] Delete messages
+
+#### Commands:
+[ ] under development...
 
 # How to install 🤔
 ### `1 -` 🛠️ Download and install the necessary tools to get started
