@@ -15,10 +15,11 @@ module.exports = class ReadyEvent {
             { name: 'no vasco', type: 0 },
             { name: 'sua mãe da janela', type: 0 },
             { name: 'sua mãe na panela', type: 0 },
-            { name: "mais um gol do vasco", type: 1},
-            { name: "os gemidos da sua mãe", type: 2} 
+            { name: "mais um gol do vasco", type: 3 },
+            { name: "os gemidos da sua mãe", type: 2 },
+            { name: 'Vasco x Flamengo', type: 5} 
         ]
-        setInterval(() => this.ket.editStatus("dnd", status[Math.floor(Math.random() * status.length)]), 10000)
+        setInterval(() => this.ket.editStatus("dnd", status[Math.floor(Math.random() * status.length)]), 15 * 1_000)
         global.session.log('log', "CLIENT", `Sessão iniciada como ${c.bgGreen(c.white(this.ket.user.tag))}`);
         console.log(gradient('red', 'yellow')("◆ ▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬ ◆"));
         global.session.log('log', "CLIENT", `Operante em ${this.ket.guilds.size} templos com ${this.ket.users.size} subordinados`);

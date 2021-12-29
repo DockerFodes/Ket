@@ -83,7 +83,14 @@ module.exports = class Utils {
             }]
         }
 
-        if (context.stickerItems) msgObj.content = `https://media.discordapp.net/stickers/${context.stickerItems[0].id}.png?size=240`
+        if (context.stickerItems[0]) for(let i in context.stickerItems) {
+            let buffer = await axios({
+                url: `https://media.discordapp.net/stickers/${context.stickerItems[i].id}.png?size=240`,
+                method: 'get',
+                responseType: 'arraybuffer'
+            })
+            msgObj.file.push({ file: buffer.data, name: `${context.stickerItems[i].name}.${context.stickerItems[i].formatType === 1 ? 'png' : 'gif'}` })
+        }
 
         if (context.attachments[0]) for (let i in context.attachments) {
             let buffer = await axios({
@@ -111,8 +118,7 @@ module.exports = class Utils {
         function save() {
             if (i++ > 10) return global.session.log('error', 'Global Chat', `o cache de mensagens de webhooks está inconsistente, desativando save do banco de dados com ${guilds.length - msgs.length} não salvas.`, '')
             if (msgs.length !== guilds.length) return setTimeout(() => save(), 300);
-            else db.globalchat.create({
-                id: context.id,
+            else db.globalchat.create(context.id,{
                 author: context.author.id,
                 editcount: 0,
                 messages: `{${msgs.join(',')}}`
