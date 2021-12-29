@@ -32,9 +32,14 @@
             "https://epicgames.com/",
             "https://ubisoft.com/",
 
+            // Sites de jogos
+            "https://roblox.com/",
+            "https://chess.com",
+
             // Outros Sites
             "https://google.com/",
             "https://pt.wikipedia.org/",
+            "https://dicio.com.br/",
             "https://instagram.com/",
             "https://spotify.com/"
         ]

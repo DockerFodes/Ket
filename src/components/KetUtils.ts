@@ -142,7 +142,7 @@ module.exports = class Utils {
             arrayContent.forEach(text => {
                 if (!isUrl.exec(text)) return;
                 for (let i in config.globalchat.allowedLinks)
-                    if (text.startsWith(config.globalchat.allowedLinks[i])) return;
+                    if (text.replace('www.', '').startsWith(config.globalchat.allowedLinks[i])) return;
 
                 return content = content.replace(text, '`link bloqueado`');
             })
