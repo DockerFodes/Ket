@@ -4,6 +4,7 @@ delete require.cache[require.resolve('../components/KetUtils')];
 const
     db = global.session.db,
     KetUtils = new (require('../components/KetUtils'))(),
+    { getContext } = require('../components/Commands/CommandStructure'),
     i18next = require("i18next");
 
 module.exports = class MessageCreateEvent {
@@ -17,35 +18,39 @@ module.exports = class MessageCreateEvent {
             delete require.cache[require.resolve("../packages/events/_on-messageDMCreate")];
             return new (require("../packages/events/_on-messageDMCreate"))(this).start(message);
         };
-        let server = await db.servers.find(message.channel.guild.id, true),
-            user = await db.users.find(message.author.id);
+        const ket = this.ket
+        let ctx = getContext({ ket, message }),
+            server = await db.servers.find(ctx.gID, true),
+            user = await db.users.find(ctx.uID);
         if (user?.banned) return;
-        if (server.banned) return message.channel.guild.leave();
-        if (server.globalchat && message.channel.id === server.globalchat) await KetUtils.sendGlobalChat(this.ket, message);
+        if (server?.banned) return ctx.guild.leave();
+        if (server?.globalchat && ctx.cID === server.globalchat) await KetUtils.sendGlobalChat(this.ket, message);
 
         const regexp = new RegExp(`^(${((!user || !user.prefix) ? this.ket.config.DEFAULT_PREFIX : user.prefix).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}|<@!?${this.ket.user.id}>)( )*`, 'gi')
         if (!message.content.match(regexp)) return;
-        const ket = this.ket,
-            args: string[] = message.content.replace(regexp, '').trim().split(/ /g),
+        const args: string[] = message.content.replace(regexp, '').trim().split(/ /g),
             commandName: string | null = args.shift().toLowerCase(),
-            comando = ket.commands.get(commandName) || ket.commands.get(ket.aliases.get(commandName));
+            command = ket.commands.get(commandName) || ket.commands.get(ket.aliases.get(commandName));
         let t = global.session.t = i18next.getFixedT(user?.lang || 'pt');
-        if (!comando) if (await KetUtils.commandNotFound({ ket, message, comando, commandName }, t) !== true) return;
-        if (comando.config.permissions.onlyDevs && !ket.config.DEVS.includes(message.author.id)) return;
+        if (!command) if (await KetUtils.commandNotFound(ctx) !== true) return;
 
-            await KetUtils.checkCache({ ket, context: message });
-        user = await KetUtils.checkUserGuildData(message);
-        t = global.session.t = i18next.getFixedT(user?.lang);
-        if (await KetUtils.checkPermissions({ ket, context: message, comando }, t) === false) return;
+        ctx = getContext({ ket, user, server, message, args, command, commandName }, t)
+
+        if (ctx.command.permissions.onlyDevs && !ket.config.DEVS.includes(ctx.uID)) return;
+
+        await KetUtils.checkCache(ctx);
+        ctx.t = t = global.session.t = i18next.getFixedT(user?.lang);
+        ctx.user = await KetUtils.checkUserGuildData(ctx);
+
+        if (await KetUtils.checkPermissions({ ctx }) === false) return;
 
         return new Promise(async (res, rej) => {
             try {
-                let context = message
-                comando.dontType ? null : await message.channel.sendTyping();
-                await comando.execute({ ket, context, args, comando, commandName, db }, t);
-                KetUtils.sendCommandLog({ ket, message, args, commandName })
+                command.dontType ? null : await ctx.channel.sendTyping();
+                await command.execute(ctx);
+                KetUtils.sendCommandLog(ctx)
             } catch (error) {
-                return KetUtils.CommandError({ ket, message, args, comando, error }, t)
+                return KetUtils.CommandError(ctx, error)
             }
         })
     }

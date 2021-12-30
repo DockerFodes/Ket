@@ -25,6 +25,7 @@
             "https://tenor.com/view/",
             "https://giphy.com/gifs/",
             "https://prnt.sc/",
+	    "https://imgur.com/",
             "https://crunchyroll.com/",
 
             // Lojas de jogos grátis
@@ -61,7 +62,7 @@
             "ratelimiterOffset": 0
         },
         "restMode": true,
-        "messageLimit": 16,
+        "messageLimit": 25,
         "cacheLimit": {
             "users": 100,
             "channels": 500

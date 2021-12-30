@@ -36,19 +36,18 @@ module.exports = class EvalCommand extends CommandStructure {
             slashData: null
         })
     }
-    async execute({ context, args, commandName }, t) {
+    async execute(ctx) {
         const
             ket = this.ket,
             db = global.session.db;
-
         let
-            message = (context instanceof Eris.Message ? context : context.message),
-            evaled = args.join(" ").replace('```js', '').replace('```', ''),
-            canReturn = (commandName === 'eval' ? true : false),
+            message = (ctx instanceof Eris.Message ? ctx : ctx.message),
+            evaled = ctx.args.join(" ").replace('```js', '').replace('```', ''),
+            canReturn = (ctx.commandName === 'eval' ? true : false),
             embed: typeof EmbedBuilder;
 
         try {
-            if (args.includes('await')) evaled = await eval(`async function executeEval() {\n${evaled}\n}\nexecuteEval()`);
+            if (ctx.args.includes('await')) evaled = await eval(`async function executeEval() {\n${evaled}\n}\nexecuteEval()`);
             else evaled = await eval(evaled);
 
             embed = new EmbedBuilder()
@@ -62,7 +61,7 @@ module.exports = class EvalCommand extends CommandStructure {
                 .setDescription(util.inspect(e), 'js');
             canReturn = true
         } finally {
-            if (canReturn) ket.say({ context, content: { embeds: [embed.build()] } })
+            if (canReturn) ket.say({ ctx, content: { embeds: [embed.build()] } })
         }
     }
 }

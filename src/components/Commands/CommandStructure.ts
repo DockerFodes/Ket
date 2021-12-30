@@ -1,3 +1,5 @@
+import Eris from "eris";
+
 export { };
 
 module.exports.CommandStructure = class CommandStructure {
@@ -167,5 +169,30 @@ module.exports.Decoration = {
             if (toNumber) return parseInt((colors[color]).replace('#', ''), 16);
             return colors[color];
         } else return parseInt((color.replace('#', '')), 16)
+    }
+}
+
+module.exports.getContext = ({ ket, message = null, interaction = null, user, server, args = null, command = null, commandName = null }, t) => {
+    let ctx = message ? message : interaction;
+    return {
+        ket: ket,
+        config: ket.config,
+        say: ket.say,
+        env: message ? message : interaction,
+        user: user,
+        server: server,
+        args: args,
+        author: (message ? ctx.author : ctx.member.user),
+        uID: (message ? ctx.author : ctx.member.user).id,
+        member: ctx.member,
+        guild: ctx.channel.guild,
+        gID: ctx.guildID,
+        me: ctx.channel.guild.members.get(ket.user.id),
+        shard: ctx.channel.guild.shard,
+        channel: ctx.channel,
+        cID: ctx.channel.id,
+        command: command?.config,
+        commandName: commandName,
+        t: t
     }
 }

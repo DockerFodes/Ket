@@ -5,7 +5,7 @@ module.exports = class ShardResumeEvent {
     constructor(ket: Eris.Client) {
         this.ket = ket;
     }
-    async execute(shardID: number) {
+    async start(shardID: number) {
         this.ket.emit('shardReady', shardID);
     }
 }

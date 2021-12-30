@@ -140,11 +140,11 @@ module.exports = class KetClient extends Client {
         return user;
     }
 
-    async say({ context, content, emoji = null, embed = true, type = 'reply', message = null, interaction = null }) {
+    async say({ ctx, content, emoji = null, embed = true, type = 'reply', message = null, interaction = null }) {
         if (!content) return;
-        if (context instanceof Eris.Message) message = context
-        else interaction = context
-        let user = this.users.get(message ? context.author.id : context.member.user.id);
+        if (ctx.env instanceof Eris.Message) message = ctx.env
+        else interaction = ctx.env
+        let user = this.users.get(ctx.uID);
 
 
         let msg, msgObj = {
@@ -157,9 +157,9 @@ module.exports = class KetClient extends Client {
             components: [],
             flags: 0,
             messageReference: message && type === 'reply' ? {
-                channelID: context.channel.id,
-                guildID: context.guildID,
-                messageID: context.id,
+                channelID: ctx.cID,
+                guildID: ctx.gID,
+                messageID: ctx.env.id,
                 failIfNotExists: false
             } : null
         }
@@ -175,8 +175,8 @@ module.exports = class KetClient extends Client {
         }
 
         if (message) {
-            if ((message?.editedTimestamp && user?.lastCommand) || type === 'edit') msg = await context.channel.editMessage(user.lastCommand.msg.id, msgObj).catch(() => { });
-            else msg = await context.channel.createMessage(msgObj).catch(() => { });
+            if ((message.editedTimestamp && user?.lastCommand && user.lastCommand.msg.channel.id === message.channel.id && Date.now() < message.timestamp + 2 * 1000 * 60) || type === 'edit') msg = await message.channel.editMessage(user.lastCommand.msg.id, msgObj)
+            else msg = await message.channel.createMessage(msgObj)
 
             user.lastCommand = {
                 message: message,
@@ -184,8 +184,8 @@ module.exports = class KetClient extends Client {
             }
         } else {
             switch (type) {
-                case 'reply': return context.createMessage(msgObj).catch(() => { });
-                case 'edit': return context.editOriginalMessage(msgObj).catch(() => { });
+                case 'reply': return interaction.createMessage(msgObj).catch(() => { });
+                case 'edit': return interaction.editOriginalMessage(msgObj).catch(() => { });
             }
 
         }

@@ -4,6 +4,7 @@ delete require.cache[require.resolve('../components/KetUtils')];
 const
     db = global.session.db,
     KetUtils = new (require('../components/KetUtils'))(),
+    { getContext } = require('../components/Commands/CommandStructure'),
     i18next = require("i18next");
 
 module.exports = class InteractionCreateEvent {
@@ -17,30 +18,35 @@ module.exports = class InteractionCreateEvent {
             delete require.cache[require.resolve("../packages/events/_on-messageDMCreate")];
             return new (require("../packages/events/_on-messageDMCreate"))(this).start(interaction);
         };
-        let server = await db.servers.find(interaction.channel.guild.id, true),
-            user = await db.users.find(interaction.member.user.id);
+        const ket = this.ket
+        let ctx = getContext({ ket, interaction }),
+            server = await db.servers.find(ctx.gID, true),
+            user = await db.users.find(ctx.uID);
         if (user?.banned) return;
-        if (server.banned) return interaction.channel.guild.leave();
+        if (server?.banned) return ctx.guild.leave();
 
-        const ket = this.ket,
-            args: string[] = [],
+        const args: string[] = [],
             commandName: string = interaction.data.name,
-            comando = ket.commands.get(commandName) || ket.commands.get(ket.aliases.get(commandName));
-        let t = global.session.t = i18next.getFixedT(user.lang || 'pt');
+            command = ket.commands.get(commandName) || ket.commands.get(ket.aliases.get(commandName));
+        let t = global.session.t = i18next.getFixedT(user?.lang || 'pt');
 
-        await KetUtils.checkCache({ ket, context: interaction });
-        user = await KetUtils.checkUserGuildData( interaction );
-        t = global.session.t = i18next.getFixedT(user.lang);
-        if (await KetUtils.checkPermissions({ ket, context: interaction, comando }, t) === false) return;
+        ctx = getContext({ ket, interaction, args, command }, t)
+
+        if (ctx.command.permissions.onlyDevs && !ket.config.DEVS.includes(ctx.uID)) return;
+
+        await KetUtils.checkCache(ctx);
+        ctx.t = t = global.session.t = i18next.getFixedT(user?.lang);
+        user = await KetUtils.checkUserGuildData(ctx);
+
+        if (await KetUtils.checkPermissions({ ctx }) === false) return;
 
         return new Promise(async (res, rej) => {
             try {
-                let context = interaction
-                comando.dontType ? null : await interaction.defer();
-                await comando.execute({ ket, context, args, comando, commandName, db }, t);
-                // KetUtils.sendCommandLog({ ket, message, args, commandName })
+                command.dontType ? null : await ctx.channel.sendTyping();
+                await command.execute(ctx);
+                KetUtils.sendCommandLog(ctx)
             } catch (error) {
-                return KetUtils.CommandError({ ket, interaction, args, comando, error }, t)
+                return KetUtils.CommandError(ctx, error)
             }
         })
     }

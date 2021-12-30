@@ -11,13 +11,13 @@ let
         user: process.env.DATABASE_USER,
         host: process.env.DATABASE_HOST,
         port: Number(process.env.DATABASE_PORT),
+        ssl: process.env.SSL_MODE == 'false' ? false : { rejectUnauthorized: false }
     },
     postgres = global.session.postgres = new Client(PgConfig),
     db: any = global.session.db = {
         ready: false,
         disconnect: () => postgres.end
     };
-if (process.env.SSL_MODE !== 'false') PgConfig.ssl = { rejectUnauthorized: false }
 
 module.exports = async (ket) => {
 
@@ -56,6 +56,7 @@ module.exports = async (ket) => {
         console.log(c.blue(`Criando tabela de dados para servidores`));
         await postgres.query(`CREATE TABLE public.servers (
                     id VARCHAR(20) NOT NULL PRIMARY KEY,
+                    globalchat VARCHAR(20) NULL,
                     partner BOOLEAN NULL,
                     banned BOOLEAN NULL,
                     banreason TEXT NULL
