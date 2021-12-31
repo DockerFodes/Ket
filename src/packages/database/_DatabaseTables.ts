@@ -4,6 +4,7 @@ module.exports = class DatabaseTable {
     table: {
         create: Function,
         update: Function,
+        delete: Function,
         find: Function,
         getAll: Function
     }
@@ -17,7 +18,8 @@ module.exports = class DatabaseTable {
 
         this.table = {
             create: async (index: string, data: object, returnValue: boolean = false) => {
-                let values = [];
+                if (!index) return;
+                let values: string[] = [];
                 if (data) for (let i in Object.entries(data)) {
                     let str = String(eval('data.' + Object.keys(data)[i])).replace(new RegExp(`'`, 'g'), `''`);
                     typeof str === 'string' ? values.push(`'${str}'`) : values.push(str);
@@ -27,6 +29,7 @@ module.exports = class DatabaseTable {
                 return;
             },
             update: async (index: string, data: object, returnValue: boolean = false) => {
+                if (!index) return;
                 let values: string[] = [];
                 for (let [key, value] of Object.entries(data)) typeof value === 'string' ? values.push(`${key} = '${value.replace(new RegExp(`'`, 'g'), `''`)}'`) : values.push(`${key} = ${value}`);
                 await postgres.query(`UPDATE ${tableName} SET
@@ -36,15 +39,25 @@ module.exports = class DatabaseTable {
                 if (returnValue) return await global.session.db[tableName].find(index);
                 return;
             },
+            delete: async (index: string) => {
+                if (!index) return;
+                try {
+                    await global.session.postgres.query(`DELETE FROM ${tableName} WHERE ${PrimaryKey} = ${index}`)
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            },
             find: async (index: string, createIfNull: boolean = false) => {
+                if (!index) return;
                 let search = await postgres.query(`SELECT * FROM ${tableName} WHERE ${PrimaryKey} = '${index}';`);
                 if (!search.rows[0] && index && createIfNull) return await global.session.db[tableName].create(index, null, true);
                 else return search.rows[0];
             },
-            getAll: async (limit: number, orderBy = { key: PrimaryKey, type: 'ASC' }) => {
+            getAll: async (limit: number = null, orderBy: { key: string, type: string } = null) => {
                 let search = await postgres.query(`SELECT * FROM ${tableName}
                 ${orderBy ? `ORDER BY ${orderBy.key} ${orderBy.type}` : ''}
-                LIMIT ${limit ? limit : 'ALL'}
+                ${limit ? `LIMIT ${limit}` : ''}
                 ;`);
                 return search.rows;
             }

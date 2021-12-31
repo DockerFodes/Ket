@@ -59,7 +59,7 @@
         },
         "rest": {
             "domain": "canary.discord.com",
-            "ratelimiterOffset": 0
+            "ratelimiterOffset": 500
         },
         "restMode": true,
         "messageLimit": 25,

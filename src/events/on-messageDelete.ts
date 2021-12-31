@@ -1,4 +1,4 @@
-import Eris from "eris"
+import Eris, { GuildChannel } from "eris"
 const db = global.session.db;
 module.exports = class MessageDeleteEvent {
     ket: any;
@@ -8,19 +8,26 @@ module.exports = class MessageDeleteEvent {
     async start(message: Eris.Message<Eris.GuildChannel>) {
         let guild = await db.servers.find(message.guildID);
         if (message.channel.id !== guild.globalchat || Date.now() > message.timestamp + (15 * 1000 * 60) || message.author?.bot) return;
-        let msgs = await db.globalchat.getAll(100);
-        let msg = msgs.filter(msgData => msgData.messages.includes(message.id) || msgData.id === message.id)[0]
-        if (!msg) return;
-        msg.messages.forEach(async data => {
+
+        let msgs = await db.globalchat.getAll(100),
+            msgData = msgs.filter(msg => msg.id === message.id || msg.messages.includes(message.id))[0];
+
+        !msgData ? null : msgData.messages.forEach(async data => {
             let guildData = await db.servers.find(data.split('|')[1]),
                 channel: any = this.ket.guilds.get(guildData.id).channels.get(guildData.globalchat),
-                webhook = this.ket.webhooks.get(channel.id);
+                msg: Eris.Message = await channel.getMessage(data.split('|')[0]),
+                webhook = this.ket.webhooks.get(channel.id),
+                hasDeleted: boolean = false;
+
+            if (!msg) return;
             if (!webhook) {
                 webhook = await channel.getWebhooks();
                 webhook = webhook.filter(w => w.name === 'Ket Global Chat' && w.user.id === this.ket.user.id)[0];
                 if (!webhook) return;
             }
-            this.ket.editWebhookMessage(webhook.id, webhook.token, data.split('|')[0], {
+            if (msg.attachments[0]) await msg.delete().then(() => hasDeleted = true).catch(() => hasDeleted = false)
+
+            if (!hasDeleted) this.ket.editWebhookMessage(webhook.id, webhook.token, msg.id, {
                 content: "```diff\n- [mensagem original apagada]```",
                 file: [],
                 embeds: [],
@@ -29,7 +36,7 @@ module.exports = class MessageDeleteEvent {
                     roles: false,
                     users: false
                 }
-            }).catch(() => { })
+            }).catch(() => !msg.attachments[0] ? msg.delete().catch(() => { }) : null)
         })
     }
 }

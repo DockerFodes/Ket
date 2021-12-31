@@ -31,7 +31,7 @@ module.exports = class EvalCommand extends CommandStructure {
                 DM: true,
                 Threads: true
             },
-            dontType: false,
+            dontType: true,
             testCommand: ['message.channel.createMessage("alow")'],
             slashData: null
         })
@@ -47,7 +47,7 @@ module.exports = class EvalCommand extends CommandStructure {
             embed: typeof EmbedBuilder;
 
         try {
-            if (ctx.args.includes('await')) evaled = await eval(`async function executeEval() {\n${evaled}\n}\nexecuteEval()`);
+            if (ctx.args.join(' ').includes('await')) evaled = await eval(`async function executeEval() {\n${evaled}\n}\nexecuteEval()`);
             else evaled = await eval(evaled);
 
             embed = new EmbedBuilder()

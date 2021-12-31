@@ -19,7 +19,7 @@ module.exports = class ReadyEvent {
             { name: "os gemidos da sua mãe", type: 2 },
             { name: 'Vasco x Flamengo', type: 5} 
         ]
-        setInterval(() => this.ket.editStatus("dnd", status[Math.floor(Math.random() * status.length)]), 15 * 1_000)
+        setInterval(() => this.ket.editStatus("invisible", status[Math.floor(Math.random() * status.length)]), 15 * 1_000)
         global.session.log('log', "CLIENT", `Sessão iniciada como ${c.bgGreen(c.white(this.ket.user.tag))}`);
         console.log(gradient('red', 'yellow')("◆ ▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬ ◆"));
         global.session.log('log', "CLIENT", `Operante em ${this.ket.guilds.size} templos com ${this.ket.users.size} subordinados`);

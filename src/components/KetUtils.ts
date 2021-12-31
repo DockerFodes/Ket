@@ -107,7 +107,7 @@ module.exports = class Utils {
             if (!webhook) return;
 
             if (message.messageReference && !message.author.bot) {
-                let ref = channel.messages.find(m => m.author.username === msg.author.username && this.msgFilter(m.filtredContent, 1990, true) === this.msgFilter(msg.filtredContent, 1990, true) && m.timestamp < msg.timestamp + 1500);
+                let ref = channel.messages.find(m => m.author.username === msg.author.username && this.msgFilter(m.filtredContent, 1990, true) === this.msgFilter(msg.filtredContent, 1990, true) && m.timestamp < msg.timestamp + 3000);
                 !msg ? null : msgObj.embeds = [{
                     color: getColor('green'),
                     author: { name: msg.author.username, icon_url: msg.author.dynamicAvatarURL('jpg') },
@@ -115,13 +115,17 @@ module.exports = class Utils {
                     image: (msg.attachments[0] ? { url: `${msg.attachments[0].url}?size=128` } : null)
                 }]
             }
-
-            return ket.executeWebhook(webhook.id, webhook.token, msgObj).then((msg: Eris.Message) => msgs.push(`${msg.id}|${msg.guildID}`)).catch(() => { });
+            function send() {
+                ket.executeWebhook(webhook.id, webhook.token, msgObj).then((msg: Eris.Message) => msgs.push(`${msg.id}|${msg.guildID}`)).catch(() => { });
+            }
+            let rateLimit = ket.requestHandler.ratelimits[`/webhooks/${g.globalchat}/:token?&wait=true`];
+            if (rateLimit) return setTimeout(() => send(), Date.now() - rateLimit.reset + ket.options.rest.ratelimiterOffset)
+            return send()
         })
         let i = 0
         function save() {
             if (i++ > 10) return global.session.log('error', 'Global Chat', `o cache de mensagens de webhooks está inconsistente, desativando save do banco de dados com ${guilds.length - msgs.length} não salvas.`, '')
-            if (msgs.length !== guilds.length) return setTimeout(() => save(), 175);
+            if (msgs.length !== guilds.length) return setTimeout(() => save(), 300);
             else db.globalchat.create(message.id, {
                 author: message.author.id,
                 editcount: 0,

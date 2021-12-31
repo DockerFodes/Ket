@@ -9,6 +9,8 @@ module.exports.CommandStructure = class CommandStructure {
     constructor(ket, command) {
         this.config = {
             name: command.name || null,
+            description: command.description || "invalid-description",
+            options: command.options || null,
             aliases: command.aliases || [],
             category: command.category || "util",
             cooldown: command.cooldown || 3,
