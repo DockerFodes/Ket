@@ -8,7 +8,7 @@ module.exports = class MessageDeleteEvent {
     async start(message: Eris.Message<Eris.GuildChannel>) {
         let guild = await db.servers.find(message.guildID);
         if (message.channel.id !== guild.globalchat || Date.now() > message.timestamp + (15 * 1000 * 60) || message.author?.bot) return;
-        let msgs = await db.globalchat.getAll();
+        let msgs = await db.globalchat.getAll(100);
         let msg = msgs.filter(msgData => msgData.messages.includes(message.id) || msgData.id === message.id)[0]
         if (!msg) return;
         msg.messages.forEach(async data => {

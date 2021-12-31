@@ -19,27 +19,26 @@ module.exports = class MessageCreateEvent {
             return new (require("../packages/events/_on-messageDMCreate"))(this).start(message);
         };
         const ket = this.ket
-        let ctx = getContext({ ket, message }),
-            server = await db.servers.find(ctx.gID, true),
-            user = await db.users.find(ctx.uID);
+        let server = await db.servers.find(message.guildID, true),
+            user = await db.users.find(message.author.id),
+            ctx = getContext({ ket, message, server, user }, i18next.getFixedT(user?.lang || 'pt'))
         if (user?.banned) return;
         if (server?.banned) return ctx.guild.leave();
-        if (server?.globalchat && ctx.cID === server.globalchat) await KetUtils.sendGlobalChat(this.ket, message);
+        if (server?.globalchat && ctx.cID === server.globalchat) KetUtils.sendGlobalChat(ctx);
 
         const regexp = new RegExp(`^(${((!user || !user.prefix) ? this.ket.config.DEFAULT_PREFIX : user.prefix).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}|<@!?${this.ket.user.id}>)( )*`, 'gi')
         if (!message.content.match(regexp)) return;
         const args: string[] = message.content.replace(regexp, '').trim().split(/ /g),
             commandName: string | null = args.shift().toLowerCase(),
             command = ket.commands.get(commandName) || ket.commands.get(ket.aliases.get(commandName));
-        let t = global.session.t = i18next.getFixedT(user?.lang || 'pt');
         if (!command) if (await KetUtils.commandNotFound(ctx) !== true) return;
 
-        ctx = getContext({ ket, user, server, message, args, command, commandName }, t)
+        ctx = getContext({ ket, user, server, message, args, command, commandName }, ctx.t)
 
         if (ctx.command.permissions.onlyDevs && !ket.config.DEVS.includes(ctx.uID)) return;
 
         await KetUtils.checkCache(ctx);
-        ctx.t = t = global.session.t = i18next.getFixedT(user?.lang);
+        ctx.t = i18next.getFixedT(user?.lang);
         ctx.user = await KetUtils.checkUserGuildData(ctx);
 
         if (await KetUtils.checkPermissions({ ctx }) === false) return;

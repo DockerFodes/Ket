@@ -20,28 +20,41 @@ module.exports = class Utils {
         return;
     }
 
-    async checkUserGuildData(ctx: any) {
+    async checkUserGuildData(ctx: any, globalchat: boolean = false) {
         await db.servers.find(ctx.gID, true)
-        return await db.users.find(ctx.uID, true);
+        let user = await db.users.find(ctx.uID);
+        if (!user) {
+            user = await db.users.create(ctx.uID, { lang: ctx.guild?.preferredLocale.startsWith('pt') ? 'pt' : 'en' }, true)
+            if (globalchat) (await ctx.ket.say({
+                ctx, content: {
+                    embeds: [{
+                        ...ctx.t('events:globalchat.welcome', { avatar: ctx.author.dynamicAvatarURL('jpg') }),
+                        color: getColor('green'),
+                        image: { url: 'https://goyalankit.com/assets/img/el_gato2.gif' }
+                    }]
+                },
+            })).deleteAfter(30);
+        }
+        return user;
     }
 
-    async sendGlobalChat(ket, ctx: /*Eris.Message*/ any) {
+    async sendGlobalChat(ctx: any) {
         let command = {
             permissions: { bot: ['manageChannels', 'manageWebhooks', 'manageMessages'] },
             access: { Threads: false }
-        },
-            user = await this.checkUserGuildData(ctx);
-
-        await this.checkCache({ ket, ctx });
-        if (await this.checkPermissions({ ctx, command }) === false) return;
-
+        };
+        await this.checkUserGuildData(ctx, true);
+        await this.checkCache(ctx);
+        if (await this.checkPermissions({ ctx, command }) === false || ctx.channel.nsfw) return;
         let
-            guildsData = await db.servers.getAll(),
-            guilds = guildsData.filter(guild => guild.globalchat && guild.globalchat != ctx.channel.id),
+            message = ctx.env,
+            ket = ctx.ket,
+            guildsData = await db.servers.getAll(35),
+            guilds = guildsData.filter(guild => guild.globalchat && guild.globalchat != message.channel.id),
             msgObj = {
-                username: ctx.author.username,
-                avatarURL: ctx.author.dynamicAvatarURL('jpg', 256),
-                content: this.msgFilter(ctx.filtredContent),
+                username: message.author.username,
+                avatarURL: message.author.dynamicAvatarURL('jpg', 256),
+                content: this.msgFilter(message.filtredContent),
                 embeds: null,
                 file: [],
                 stickerIDs: null,
@@ -55,44 +68,45 @@ module.exports = class Utils {
             msg,
             msgs: string[] = [];
 
-        if (ctx.messageReference && !ctx.author.bot) ctx.channel.messages.has(ctx.messageReference.messageID)
-            ? msg = ctx.channel.messages.get(ctx.messageReference.messageID)
-            : msg = await ket.getMessage(ctx.messageReference.channelID, ctx.messageReference.messageID);
+        if (message.messageReference && !message.author.bot) message.channel.messages.has(message.messageReference.messageID)
+            ? msg = message.channel.messages.get(message.messageReference.messageID)
+            : msg = await ket.getMessage(message.messageReference.channelID, message.messageReference.messageID);
 
-        if (ctx.stickerItems) for (let i in ctx.stickerItems) {
+        if (message.stickerItems) for (let i in message.stickerItems) {
             let buffer = await axios({
-                url: `https://media.discordapp.net/stickers/${ctx.stickerItems[i].id}.png?size=240`,
+                url: `https://media.discordapp.net/stickers/${message.stickerItems[i].id}.png?size=240`,
                 method: 'get',
                 responseType: 'arraybuffer'
             })
-            !buffer ? {} : msgObj.file.push({ file: buffer.data, name: `${ctx.stickerItems[i].name}.${ctx.stickerItems[i].format_type === 1 ? 'png' : 'gif'}` })
+            !buffer ? {} : msgObj.file.push({ file: buffer.data, name: `${message.stickerItems[i].name}.${message.stickerItems[i].format_type === 1 ? 'png' : 'gif'}` })
         }
 
-        if (ctx.attachments[0]) for (let i in ctx.attachments) {
+        if (message.attachments[0]) for (let i in message.attachments) {
             let buffer = await axios({
-                url: ctx.attachments[i].url,
+                url: message.attachments[i].url,
                 method: 'get',
                 responseType: 'arraybuffer'
             })
-            !buffer ? {} : msgObj.file.push({ file: buffer.data, name: ctx.attachments[i].filename })
+            !buffer ? {} : msgObj.file.push({ file: buffer.data, name: message.attachments[i].filename })
         }
 
-        if (ctx.author.bot) msgObj.embeds = ctx.embeds
+        if (message.author.bot) msgObj.embeds = message.embeds
 
 
         guilds.forEach(async (g) => {
             let
                 channel = ket.guilds.get(g.id).channels.get(g.globalchat),
                 webhook = ket.webhooks.get(channel.id);
-            if (await this.checkPermissions({ channel, notReply: true }) === false || !channel) return;
+            if (!channel || channel.nsfw || await this.checkPermissions({ ctx, command, channel, notReply: true }) === false) return;
             if (!webhook) {
                 webhook = await channel.getWebhooks().catch(() => { });
                 webhook = webhook.filter((w: Eris.Webhook) => w.name === 'Ket Global Chat' && w.user.id === ket.user.id)[0];
                 if (!webhook) webhook = await channel.createWebhook({ name: 'Ket Global Chat', options: { type: 1 } }).catch(() => { });
                 ket.webhooks.set(channel.id, webhook);
             }
+            if (!webhook) return;
 
-            if (ctx.messageReference && !ctx.author.bot) {
+            if (message.messageReference && !message.author.bot) {
                 let ref = channel.messages.find(m => m.author.username === msg.author.username && this.msgFilter(m.filtredContent, 1990, true) === this.msgFilter(msg.filtredContent, 1990, true) && m.timestamp < msg.timestamp + 1500);
                 !msg ? null : msgObj.embeds = [{
                     color: getColor('green'),
@@ -108,8 +122,8 @@ module.exports = class Utils {
         function save() {
             if (i++ > 10) return global.session.log('error', 'Global Chat', `o cache de mensagens de webhooks está inconsistente, desativando save do banco de dados com ${guilds.length - msgs.length} não salvas.`, '')
             if (msgs.length !== guilds.length) return setTimeout(() => save(), 175);
-            else db.globalchat.create(ctx.id, {
-                author: ctx.author.id,
+            else db.globalchat.create(message.id, {
+                author: message.author.id,
                 editcount: 0,
                 messages: `{${msgs.join(',')}}`
             })
@@ -192,7 +206,7 @@ module.exports = class Utils {
         let user = await db.users.find(uID),
             embed = new EmbedBuilder()
                 .setColor('green')
-                .setTitle(`${user.prefix}${command.name}`)
+                .setTitle(`${user?.prefix || config.DEFAULT_PREFIX}${command.name}`)
                 .addField('Autor:', `${author.tag} (ID: ${author.id})`, false, 'fix')
                 .addField('Servidor:', `# ${guild?.name} (ID: ${gID})`, false, 'cs')
                 .addField('Argumentos:', `- ${!args[0] ? 'Nenhum argumento foi usado neste comando' : args.join(' ')}`, false, 'diff')
@@ -234,6 +248,7 @@ module.exports = class Utils {
 
     findResult(entrada: string, mapa: string[]) {
         function checkSimilarity(str1: string, str2: string) {
+            console.log(str1, str2)
             if (str1 === str2) return 1.0;
 
             const len1 = str1.length,

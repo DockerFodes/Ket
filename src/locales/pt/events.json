@@ -1,11 +1,31 @@
 {
     "no-threads": "Ops, esse comando não pode ser executado em threads, tente em um chat normal :)",
-    "defaultFooter": "batata",
+    "embedTemplate": {
+        "author": {
+            "name": "{{user.tag}}",
+            "icon_url": "{{user.dynamicAvatarURL('jpg')}}"
+        },
+        "footer": {
+            "text": "📌 Use {{prefix}}ajuda para ver mais informações",
+            "icon_url": "{{user.dynamicAvatarURL('jpg')}}"
+        }
+    },
     "error": {
         "title": "Pane no sistema",
         "desc": "Alguma coisa está impedindo que este comando funcione, a minha equipe foi alertada sobre o erro, sinto muito pela incoveniência.\n```js\n{{error}}```"
     },
     "globalchat": {
-        "editLimitDesc": "Você não pode editar uma mensagem se ela já foi editada 3 vezes ou foi enviada a mais de 15 minutos, editar mensagens demais é perigoso pra mim :("
+        "welcome": {
+            "title": "Seja bem-viado(a) ao chat global!",
+            "description": "Se você não sabe como isso funciona, as mensagens enviadas aqui serão enviadas para outros servidores e vice-versa.",
+            "fields": [
+                { "name": "ㅤㅤㅤ➯ㅤㅤㅤㅤ 「 Regras 」", "value": "◈ Apenas tenha bom senso e não viole os Termos do Discord\n◈ Ser desrespeitoso, flodar, enviar conteúdo sexual **explícito**/**muito sugestivo** pode causar banimento" },
+                { "name": "ㅤ➯ㅤ 「O que você ✨ pode/não pode ✨ fazer」", "value": "**Você pode:**\n◈ Enviar/Editar/Apagar mensagens com fotos/vídeos/gifs, emojis, figurinhas e links de sites permitidos\n\n**Mas não pode:**\n◈ Enviar convites de servidores\n◈ Editar/apagar mensagens com mais de 15 minutos\n◈ Mencionar everyone/here ou usuários/cargos\n◈ Definir este chat como canal de conteúdo adulto" }
+            ],
+            "footer": {
+                "icon_url": "{{avatar}}",
+                "text": "Divirta-se ;)"
+            }
+        }
     }
 }

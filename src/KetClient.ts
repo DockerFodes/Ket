@@ -144,8 +144,7 @@ module.exports = class KetClient extends Client {
         if (!content) return;
         if (ctx.env instanceof Eris.Message) message = ctx.env
         else interaction = ctx.env
-        let user = this.users.get(ctx.uID);
-
+        let user = ctx.ket.users.get(ctx.uID);
 
         let msg, msgObj = {
             content: '',
@@ -182,12 +181,12 @@ module.exports = class KetClient extends Client {
                 message: message,
                 msg: msg
             }
+            return msg;
         } else {
             switch (type) {
                 case 'reply': return interaction.createMessage(msgObj).catch(() => { });
                 case 'edit': return interaction.editOriginalMessage(msgObj).catch(() => { });
             }
-
         }
     }
 }

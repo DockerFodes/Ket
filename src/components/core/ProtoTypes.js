@@ -9,32 +9,18 @@ module.exports = class ProtoTypes {
 		this.ket = ket;
 	}
 	static start() {
-		/** Eris Structures **/
 
-		/* message.reply() */
-		Eris.Message.prototype.reply = async function reply(message, emoji = null) {
-			let msgObj = {};
-			if (typeof message === 'object') {
-				msgObj = {
-					...message,
-					messageReference: { channelID: this.channel.id, guildID: this.guildID, messageID: this.id, failIfNotExists: false }
-				}
-				if (emoji && msgObj.embed) msgObj.embed.description = (getEmoji(emoji).mention ? `${getEmoji(emoji).mention} **| ${msgObj.embed.description}**` : msgObj.embed.description)
-			} else msgObj = { content: (emoji && getEmoji(emoji).mention ? `${getEmoji(emoji).mention} **| ${message}**` : message), messageReference: { channelID: this.channel.id, guildID: this.channel.guild.id, messageID: this.id, failIfNotExists: false } }
-			return this.channel.createMessage(msgObj)
-		}
+		/* message.deleteAfter(5) */
+		if (!Eris.Message.prototype.deleteAfter) Object.defineProperty(Eris.Message.prototype, 'deleteAfter', {
+			value: function (time) {
+				setTimeout(() => this.delete().catch(() => { }), Number(time) * 1000)
+			}
+		})
 
 		if (!Eris.Message.prototype.filtredContent) Object.defineProperty(Eris.Message.prototype, 'filtredContent', {
 			get() {
 				let filtredContent = this.content || ""
-
-				let authorName = this.author.username;
-				if (this.channel.guild) {
-					const member = this.channel.guild.members.get(this.author.id);
-					if (member && member.nick) authorName = member.nick;
-				}
-				filtredContent = filtredContent.replace(new RegExp(`<@!?${this.author.id}>`, "g"), `@\u200b${authorName}`);
-
+				filtredContent = filtredContent.replace(new RegExp(`<@!?${this.author.id}>`, "g"), `@\u200b${this.author.username}`);
 				if (this.mentions) {
 					this.mentions.forEach((mention) => {
 						if (this.channel.guild) {
