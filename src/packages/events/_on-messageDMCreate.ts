@@ -1,7 +1,7 @@
-import Eris from "eris";
+import { Client, Message } from "eris"
 
 const { EmbedBuilder } = require("../../components/Commands/CommandStructure");
-module.exports = async (message: Eris.Message, ket: Eris.Client) => {
+module.exports = async (message: Message, ket: Client) => {
     if ((/((?:discord\.gg|discordapp\.com\/invite|discord\.com\/invite))/g).test(message.content)) {
         const userDM = await message.author.getDMChannel();
         const invite = message.content.trim().split(' ').find((invite: string) => invite.includes('discord.gg'))

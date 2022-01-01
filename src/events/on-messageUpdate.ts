@@ -1,4 +1,4 @@
-import Eris, { GuildChannel } from "eris"
+import { Client, Message } from "eris"
 const KetUtils = new (require('../components/KetUtils'))(),
     config = require('../json/settings.json'),
     db = global.session.db,
@@ -7,11 +7,11 @@ const KetUtils = new (require('../components/KetUtils'))(),
     { getEmoji, getColor } = Decoration;
 
 module.exports = class MessageUpdateEvent {
-    ket: any;
-    constructor(ket: Eris.Client) {
+    ket: Client;
+    constructor(ket: Client) {
         this.ket = ket;
     }
-    async start(newMessage: any, oldMessage: Eris.Message) {
+    async start(newMessage: any, oldMessage: Message) {
         if ((String(oldMessage?.content).trim() === String(newMessage?.content).trim() && !newMessage.editedTimestamp) || newMessage.author?.bot) return;
         const guild = await db.servers.find(newMessage.guildID)
 
@@ -47,7 +47,7 @@ module.exports = class MessageUpdateEvent {
 
             if (!webhook) {
                 webhook = await channel.getWebhooks();
-                webhook = webhook.filter(w => w.name === 'Ket Global Chat' && w.user.id === this.ket.user.id)[0];
+                webhook = Array(webhook).filter(w => w.name === 'Ket Global Chat' && w.user.id === this.ket.user.id)[0];
                 if (!webhook) return;
             }
             this.ket.editWebhookMessage(webhook.id, webhook.token, msgID, {

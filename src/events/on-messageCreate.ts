@@ -1,5 +1,5 @@
 export { };
-import Eris from "eris";
+import { Client } from "eris"
 delete require.cache[require.resolve('../components/KetUtils')];
 const
     db = global.session.db,
@@ -8,8 +8,8 @@ const
     i18next = require("i18next");
 
 module.exports = class MessageCreateEvent {
-    ket: any;
-    constructor(ket: Eris.Client) {
+    ket: Client;
+    constructor(ket: Client) {
         this.ket = ket;
     }
     async start(message: any) {

@@ -1,9 +1,9 @@
 export { }
-import Eris from "eris"
+import { Client } from "eris"
 const { CommandStructure } = require("../../components/Commands/CommandStructure")
 
 module.exports = class PingCommand extends CommandStructure {
-    constructor(ket: Eris.Client) {
+    constructor(ket: Client) {
         super(ket, {
             name: 'ping',
             aliases: [],

@@ -1,9 +1,8 @@
-import Eris from "eris";
-
 export { };
+import { Client } from "eris"
 
 module.exports.CommandStructure = class CommandStructure {
-    ket: any;
+    ket: Client;
     config: object;
 
     constructor(ket, command) {

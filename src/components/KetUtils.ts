@@ -1,5 +1,5 @@
 export { };
-import Eris from "eris";
+import { Message, Webhook } from "eris";
 const
     { inspect } = require('util'),
     i18next = require('i18next'),
@@ -100,7 +100,7 @@ module.exports = class Utils {
             if (!channel || channel.nsfw || await this.checkPermissions({ ctx, command, channel, notReply: true }) === false) return;
             if (!webhook) {
                 webhook = await channel.getWebhooks().catch(() => { });
-                webhook = webhook.filter((w: Eris.Webhook) => w.name === 'Ket Global Chat' && w.user.id === ket.user.id)[0];
+                webhook = webhook.filter((w: Webhook) => w.name === 'Ket Global Chat' && w.user.id === ket.user.id)[0];
                 if (!webhook) webhook = await channel.createWebhook({ name: 'Ket Global Chat', options: { type: 1 } }).catch(() => { });
                 ket.webhooks.set(channel.id, webhook);
             }
@@ -116,7 +116,7 @@ module.exports = class Utils {
                 }]
             }
             function send() {
-                ket.executeWebhook(webhook.id, webhook.token, msgObj).then((msg: Eris.Message) => msgs.push(`${msg.id}|${msg.guildID}`)).catch(() => { });
+                ket.executeWebhook(webhook.id, webhook.token, msgObj).then((msg: Message) => msgs.push(`${msg.id}|${msg.guildID}`)).catch(() => { });
             }
             let rateLimit = ket.requestHandler.ratelimits[`/webhooks/${g.globalchat}/:token?&wait=true`];
             if (rateLimit) return setTimeout(() => send(), Date.now() - rateLimit.reset + ket.options.rest.ratelimiterOffset)
@@ -252,7 +252,6 @@ module.exports = class Utils {
 
     findResult(entrada: string, mapa: string[]) {
         function checkSimilarity(str1: string, str2: string) {
-            console.log(str1, str2)
             if (str1 === str2) return 1.0;
 
             const len1 = str1.length,

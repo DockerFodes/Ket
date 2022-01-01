@@ -1,6 +1,7 @@
 export { };
-import type { ClientOptions } from "eris";
+import { ClientOptions, Member, Message, User } from "eris";
 import Eris from "eris";
+import { ESMap } from "typescript";
 const
     { Client, Collection } = require('eris'),
     { readdir } = require('fs'),
@@ -11,11 +12,11 @@ module.exports = class KetClient extends Client {
     config: any;
     db: object;
     events: any;
-    modules: any;
+    modules: ESMap<string, any>;
     postgres: object;
-    commands: any;
-    aliases: any;
-    shardUptime: object;
+    commands: ESMap<string, any>;
+    aliases: ESMap<string, string>;
+    shardUptime: ESMap<number, object>;
 
     constructor(token: string, options: ClientOptions) {
         super(token, options);
@@ -125,7 +126,7 @@ module.exports = class KetClient extends Client {
         else search = text.toLowerCase();
 
         try {
-            if (isNaN(Number(search))) user = message.mentions[0] || message.channel.guild.members.find((m: Eris.Member) => m.user.username.toLowerCase() === search || String(m.nick).toLowerCase() === search || m.user.username.startsWith(search) || String(m.nick).startsWith(search) || m.user.username.includes(search) || String(m.nick).includes(search));
+            if (isNaN(Number(search))) user = message.mentions[0] || message.channel.guild.members.find((m: Member) => m.user.username.toLowerCase() === search || String(m.nick).toLowerCase() === search || m.user.username.startsWith(search) || String(m.nick).startsWith(search) || m.user.username.includes(search) || String(m.nick).includes(search));
             else {
                 if (this.users.has(search)) user = this.users.get(search);
                 else user = await this.getRESTUser(search);
@@ -134,15 +135,15 @@ module.exports = class KetClient extends Client {
             if (returnMember) user = message.member;
             else user = message.author;
         }
-        if (user instanceof Eris.User && returnMember) user = message.channel.guild.members.get(user.id);
-        if (user instanceof Eris.Member && !returnMember) user = this.users.get(user.user.id);
+        if (user instanceof User && returnMember) user = message.channel.guild.members.get(user.id);
+        if (user instanceof Member && !returnMember) user = this.users.get(user.user.id);
 
         return user;
     }
 
     async say({ ctx, content, emoji = null, embed = true, type = 'reply', message = null, interaction = null }) {
         if (!content) return;
-        if (ctx.env instanceof Eris.Message) message = ctx.env
+        if (ctx.env instanceof Message) message = ctx.env
         else interaction = ctx.env
         let user = ctx.ket.users.get(ctx.uID);
 

@@ -22,7 +22,7 @@ let
 module.exports = async (ket) => {
 
     if (db.ready) return;
-    console.log(`Conectando ao banco de dados...`);
+    global.session.log('shard', 'DATABASE', 'Conectando ao banco de dados...')
     try {
         await postgres.connect();
 
@@ -42,7 +42,7 @@ module.exports = async (ket) => {
     /* DATABASE TESTS */
     try { await postgres.query(`SELECT * FROM users`) }
     catch (e) {
-        console.log(c.yellow(`Criando tabela de dados para usuários`));
+        global.session.log('log', 'DATABASE', c.yellow(`Criando tabela de dados para usuários`))
         await postgres.query(`CREATE TABLE public.users (
                     id VARCHAR(20) NOT NULL PRIMARY KEY,
                     prefix VARCHAR(3) NOT NULL DEFAULT '${ket.config.DEFAULT_PREFIX}',
@@ -53,7 +53,7 @@ module.exports = async (ket) => {
                 );`);
     }; try { await postgres.query(`SELECT * FROM servers`) }
     catch (e) {
-        console.log(c.blue(`Criando tabela de dados para servidores`));
+        global.session.log('log', 'DATABASE', c.blue(`Criando tabela de dados para servidores`))
         await postgres.query(`CREATE TABLE public.servers (
                     id VARCHAR(20) NOT NULL PRIMARY KEY,
                     globalchat VARCHAR(20) NULL,
@@ -63,7 +63,7 @@ module.exports = async (ket) => {
                 );`);
     }; try { await postgres.query(`SELECT * FROM commands`) }
     catch (e) {
-        console.log(c.green(`Criando tabela de dados para comandos`))
+        global.session.log('log', 'DATABASE', c.green(`Criando tabela de dados para comandos`))
         await postgres.query(`CREATE TABLE public.commands (
                     name TEXT NOT NULL PRIMARY KEY,
                     maintenance BOOLEAN NULL,
@@ -71,7 +71,7 @@ module.exports = async (ket) => {
                   );`);
     }; try { await postgres.query(`SELECT * FROM globalchat`); }
     catch (e) {
-        console.log(c.green(`Criando tabela de dados para globalchat`))
+        global.session.cyan('log', 'DATABASE', c.yellow(`Criando tabela de dados para chat global`))
         await postgres.query(`CREATE TABLE public.globalchat (
                     id VARCHAR(20) NOT NULL PRIMARY KEY,
                     author VARCHAR(20) NOT NULL,

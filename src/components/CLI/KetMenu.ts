@@ -1,5 +1,6 @@
+import { Client } from "eris";
+
 export { }
-import Eris from "eris";
 const
     prompts = require('prompts'),
     gradient = require('gradient-string'),
@@ -7,13 +8,12 @@ const
     path = require('path'),
     { readFileSync, unlink } = require('fs');
 
-export class KetMenu {
-    constructor() { }
-    async initialMenu() {
-        console.clear();
-        let menuResponse = await prompts({
-            name: 'value',
-            message: gradient('yellow', 'red')(`
+
+export async function initialMenu() {
+    console.clear();
+    let menuResponse = await prompts({
+        name: 'value',
+        message: gradient('yellow', 'red')(`
     ██╗░░██╗███████╗████████╗  ███╗░░░███╗███████╗███╗░░██╗██╗░░░██╗
     ██║░██╔╝██╔════╝╚══██╔══╝  ████╗░████║██╔════╝████╗░██║██║░░░██║
     █████═╝░█████╗░░░░░██║░░░  ██╔████╔██║█████╗░░██╔██╗██║██║░░░██║
@@ -21,33 +21,33 @@ export class KetMenu {
     ██║░╚██╗███████╗░░░██║░░░  ██║░╚═╝░██║███████╗██║░╚███║╚██████╔╝
     ╚═╝░░╚═╝╚══════╝░░░╚═╝░░░  ╚═╝░░░░░╚═╝╚══════╝╚═╝░░╚══╝░╚═════╝░\n
   ◆ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ ◆\n`),
-            type: 'select',
-            choices: [
-                { title: '- Iniciar Client padrão', value: 1 },
-                { title: '- Iniciar Client BETA', value: 2 },
-                { title: '- Visualizar LOGS', value: 3 },
-                { title: '- Fechar', value: 0 }
-            ],
-            initial: 0,
-        }, {
-            onCancel: () => process.exit()
-        });
-        console.clear();
-        switch (menuResponse.value) {
-            case 0: return process.exit();
-            case 1: global.session.canary = false;
-                return this.start(process.env.CLIENT_DISCORD_TOKEN);
-            case 2: global.session.canary = true;
-                return this.start(process.env.BETA_CLIENT_DISCORD_TOKEN);
-            case 3: return this.logMenu();
-        }
-        return;
+        type: 'select',
+        choices: [
+            { title: '- Iniciar Client padrão', value: 1 },
+            { title: '- Iniciar Client BETA', value: 2 },
+            { title: '- Visualizar LOGS', value: 3 },
+            { title: '- Fechar', value: 0 }
+        ],
+        initial: 0,
+    }, {
+        onCancel: () => process.exit()
+    });
+    console.clear();
+    switch (menuResponse.value) {
+        case 0: return process.exit();
+        case 1: global.session.canary = false;
+            return start(process.env.CLIENT_DISCORD_TOKEN);
+        case 2: global.session.canary = true;
+            return start(process.env.BETA_CLIENT_DISCORD_TOKEN);
+        case 3: return logMenu();
     }
-    async logMenu() {
-        console.clear();
-        let logResponse = await prompts({
-            name: 'value',
-            message: gradient('yellow', 'red')(`
+    return;
+}
+async function logMenu() {
+    console.clear();
+    let logResponse = await prompts({
+        name: 'value',
+        message: gradient('yellow', 'red')(`
     ██╗░░░░░░█████╗░░██████╗░░██████╗
     ██║░░░░░██╔══██╗██╔════╝░██╔════╝
     ██║░░░░░██║░░██║██║░░██╗░╚█████╗░
@@ -55,72 +55,72 @@ export class KetMenu {
     ███████╗╚█████╔╝╚██████╔╝██████╔╝
     ╚══════╝░╚════╝░░╚═════╝░╚═════╝░\n
   ◆ ▬▬▬▬▬▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬▬▬▬▬▬ ◆\n`),
-            type: 'select',
-            choices: [
-                { title: '- Logs completos', value: 1 },
-                { title: '- Logs de erros', value: 2 },
-                { title: '- Voltar', value: 0 },
-            ],
-            initial: 0,
-        }, {
-            onCancel: () => this.initialMenu()
-        });
-        console.clear();
-        if (logResponse.value === 0) return this.initialMenu();
-        let logChoices = [
+        type: 'select',
+        choices: [
+            { title: '- Logs completos', value: 1 },
+            { title: '- Logs de erros', value: 2 },
             { title: '- Voltar', value: 0 },
-            { title: '- Apagar', value: 1, disabled: false }
-        ];
-        let logs: string = 'bunda';
-        try {
-            let data = await readFileSync(path.resolve(`${global.session.dir}/../src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.log`), 'utf8');
-            if (data === undefined) {
-                logs = 'Nenhum arquivo de log foi encontrado.';
-                logChoices[1].disabled = true;
-            }
-            else if (data.length === 0) logs = 'Os logs estão vazios.';
-            else logs = data;
-        } catch (e) {
+        ],
+        initial: 0,
+    }, {
+        onCancel: () => initialMenu()
+    });
+    console.clear();
+    if (logResponse.value === 0) return initialMenu();
+    let logChoices = [
+        { title: '- Voltar', value: 0 },
+        { title: '- Apagar', value: 1, disabled: false }
+    ];
+    let logs: string = 'bunda';
+    try {
+        let data = await readFileSync(path.resolve(`${global.session.rootDir}/../src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.log`), 'utf8');
+        if (data === undefined) {
             logs = 'Nenhum arquivo de log foi encontrado.';
             logChoices[1].disabled = true;
         }
-        console.log(gradient.mind(logs));
-        let logOptions = await prompts({
-            name: 'value',
-            message: '',
-            type: 'select',
-            choices: logChoices,
-            initial: 0,
-        }, {
-            onCancel: () => this.logMenu()
-        });
-        if (logOptions.value === 1) {
-            try {
-                return unlink(`${global.session.dir}/../src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.log`, () => {
-                    console.log('Logs apagados com sucesso');
-                    return setTimeout(() => this.logMenu(), 200);
-                })
+        else if (data.length === 0) logs = 'Os logs estão vazios.';
+        else logs = data;
+    } catch (e) {
+        logs = 'Nenhum arquivo de log foi encontrado.';
+        logChoices[1].disabled = true;
+    }
+    console.log(gradient.mind(logs));
+    let logOptions = await prompts({
+        name: 'value',
+        message: '',
+        type: 'select',
+        choices: logChoices,
+        initial: 0,
+    }, {
+        onCancel: () => logMenu()
+    });
+    if (logOptions.value === 1) {
+        try {
+            return unlink(`${global.session.rootDir}/../src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.log`, () => {
+                console.log('Logs apagados com sucesso');
+                return setTimeout(() => logMenu(), 200);
+            })
 
-            } catch (e) {
-                return global.session.log('error', 'KET PAINEL', 'Não foi possível apagar o arquivo de log.', e);
-            }
+        } catch (e) {
+            return global.session.log('error', 'KET PAINEL', 'Não foi possível apagar o arquivo de log.', e);
         }
-        else return this.logMenu();
     }
-    async start(DISCORD_TOKEN: string) {
-        let colors = [['red', 'yellow'], ['yellow', 'green'], ['green', 'blue'], ['blue', 'purple']];
-        let interval = setInterval(() => {
-            console.clear();
-            console.log(gradient(colors[Math.floor(Math.random() * colors.length)])('Aguarde um momento, os arquivos estão sendo compilados.'));
-        }, 100);
-        // return cld.exec('tsc', () => {
-        clearInterval(interval);
-        console.clear();
-        return require(`${global.session.dir}/index`)(DISCORD_TOKEN);
-        // })
-    }
+    else return logMenu();
 }
-export async function TerminalClient(ket) {
+async function start(DISCORD_TOKEN: string) {
+    let colors = [['red', 'yellow'], ['yellow', 'green'], ['green', 'blue'], ['blue', 'purple']];
+    let interval = setInterval(() => {
+        console.clear();
+        console.log(gradient(colors[Math.floor(Math.random() * colors.length)])('Aguarde um momento, os arquivos estão sendo compilados.'));
+    }, 100);
+    // return cld.exec('tsc', () => {
+    clearInterval(interval);
+    console.clear();
+    return require(`${global.session.rootDir}/index`)(DISCORD_TOKEN);
+    // })
+}
+
+export async function TerminalClient(ket: Client) {
     termEval();
     async function termEval() {
         const response: any = await prompts({

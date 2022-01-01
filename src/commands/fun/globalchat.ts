@@ -1,9 +1,9 @@
 export { };
-import Eris from "eris";
+import { Client } from "eris"
 const { CommandStructure, EmbedBuilder } = require('../../components/Commands/CommandStructure');
 
 module.exports = class GlobalChatCommand extends CommandStructure {
-    constructor(ket: Eris.Client) {
+    constructor(ket: Client) {
         super(ket, {
             name: 'globalchat',
             description: 'cu',

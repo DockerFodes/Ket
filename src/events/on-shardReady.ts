@@ -1,13 +1,13 @@
 export { };
-import Eris from "eris"
+import { Client } from "eris"
 const
     { Decoration } = require('../components/Commands/CommandStructure'),
     moment = require('moment'),
     emoji = Decoration.getEmoji;
 
 module.exports = class ShardReadyEvent {
-    ket: any;
-    constructor(ket: Eris.Client) {
+    ket: Client;
+    constructor(ket: Client) {
         this.ket = ket;
     }
     async start(shardID: number) {

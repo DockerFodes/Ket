@@ -1,6 +1,6 @@
 module.exports = async function collect({ client, eventName = 'interactionCreate', filter = null, time = 120 * 1000, onEnd = (...any) => { } }) {
     if (!filter || typeof filter !== "function") filter = () => true;
-    let endCollector: Function = () => { console.log('não cancelou menó') },
+    let endCollector: Function = () => { },
         timeout;
     const event = async (...args) => {
         endCollector = async function () {

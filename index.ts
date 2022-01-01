@@ -2,7 +2,7 @@ export { };
 import type { ClientOptions } from "eris";
 const
     KetClient = require('./src/KetClient'),
-    { KetMenu } = require('./src/components/CLI/KetMenu'),
+    { initialMenu } = require('./src/components/CLI/KetMenu'),
     settings = require('./src/json/settings.json'),
     c = require('chalk'),
     moment = require("moment"),
@@ -11,7 +11,7 @@ const
 duration(moment);
 require('dotenv').config();
 global.session = {
-    dir: __dirname,
+    rootDir: __dirname,
     log: function log(type: string = "log", setor = "CLIENT", message: string, error: any = "") {
         moment.locale("pt-BR");
         switch (type) {
@@ -33,7 +33,7 @@ module.exports = function start(DISCORD_TOKEN: string) {
     })
 }
 if (process.argv[2] === '--no-menu') module.exports(process.env.CLIENT_DISCORD_TOKEN);
-else (new KetMenu).initialMenu();
+else initialMenu();
 
 process
     .on('SIGINT', async () => {

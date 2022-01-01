@@ -1,12 +1,12 @@
 export { };
-import Eris from "eris";
+import { Client } from "eris";
 const
     { exec } = require('child_process'),
     { inspect } = require('util'),
     { CommandStructure, EmbedBuilder } = require('../../components/Commands/CommandStructure');
 
 module.exports = class CldCommand extends CommandStructure {
-    constructor(ket: Eris.Client) {
+    constructor(ket: Client) {
         super(ket, {
             name: 'cld',
             aliases: [],

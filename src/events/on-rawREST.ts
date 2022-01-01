@@ -1,13 +1,13 @@
-import Eris from "eris";
+import { Client, RawRESTRequest } from "eris"
 const moment = require('moment'),
     c = require('chalk');
 
 module.exports = class RawRESTEvent {
-    ket: Eris.Client;
-    constructor(ket: Eris.Client) {
+    ket: Client;
+    constructor(ket: Client) {
         this.ket = ket;
     }
-    async start(req) {
+    async start(req: RawRESTRequest) {
         if (req.resp.statusCode === 429) {
             let rl = this.ket.requestHandler.ratelimits[req.route],
                 info = {

@@ -9,9 +9,9 @@ module.exports = async function inicialize() {
         i18next.use(i18nbackend).init({
             ns: ["commands", "events", "permissions"],
             defaultNS: "commands",
-            preload: readdirSync(`${global.session.dir}/src/locales`),
+            preload: readdirSync(`${global.session.rootDir}/src/locales`),
             fallbackLng: "pt",
-            backend: { loadPath: `${global.session.dir}/src/locales/{{lng}}/{{ns}}.json` },
+            backend: { loadPath: `${global.session.rootDir}/src/locales/{{lng}}/{{ns}}.json` },
             interpolation: {
                 escapeValue: false,
                 useRawValueToEscape: true

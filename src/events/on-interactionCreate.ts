@@ -1,5 +1,5 @@
 export { };
-import Eris, { GuildChannel } from "eris";
+import { Client, CommandInteraction } from "eris"
 delete require.cache[require.resolve('../components/KetUtils')];
 const
     db = global.session.db,
@@ -8,12 +8,12 @@ const
     i18next = require("i18next");
 
 module.exports = class InteractionCreateEvent {
-    ket: any;
-    constructor(ket: Eris.Client) {
+    ket: Client;
+    constructor(ket: Client) {
         this.ket = ket;
     }
     async start(interaction: any) {
-        if (!(interaction instanceof Eris.CommandInteraction) || interaction.type != 2) return;
+        if (!(interaction instanceof CommandInteraction) || interaction.type != 2) return;
         if (interaction.channel.type === 1) {
             delete require.cache[require.resolve("../packages/events/_on-messageDMCreate")];
             return new (require("../packages/events/_on-messageDMCreate"))(this).start(interaction);

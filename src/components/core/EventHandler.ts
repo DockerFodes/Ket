@@ -1,10 +1,10 @@
-import Eris from "eris"
+import { Client } from "eris"
 interface event {
     name: string;
     dir: string;
 }
 module.exports = class EventHandler {
-    ket: Eris.Client;
+    ket: Client;
     events: event[];
     eventData: any;
 

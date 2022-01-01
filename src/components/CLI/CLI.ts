@@ -25,20 +25,20 @@ module.exports = {
 
     h() { this.help(); },
     help() {
-        return console.log(gradient.mind(`Comandos do terminal:\nVocê também pode digitar códigos aqui para serem executados como um comando de eval\n\nLista de comandos\n.clear | limpa o terminal\n.compile | compila os arquivos\n.exit | encerra o processo\n.help | exibe esta mensagem ;3\n.info | exibe informações\n.reload <comando> / * | recarrega um comando específico ou todos (*)\n.restart | reinicia todas as shards pausadamente`));
+        return global.session.log('log', 'TERMINAL CLIENT', gradient.mind(`Comandos do terminal:\nVocê também pode digitar códigos aqui para serem executados como um comando de eval\n\nLista de comandos\n.clear | limpa o terminal\n.compile | compila os arquivos\n.exit | encerra o processo\n.help | exibe esta mensagem ;3\n.info | exibe informações\n.reload <comando> / * | recarrega um comando específico ou todos (*)\n.restart | reinicia todas as shards pausadamente`))
     },
 
     i({ ket }) { this.info({ ket }); },
     info({ ket }) {
         return cpu.usagePercent((e, percent) => {
-            return console.log(gradient('red', 'yellow')(`
-    Consumo:   RAM   |   CPU   
-             ${Math.round(process.memoryUsage().rss / 1024 / 1024).toString()}MB/${process.platform.startsWith('win') ? '-1' : mem.free('GiB')} |  ${percent.toFixed(2)}%\n
-    ---------------------------\n
-    Bot:     Uptime  |  Shards    
-             ${moment.duration(Date.now() - ket.startTime).format(" dd[d] hh[h] mm[m] ss[s]")} |   ${ket.shards.filter(s => s.status === 'ready').length}/${ket.shards.size}
-        
-        `));
+            global.session.log('log', 'TERMINAL CLIENT', gradient('red', 'yellow')(`
+            Consumo:   RAM   |   CPU   
+                     ${Math.round(process.memoryUsage().rss / 1024 / 1024).toString()}MB/${process.platform.startsWith('win') ? '-1' : mem.free('GiB')} |  ${percent.toFixed(2)}%\n
+            ---------------------------\n
+            Bot:     Uptime  |  Shards    
+                     ${moment.duration(Date.now() - ket.startTime).format(" dd[d] hh[h] mm[m] ss[s]")} |   ${ket.shards.filter(s => s.status === 'ready').length}/${ket.shards.size}
+                
+                `))
         });
     },
     

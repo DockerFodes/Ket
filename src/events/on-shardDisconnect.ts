@@ -1,8 +1,8 @@
-import Eris from "eris"
+import { Client } from "eris"
 
 module.exports = class ShardDisconnect {
-    ket: any;
-    constructor(ket: Eris.Client) {
+    ket: Client;
+    constructor(ket: Client) {
         this.ket = ket;
     }
     async start(error: string, shardID: number) {
