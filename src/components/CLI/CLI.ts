@@ -1,9 +1,11 @@
 export { };
 const
     gradient = require('gradient-string'),
-    cpu = require('cpu-stat'),
-    mem = require('mem-stat'),
-    moment = require('moment');
+    { usagePercent } = require('cpu-stat'),
+    { free } = require('mem-stat'),
+    { duration } = require('moment'),
+    { readdir } = require('fs'),
+    { t } = require('i18next');
 
 module.exports = {
     cls() { this.clear(); },
@@ -23,6 +25,26 @@ module.exports = {
         return setTimeout(() => process.kill(process.pid, null), 5 * 1000);
     },
 
+    async deploy({ ket, args }) {
+        let commands = []
+        await ket.commands.forEach(command => {
+            let c = command.config
+            commands.push({
+                name: c.name,
+                description: `[${c.category}] - ${t(`commands:${c.name}.description`)}`,
+                options: c.data?.options ? [ ...c.data.options ] : []
+            })
+        });
+        try {
+            if(args[0]) await ket.bulkEditGuildCommands(args[0], commands)
+            else await ket.bulkEditCommands(commands)
+            global.session.log('log', 'SLASH CLIENT', `${commands.length} comandos registrados com sucesso`)
+        } catch(e) {
+            global.session.log('error', 'SLASH CLIENT', `Houve um erro ao registrar os comandos:`, e)
+        }
+        return;
+    },
+
     h() { this.help(); },
     help() {
         return global.session.log('log', 'TERMINAL CLIENT', gradient.mind(`Comandos do terminal:\nVocê também pode digitar códigos aqui para serem executados como um comando de eval\n\nLista de comandos\n.clear | limpa o terminal\n.compile | compila os arquivos\n.exit | encerra o processo\n.help | exibe esta mensagem ;3\n.info | exibe informações\n.reload <comando> / * | recarrega um comando específico ou todos (*)\n.restart | reinicia todas as shards pausadamente`))
@@ -30,23 +52,21 @@ module.exports = {
 
     i({ ket }) { this.info({ ket }); },
     info({ ket }) {
-        return cpu.usagePercent((e, percent) => {
+        return usagePercent((e, percent) => {
             global.session.log('log', 'TERMINAL CLIENT', gradient('red', 'yellow')(`
             Consumo:   RAM   |   CPU   
-                     ${Math.round(process.memoryUsage().rss / 1024 / 1024).toString()}MB/${process.platform.startsWith('win') ? '-1' : mem.free('GiB')} |  ${percent.toFixed(2)}%\n
+                     ${Math.round(process.memoryUsage().rss / 1024 / 1024).toString()}MB/${process.platform.startsWith('win') ? '-1' : free('GiB')} |  ${percent.toFixed(2)}%\n
             ---------------------------\n
             Bot:     Uptime  |  Shards    
-                     ${moment.duration(Date.now() - ket.startTime).format(" dd[d] hh[h] mm[m] ss[s]")} |   ${ket.shards.filter(s => s.status === 'ready').length}/${ket.shards.size}
+                     ${duration(Date.now() - ket.startTime).format(" dd[d] hh[h] mm[m] ss[s]")} |   ${ket.shards.filter(s => s.status === 'ready').length}/${ket.shards.size}
                 
                 `))
         });
     },
-    
+
     r({ ket, args }) { this.reload({ ket, args }); },
     async reload({ ket, args }) {
-        if (args[0] === '*')
-            ket.commands.forEach(command => ket.reloadCommand(command.config.name));
-
+        if (args[0] === '*') return ket.commands.forEach(command => ket.reloadCommand(command.config.name));
         else {
             let data = await ket.reloadCommand(args[0]);
             if (data === true) return global.session.log('log', 'TERMINAL CLIENT', `Comando ${args[0]} foi recarregando`);

@@ -1,5 +1,6 @@
 export { };
 import { Client } from "eris";
+import { SlashCommandBuilder } from "@discordjs/builders";
 const
     { exec } = require('child_process'),
     { inspect } = require('util'),
@@ -23,7 +24,12 @@ module.exports = class CldCommand extends CommandStructure {
             },
             dontType: false,
             testCommand: ['node -v'],
-            slashData: null
+            data: new SlashCommandBuilder()
+                .addStringOption(option =>
+                    option.setName('command')
+                        .setDescription('A command to be executed.')
+                        .setRequired(true)
+                )
         })
     }
     async execute({ ctx, args }) {

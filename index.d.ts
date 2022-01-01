@@ -2555,7 +2555,7 @@ declare namespace Eris {
         activeMessages: { [s: string]: ActiveMessages };
         commandAliases: { [s: string]: string };
         commandOptions: CommandClientOptions;
-        commands: { [s: string]: Command };
+        comandos: { [s: string]: Command };
         guildPrefixes: { [s: string]: string | string[] };
         preReady?: true;
         constructor(token: string, options: ClientOptions, commandOptions?: CommandClientOptions);
@@ -3031,6 +3031,11 @@ declare namespace Eris {
     }
 
     export class Member extends Base implements Presence {
+        lastCommand: {
+            message: Message,
+            msg: Message
+        };
+        
         accentColor?: number | null;
         activities?: Activity[];
         avatar: string | null;
@@ -3523,6 +3528,10 @@ declare namespace Eris {
 
     export class User extends Base {
         tag: string;
+        lastCommand: {
+            message: Message,
+            msg: Message
+        };
 
         accentColor?: number | null;
         avatar: string | null;

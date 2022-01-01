@@ -19,7 +19,7 @@ module.exports = class PingCommand extends CommandStructure {
             },
             dontType: true,
             testCommand: [],
-            slashData: null
+            data: null
         })
     }
     async execute(ctx) {

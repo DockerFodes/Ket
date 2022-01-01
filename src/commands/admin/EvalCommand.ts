@@ -1,4 +1,5 @@
 export { };
+import { SlashCommandBuilder } from "@discordjs/builders";
 const
     axios = require('axios'),
     bytes = require('bytes'),
@@ -11,6 +12,7 @@ const
     moment = require("moment"),
     path = require('path'),
     prompts = require('prompts'),
+    CommandBuilder = SlashCommandBuilder,
     util = require("util"),
     { CommandStructure, EmbedBuilder, Decoration } = require("../../components/Commands/CommandStructure"),
     { getEmoji, getColor } = Decoration;
@@ -33,7 +35,11 @@ module.exports = class EvalCommand extends CommandStructure {
             },
             dontType: true,
             testCommand: ['message.channel.createMessage("alow")'],
-            slashData: null
+            data: new SlashCommandBuilder().addStringOption(option =>
+                option.setName("code")
+                    .setDescription("Some code.")
+                    .setRequired(true)
+            )
         })
     }
     async execute(ctx) {

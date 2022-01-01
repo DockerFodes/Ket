@@ -1,5 +1,6 @@
 export { };
 import { Client } from "eris"
+const { t } = require('i18next');
 
 module.exports.CommandStructure = class CommandStructure {
     ket: Client;
@@ -8,8 +9,6 @@ module.exports.CommandStructure = class CommandStructure {
     constructor(ket, command) {
         this.config = {
             name: command.name || null,
-            description: command.description || "invalid-description",
-            options: command.options || null,
             aliases: command.aliases || [],
             category: command.category || "util",
             cooldown: command.cooldown || 3,
@@ -24,7 +23,7 @@ module.exports.CommandStructure = class CommandStructure {
             },
             dontType: command.dontType || false,
             testCommand: command.testCommand || [],
-            slashData: command.slashData
+            data: command.data
         }
         this.ket = ket;
     }

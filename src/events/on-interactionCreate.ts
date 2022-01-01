@@ -28,7 +28,7 @@ module.exports = class InteractionCreateEvent {
         const commandName: string = interaction.data.name,
             command = ket.commands.get(commandName) || ket.commands.get(ket.aliases.get(commandName));
 
-        interaction.data?.options.forEach((option: any) => args.push(option.value))
+        interaction.data?.options?.forEach((option: any) => args.push(option.value))
 
         let t = global.session.t = i18next.getFixedT(user?.lang || 'pt');
 

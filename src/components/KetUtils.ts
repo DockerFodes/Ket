@@ -2,7 +2,6 @@ export { };
 import { Message, Webhook } from "eris";
 const
     { inspect } = require('util'),
-    i18next = require('i18next'),
     axios = require('axios'),
     DidYouMean = require('didyoumean'),
     db = global.session.db,
@@ -171,7 +170,6 @@ module.exports = class Utils {
 
     async checkPermissions({ ctx = null, channel = null, command = null, notReply = null }) {
         let missingPermissions: string[] = [],
-            translatedPerms: string,
             t = ctx.t;
         channel ? ctx.channel = channel : null
         command ? ctx.command = command : null
@@ -189,14 +187,13 @@ module.exports = class Utils {
             return false
         }
 
-        ctx.command.permissions.bot.forEach((perm) => !ctx.me.permissions.has(perm) ? missingPermissions.push(perm) : {});
-        translatedPerms = missingPermissions.map(value => t(`permissions:${value}`)).join(', ');
+        missingPermissions = ctx.command.permissions.bot.filter((perm) => !ctx.me.permissions.has(perm)).map(value => t(`permissions:${value}`));
 
         if (missingPermissions[0] && !notReply) {
-            ctx.ket.say({ ctx, content: t('permissions:missingPerms', { missingPerms: translatedPerms }), embed: false, emoji: 'negado' })
+            ctx.ket.say({ ctx, content: t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') }), embed: false, emoji: 'negado' })
                 .catch(async () => {
                     let dmChannel = await ctx.author.getDMChannel();
-                    dmChannel.createMessage(t('permissions:missingPerms', { missingPerms: translatedPerms }))
+                    dmChannel.createMessage(t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') }))
                         .catch(() => {
                             if (ctx.me.permissions.has('changeNickname')) ctx.me.edit({ nick: "pls give me some permission" }).catch(() => { });
                         });

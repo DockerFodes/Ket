@@ -1,6 +1,5 @@
 export { };
-import { ClientOptions, Member, Message, User } from "eris";
-import Eris from "eris";
+import { ClientOptions, CommandInteraction, Member, Message, User } from "eris";
 import { ESMap } from "typescript";
 const
     { Client, Collection } = require('eris'),
@@ -118,24 +117,25 @@ module.exports = class KetClient extends Client {
 
     }
 
-    async findUser(message: any, text: string, returnMember: boolean = false, argsPosition: number = 0) {
+    async findUser(context?: any, text?: string, argsPosition: number = 0, returnMember: boolean = false) {
         let search: string,
-            user;
+            user: User | Member,
+            isInteraction = (context instanceof CommandInteraction ? true : false);
 
-        if (Array.isArray(text)) search = text[argsPosition].toLowerCase();
-        else search = text.toLowerCase();
+        if (Array.isArray(text)) search = text[argsPosition].toLowerCase().replace('@', '');
+        else search = String(text).toLowerCase();
 
         try {
-            if (isNaN(Number(search))) user = message.mentions[0] || message.channel.guild.members.find((m: Member) => m.user.username.toLowerCase() === search || String(m.nick).toLowerCase() === search || m.user.username.startsWith(search) || String(m.nick).startsWith(search) || m.user.username.includes(search) || String(m.nick).includes(search));
+            if (isNaN(Number(search))) user = context?.mentions[0] || context.channel.guild.members.find((m: Member) => m.user.username.toLowerCase() === search || String(m.nick).toLowerCase() === search || m.user.username.startsWith(search) || String(m.nick).startsWith(search) || m.user.username.includes(search) || String(m.nick).includes(search));
             else {
                 if (this.users.has(search)) user = this.users.get(search);
                 else user = await this.getRESTUser(search);
             }
         } catch (e) {
-            if (returnMember) user = message.member;
-            else user = message.author;
+            if (returnMember) user = context.member;
+            else user = (isInteraction ? context.member.user : context.author)
         }
-        if (user instanceof User && returnMember) user = message.channel.guild.members.get(user.id);
+        if (user instanceof User && returnMember) user = context.channel.guild.members.get(user.id);
         if (user instanceof Member && !returnMember) user = this.users.get(user.user.id);
 
         return user;
@@ -143,9 +143,9 @@ module.exports = class KetClient extends Client {
 
     async say({ ctx, content, emoji = null, embed = true, type = 'reply', message = null, interaction = null }) {
         if (!content) return;
-        if (ctx.env instanceof Message) message = ctx.env
-        else interaction = ctx.env
-        let user = ctx.ket.users.get(ctx.uID);
+        if (ctx.env instanceof CommandInteraction) interaction = ctx.env;
+        else message = ctx.env;
+        let user = await this.findUser(ctx.env, ctx.uID)
 
         let msg, msgObj = {
             content: '',
