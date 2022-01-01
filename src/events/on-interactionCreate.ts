@@ -28,11 +28,11 @@ module.exports = class InteractionCreateEvent {
         const commandName: string = interaction.data.name,
             command = ket.commands.get(commandName) || ket.commands.get(ket.aliases.get(commandName));
 
-        interaction.data?.options?.forEach((option: any) => args.push(option.value))
+        interaction.data?.options?.forEach((option: any) => option.value.split(' ').forEach(data => args.push(data)))
 
         let t = global.session.t = i18next.getFixedT(user?.lang || 'pt');
 
-        ctx = getContext({ ket, interaction, args, command }, t)
+        ctx = getContext({ ket, interaction, args, command, commandName }, t)
 
         if (ctx.command.permissions.onlyDevs && !ket.config.DEVS.includes(ctx.uID)) return;
 
@@ -41,10 +41,9 @@ module.exports = class InteractionCreateEvent {
         user = await KetUtils.checkUserGuildData(ctx);
 
         if (await KetUtils.checkPermissions({ ctx }) === false) return;
-
         return new Promise(async (res, rej) => {
             try {
-                command.dontType ? null : await ctx.channel.sendTyping();
+                await interaction.defer()
                 await command.execute(ctx);
                 KetUtils.sendCommandLog(ctx)
             } catch (error) {

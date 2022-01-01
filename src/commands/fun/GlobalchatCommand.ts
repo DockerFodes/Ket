@@ -24,14 +24,24 @@ module.exports = class GlobalChatCommand extends CommandStructure {
             data: new SlashCommandBuilder()
                 .addSubcommand(c =>
                     c.setName('create')
+                        .setDescription('Start the global Chat in this server')
                 )
                 .addSubcommand(c =>
-                    c.setName('stop'))
+                    c.setName('stop')
+                        .setDescription('Stop the global chat in this server')
+                )
                 .addSubcommand(c =>
-                    c.setName('getinfo'))
+                    c.setName('getinfo')
+                        .setDescription('fetch the info of a message')
+                        .addStringOption(option =>
+                            option.setName('messageid')
+                                .setDescription('The ID of the message')
+                                .setRequired(true)
+                        )
+                )
         })
     }
-    async execute({ ctx, args }) {
+    async execute(ctx) {
 
     }
 }

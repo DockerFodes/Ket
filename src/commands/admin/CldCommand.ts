@@ -32,11 +32,11 @@ module.exports = class CldCommand extends CommandStructure {
                 )
         })
     }
-    async execute({ ctx, args }) {
+    async execute(ctx) {
         let embed: typeof EmbedBuilder;
 
         try {
-            await exec(args.join(' '), (_a: string, b: string) => {
+            await exec(ctx.args.join(' '), (_a: string, b: string) => {
                 embed = new EmbedBuilder()
                     .setTitle('Só sucexo bb')
                     .setColor('green')

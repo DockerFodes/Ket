@@ -35,6 +35,7 @@ module.exports = {
                 options: c.data?.options ? [ ...c.data.options ] : []
             })
         });
+        // return console.log(commands[2].options);
         try {
             if(args[0]) await ket.bulkEditGuildCommands(args[0], commands)
             else await ket.bulkEditCommands(commands)
