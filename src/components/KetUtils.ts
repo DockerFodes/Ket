@@ -125,17 +125,19 @@ module.exports = class Utils {
             }
             if (!webhook) continue;
 
-            if (message.messageReference && !message.author.bot) {
+            if (message.messageReference) {
                 let ref = channel.messages.find(m => m.author.username === msg.author.username && this.msgFilter(m.filtredContent, 1990, true) === this.msgFilter(msg.filtredContent, 1990, true) && m.timestamp < msg.timestamp + 3000),
                     refAuthor = await db.users.find(msg.author.id);
 
-                !msg ? null : msgObj.embeds = [{
+                if (!message.author.bot) !msg ? null : msgObj.embeds = [{
                     color: getColor('green'),
                     author: { name: msg.author.username, icon_url: msg.author.dynamicAvatarURL('jpg') },
                     description: `${refAuthor?.banned ? '`mensagem de usuário banido`' : !ref ? this.msgFilter(msg.filtredContent, 64) : `${this.msgFilter(msg.filtredContent, 64)}\n\n**[⬑ - - Ver mensagem - - ⬏](https://discord.com/channels/${guilds[i].id}/${guilds[i].globalchat}/${ref.id})**`}`,
                     image: (msg.attachments[0] && !refAuthor.banned ? { url: `${msg.attachments[0].url}?size=240` } : null)
                 }]
+                else if(refAuthor.banned) return;
             }
+
             let send = async () => await ket.executeWebhook(webhook.id, webhook.token, msgObj).then((msg: Message) => msgs.push(`${msg.id}|${msg.guildID}`)).catch(() => { });
 
             let rateLimit = ket.requestHandler.ratelimits[`/webhooks/${guilds[i].globalchat}/:token?&wait=true`];
