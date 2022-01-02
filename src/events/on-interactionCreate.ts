@@ -4,7 +4,8 @@ delete require.cache[require.resolve('../components/KetUtils')];
 const
     db = global.session.db,
     KetUtils = new (require('../components/KetUtils'))(),
-    { getContext } = require('../components/Commands/CommandStructure'),
+    { getContext, Decoration } = require('../components/Commands/CommandStructure'),
+    { getEmoji, getColor } = Decoration,
     i18next = require("i18next");
 
 module.exports = class InteractionCreateEvent {
@@ -43,12 +44,22 @@ module.exports = class InteractionCreateEvent {
 
         ctx = getContext({ ket, user, server, interaction, args, command, commandName }, ctx.t)
 
-        if (ctx.command.permissions.onlyDevs && !ket.config.DEVS.includes(ctx.uID)) return;
-
         await KetUtils.checkCache(ctx);
         ctx.t = i18next.getFixedT(user?.lang);
         ctx.user = await KetUtils.checkUserGuildData(ctx);
 
+        if (ctx.command.permissions.onlyDevs && !ket.config.DEVS.includes(ctx.uID)) {
+            this.ket.say({
+                context: interaction, emoji: 'negado', content: {
+                    embeds: [{
+                        color: getColor('red'),
+                        title: `${getEmoji('sireneRed').mention} ${ctx.t('events:error.title')} ${getEmoji('sireneBlue')}`,
+                        description: ctx.t('events:isDev')
+                    }],
+                    flags: 64
+                }
+            })
+        }
         if (await KetUtils.checkPermissions({ ctx }) === false) return;
 
         return new Promise(async (res, rej) => {

@@ -73,7 +73,7 @@ async function logMenu() {
     ];
     let logs: string = 'bunda';
     try {
-        let data = await readFileSync(path.resolve(`${global.session.rootDir}/../src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.log`), 'utf8');
+        let data = await readFileSync(path.resolve(`${global.session.rootDir}/src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.txt`), 'utf8');
         if (data === undefined) {
             logs = 'Nenhum arquivo de log foi encontrado.';
             logChoices[1].disabled = true;
@@ -96,9 +96,9 @@ async function logMenu() {
     });
     if (logOptions.value === 1) {
         try {
-            return unlink(`${global.session.rootDir}/../src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.log`, () => {
+            return unlink(`${global.session.rootDir}/src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.txt`, () => {
                 console.log('Logs apagados com sucesso');
-                return setTimeout(() => logMenu(), 200);
+                return setTimeout(() => logMenu(), 2000);
             })
 
         } catch (e) {
@@ -108,13 +108,13 @@ async function logMenu() {
     else return logMenu();
 }
 async function start(DISCORD_TOKEN: string) {
-    let colors = [['red', 'yellow'], ['yellow', 'green'], ['green', 'blue'], ['blue', 'purple']];
-    let interval = setInterval(() => {
-        console.clear();
-        console.log(gradient(colors[Math.floor(Math.random() * colors.length)])('Aguarde um momento, os arquivos estão sendo compilados.'));
-    }, 100);
+    // let colors = [['red', 'yellow'], ['yellow', 'green'], ['green', 'blue'], ['blue', 'purple']];
+    // let interval = setInterval(() => {
+    //     console.clear();
+    //     console.log(gradient(colors[Math.floor(Math.random() * colors.length)])('Aguarde um momento, os arquivos estão sendo compilados.'));
+    // }, 100);
     // return cld.exec('tsc', () => {
-    clearInterval(interval);
+    // clearInterval(interval);
     console.clear();
     return require(`${global.session.rootDir}/index`)(DISCORD_TOKEN);
     // })

@@ -4,7 +4,8 @@ delete require.cache[require.resolve('../components/KetUtils')];
 const
     db = global.session.db,
     KetUtils = new (require('../components/KetUtils'))(),
-    { getContext } = require('../components/Commands/CommandStructure'),
+    { getContext, Decoration } = require('../components/Commands/CommandStructure'),
+    { getEmoji, getColor } = Decoration,
     i18next = require("i18next");
 
 module.exports = class MessageCreateEvent {
@@ -22,7 +23,7 @@ module.exports = class MessageCreateEvent {
         let server = await db.servers.find(message.guildID, true),
             user = await db.users.find(message.author.id),
             ctx = getContext({ ket, message, server, user }, i18next.getFixedT(user?.lang || 'pt'))
-            
+
         if (user?.banned) return;
         if (server?.banned) return ctx.guild.leave();
         if (server?.globalchat && ctx.cID === server.globalchat) KetUtils.sendGlobalChat(ctx);
@@ -37,12 +38,21 @@ module.exports = class MessageCreateEvent {
         else commandName = command.config.name
         ctx = getContext({ ket, user, server, message, args, command, commandName }, ctx.t)
 
-        if (ctx.command.permissions.onlyDevs && !ket.config.DEVS.includes(ctx.uID)) return;
-
         await KetUtils.checkCache(ctx);
         ctx.t = i18next.getFixedT(user?.lang);
         ctx.user = await KetUtils.checkUserGuildData(ctx);
 
+        if (ctx.command.permissions.onlyDevs && !ket.config.DEVS.includes(ctx.uID)) {
+            this.ket.say({
+                context: message, emoji: 'negado', content: {
+                    embeds: [{
+                        color: getColor('red'),
+                        title: `${getEmoji('sireneRed').mention} ${ctx.t('events:error.title')} ${getEmoji('sireneBlue')}`,
+                        description: ctx.t('events:isDev')
+                    }]
+                }
+            })
+        }
         if (await KetUtils.checkPermissions({ ctx }) === false) return;
 
         return new Promise(async (res, rej) => {

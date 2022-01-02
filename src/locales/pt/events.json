@@ -1,5 +1,6 @@
 {
     "no-threads": "Ops, esse comando não pode ser executado em threads, tente em um chat normal :)",
+    "isDev": "Ops, é muito perigoso deixar este comando disponível para qualquer pessoa, apenas a minha equipe pode usa-lo :)",
     "embedTemplate": {
         "author": {
             "name": "{{user.tag}}",
@@ -12,7 +13,7 @@
     },
     "error": {
         "title": "Pane no sistema",
-        "desc": "Alguma coisa está impedindo que este comando funcione, a minha equipe foi alertada sobre o erro, sinto muito pela incoveniência.\n```js\n{{error}}```"
+        "description": "Alguma coisa está impedindo que este comando funcione, a minha equipe foi alertada sobre o erro, sinto muito pela incoveniência.\n```js\n{{error}}```"
     },
     "globalchat": {
         "welcome": {
