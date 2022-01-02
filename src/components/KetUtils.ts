@@ -93,20 +93,22 @@ module.exports = class Utils {
         if (message.author.bot) msgObj.embeds = message.embeds
 
         !user.rateLimit ? user.rateLimit = 1 : user.rateLimit++;
-        !user.rateLimitTimeout ? user.rateLimitTimeout = setInterval(() => user.rateLimit <= 0 ? () => {clearInterval(user.rateLimitTimeout); user.rateLimitTimeout = null} : user.rateLimit--, 5000) : null
+        !user.rateLimitTimeout ? user.rateLimitTimeout = setInterval(() => user.rateLimit <= 0 ? () => { clearInterval(user.rateLimitTimeout); user.rateLimitTimeout = null } : user.rateLimit--, 5000) : null
 
-        if (user.rateLimit >= 13) {
+        if (user.rateLimit >= 10) {
             await db.users.update(ctx.uID, {
                 banned: true,
                 banReason: `[ AUTO-MOD ] - Flood on global chat`
             })
-            ket.say({ context: message, emoji: 'sireneRed', content: {
-                embeds: [{
-                    color: getColor('red'),
-                    title: `Auto-mod - Globalchat`,
-                    description: `[ AUTO-MOD ] - ${message.author.tag} (ID: ${message.author.id}) foi banido por ${moment.duration(user.rateLimit * 1000 * 60).format('h[h] m[m]')} por mal comportamento. O terceiro banimento será permanente.`
-                }]
-            } });
+            ket.say({
+                context: message, emoji: 'sireneRed', content: {
+                    embeds: [{
+                        color: getColor('red'),
+                        title: `Auto-mod - Globalchat`,
+                        description: `[ AUTO-MOD ] - ${message.author.tag} (ID: ${message.author.id}) foi banido por ${moment.duration(user.rateLimit * 1000 * 60).format('h[h] m[m]')} por mal comportamento. O terceiro banimento será permanente.`
+                    }]
+                }
+            });
             setTimeout(async () => await db.users.update(ctx.uID, { banned: null, banReason: null }), user.rateLimit * 1000 * 60)
         }
 
@@ -124,12 +126,14 @@ module.exports = class Utils {
             if (!webhook) continue;
 
             if (message.messageReference && !message.author.bot) {
-                let ref = channel.messages.find(m => m.author.username === msg.author.username && this.msgFilter(m.filtredContent, 1990, true) === this.msgFilter(msg.filtredContent, 1990, true) && m.timestamp < msg.timestamp + 3000);
+                let ref = channel.messages.find(m => m.author.username === msg.author.username && this.msgFilter(m.filtredContent, 1990, true) === this.msgFilter(msg.filtredContent, 1990, true) && m.timestamp < msg.timestamp + 3000),
+                    refAuthor = await db.users.find(msg.author.id);
+
                 !msg ? null : msgObj.embeds = [{
                     color: getColor('green'),
                     author: { name: msg.author.username, icon_url: msg.author.dynamicAvatarURL('jpg') },
-                    description: `${!ref ? this.msgFilter(msg.filtredContent, 64) : `${this.msgFilter(msg.filtredContent, 64)}\n\n**[⬑ - - Ver mensagem - - ⬏](https://discord.com/channels/${guilds[i].id}/${guilds[i].globalchat}/${ref.id})**`}`,
-                    image: (msg.attachments[0] ? { url: `${msg.attachments[0].url}?size=128` } : null)
+                    description: `${refAuthor?.banned ? '`mensagem de usuário banido`' : !ref ? this.msgFilter(msg.filtredContent, 64) : `${this.msgFilter(msg.filtredContent, 64)}\n\n**[⬑ - - Ver mensagem - - ⬏](https://discord.com/channels/${guilds[i].id}/${guilds[i].globalchat}/${ref.id})**`}`,
+                    image: (msg.attachments[0] && !refAuthor.banned ? { url: `${msg.attachments[0].url}?size=240` } : null)
                 }]
             }
             let send = async () => await ket.executeWebhook(webhook.id, webhook.token, msgObj).then((msg: Message) => msgs.push(`${msg.id}|${msg.guildID}`)).catch(() => { });

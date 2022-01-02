@@ -3,7 +3,6 @@
     "version": "0.0.2",
     "description": "",
     "main": "index.ts",
-    "type": "module",
     "scripts": {
         "build": "echo Compilando arquivos... && tsc",
         "direct-mode": "npm run build && node dist/index.js --no-menu",
