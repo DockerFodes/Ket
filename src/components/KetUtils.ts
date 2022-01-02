@@ -240,11 +240,11 @@ module.exports = class Utils {
         })
     }
 
-    async commandNotFound(ctx) {
-        let totalCommands: string[] = [];
-        ctx.ket.commands.forEach((cmd: any) => totalCommands.push(cmd.config.name))
-        ctx.command = ctx.ket.commands.get(this.findResult(ctx.commandName, totalCommands))
+    async commandNotFound(ctx, commandName: string) {
+        let totalCommands: string[] = ctx.ket.commands.map((cmd: any) => cmd.config.name)
+        ctx.command = ctx.ket.commands.get(this.findResult(commandName, totalCommands))
         if (!ctx.command) return false;
+        return ctx.command;
     }
 
     findResult(entrada: string, mapa: string[]) {
@@ -298,6 +298,6 @@ module.exports = class Utils {
         DidYouMean.threshold = 0.8;
         let result = DidYouMean(entrada, mapa);
         if (!result) result = Algorithm2(entrada, mapa);
-        return result
+        return result;
     }
 }

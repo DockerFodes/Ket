@@ -18,20 +18,22 @@ module.exports = class DatabaseTable {
 
         this.table = {
             create: async (index: string, data: object, returnValue: boolean = false) => {
-                if (!index) return;
+                if (!index) return false;
+
                 let values: string[] = [];
                 if (data) for (let i in Object.entries(data)) {
-                    let str = String(eval('data.' + Object.keys(data)[i])).replace(new RegExp(`'`, 'g'), `''`);
-                    typeof str === 'string' ? values.push(`'${str}'`) : values.push(str);
+                    let value = String(data[Object.keys(data)[i]]).replace(new RegExp(`'`, 'g'), `''`);
+                    typeof value === 'string' && !value.startsWith('sql') ? values.push(`'${value}'`) : values.push(value.replace('sql ', ''));
                 }
                 await postgres.query(`INSERT INTO ${tableName} (${PrimaryKey}${data ? `, ${Object.keys(data).join(', ')}` : ''}) VALUES('${index}'${data ? `, ${values.join(', ')}` : ''})`);
                 if (returnValue) return await global.session.db[tableName].find(index);
                 return;
             },
             update: async (index: string, data: object, returnValue: boolean = false) => {
-                if (!index) return;
+                if (!index) return false;
+
                 let values: string[] = [];
-                for (let [key, value] of Object.entries(data)) typeof value === 'string' ? values.push(`${key} = '${value.replace(new RegExp(`'`, 'g'), `''`)}'`) : values.push(`${key} = ${value}`);
+                for (let [key, value] of Object.entries(data)) typeof value === 'string' && !value.startsWith('sql') ? values.push(`${key} = '${value.replace(new RegExp(`'`, 'g'), `''`)}'`) : values.push(`${key} = ${value.replace('sql ', '')}`);
                 await postgres.query(`UPDATE ${tableName} SET
                         ${values.join(`,\n`)}
                         WHERE ${PrimaryKey} = '${index}';
@@ -40,7 +42,8 @@ module.exports = class DatabaseTable {
                 return;
             },
             delete: async (index: string) => {
-                if (!index) return;
+                if (!index) return false;
+
                 try {
                     await global.session.postgres.query(`DELETE FROM ${tableName} WHERE ${PrimaryKey} = ${index}`)
                     return true;
@@ -49,7 +52,8 @@ module.exports = class DatabaseTable {
                 }
             },
             find: async (index: string, createIfNull: boolean = false) => {
-                if (!index) return;
+                if (!index) return false;
+
                 let search = await postgres.query(`SELECT * FROM ${tableName} WHERE ${PrimaryKey} = '${index}';`);
                 if (!search.rows[0] && index && createIfNull) return await global.session.db[tableName].create(index, null, true);
                 else return search.rows[0];

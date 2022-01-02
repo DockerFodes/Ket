@@ -19,31 +19,41 @@ module.exports = class InteractionCreateEvent {
             return new (require("../packages/events/_on-messageDMCreate"))(this).start(interaction);
         };
         const ket = this.ket
-        let ctx = getContext({ ket, interaction }),
-            server = await db.servers.find(ctx.gID, true),
-            user = await db.users.find(ctx.uID);
+        let server = await db.servers.find(interaction.guildID, true),
+            user = await db.users.find(interaction.member.user.id),
+            ctx = getContext({ ket, interaction, server, user })
+
         if (user?.banned) return;
         if (server?.banned) return ctx.guild.leave();
-        let args: string[] = [];
-        const commandName: string = interaction.data.name,
+
+        let args: string[] = [],
+            commandName: string = interaction.data.name,
             command = ket.commands.get(commandName) || ket.commands.get(ket.aliases.get(commandName));
 
-        interaction.data?.options?.forEach((option: any) => option.value.split(' ').forEach(data => args.push(data)))
+        if (!command && (command = await KetUtils.commandNotFound(ctx, commandName)) === false) return;
+        else commandName = command.config.name
 
-        let t = global.session.t = i18next.getFixedT(user?.lang || 'pt');
+        function getArgs(option) {
+            if (!option.value) args.push(option.name);
+            else args.push(option.value)
+            return option?.options ? option.options.forEach(op => getArgs(op)) : null
+        }
+        interaction.data?.options?.forEach((option: any) => getArgs(option))
 
-        ctx = getContext({ ket, interaction, args, command, commandName }, t)
+
+        ctx = getContext({ ket, user, server, interaction, args, command, commandName }, ctx.t)
 
         if (ctx.command.permissions.onlyDevs && !ket.config.DEVS.includes(ctx.uID)) return;
 
         await KetUtils.checkCache(ctx);
-        ctx.t = t = global.session.t = i18next.getFixedT(user?.lang);
-        user = await KetUtils.checkUserGuildData(ctx);
+        ctx.t = i18next.getFixedT(user?.lang);
+        ctx.user = await KetUtils.checkUserGuildData(ctx);
 
         if (await KetUtils.checkPermissions({ ctx }) === false) return;
+
         return new Promise(async (res, rej) => {
             try {
-                await interaction.defer()
+                await interaction.defer().catch(() => { });
                 await command.execute(ctx);
                 KetUtils.sendCommandLog(ctx)
             } catch (error) {

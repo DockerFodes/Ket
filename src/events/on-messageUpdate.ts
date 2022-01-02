@@ -26,7 +26,7 @@ module.exports = class MessageUpdateEvent {
         if (Date.now() > newMessage.timestamp + (15 * 1000 * 60) || Number(msgData.editcount) >= config.globalchat.editLimit) {
             if (Number(msgData.editcount) >= config.globalchat.editLimit + 1) return;
 
-            await db.globalchat.update(msgData.id, { editcount: 'editcount + 1' })
+            await db.globalchat.update(msgData.id, { editcount: 'sql editcount + 1' })
 
             return this.ket.say({
                 ctx: newMessage, emoji: 'negado', content: {
@@ -59,7 +59,7 @@ module.exports = class MessageUpdateEvent {
                 }
             }).catch(() => { })
         })
-        db.globalchat.update(msgData.id, { editcount: 'editcount + 1' })
+        db.globalchat.update(msgData.id, { editcount: 'sql editcount + 1' })
 
     }
 }

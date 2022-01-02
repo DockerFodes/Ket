@@ -24,7 +24,8 @@ module.exports = class GlobalChatCommand extends CommandStructure {
             data: new SlashCommandBuilder()
                 .addSubcommand(c =>
                     c.setName('create')
-                        .setDescription('Start the global Chat in this server')
+                        .setDescription('Start the global chat in this server')
+                        .addChannelOption(option => option.setName('channel').setDescription('The channel'))
                 )
                 .addSubcommand(c =>
                     c.setName('stop')
@@ -42,6 +43,12 @@ module.exports = class GlobalChatCommand extends CommandStructure {
         })
     }
     async execute(ctx) {
-
+        if(!ctx.args[0]) return this.ket.say({ ctx, content: {  } })
+        switch(ctx.args[0].toLowerCase()) {
+            case 'create':
+            case 'stop':
+            case 'getinfo':
+        }
+        console.log(ctx.args)
     }
 }
