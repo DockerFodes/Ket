@@ -9,9 +9,8 @@ module.exports = class MessageDeleteEvent {
         let guild = await db.servers.find(message.guildID);
         if (message.channel.id !== guild.globalchat || Date.now() > message.timestamp + (15 * 1000 * 60) || message.author?.bot) return;
 
-        let msgs = await db.globalchat.getAll(100),
+        let msgs = await db.globalchat.getAll(100, { key: 'id', type: 'DESC' }),
             msgData = msgs.filter(msg => msg.id === message.id || msg.messages.includes(message.id))[0];
-
         !msgData ? null : msgData.messages.forEach(async data => {
             let guildData = await db.servers.find(data.split('|')[1]),
                 channel: any = this.ket.guilds.get(guildData.id).channels.get(guildData.globalchat),

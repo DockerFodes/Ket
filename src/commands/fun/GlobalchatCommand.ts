@@ -43,8 +43,8 @@ module.exports = class GlobalChatCommand extends CommandStructure {
         })
     }
     async execute(ctx) {
-        if(!ctx.args[0]) return this.ket.say({ ctx, content: {  } })
-        switch(ctx.args[0].toLowerCase()) {
+        if (!ctx.args[0]) return this.ket.say({ context: ctx.env, content: { content: 'cu', flags: 64 }, emoji: 'negado' })
+        switch (ctx.args[0].toLowerCase()) {
             case 'create':
             case 'stop':
             case 'getinfo':

@@ -1,6 +1,5 @@
 import { Client, Message } from "eris"
 const KetUtils = new (require('../components/KetUtils'))(),
-    config = require('../json/settings.json'),
     db = global.session.db,
     i18next = require('i18next'),
     { Decoration } = require('../components/Commands/CommandStructure'),
@@ -18,27 +17,12 @@ module.exports = class MessageUpdateEvent {
         if (newMessage.channel.id !== guild.globalchat) return this.ket.emit("messageCreate", newMessage);
 
         const user = await db.users.find(newMessage.author.id),
-            msgData = await db.globalchat.find(newMessage.id),
-            t = i18next.getFixedT(user.lang);
+            msgData = await db.globalchat.find(newMessage.id);
 
         if (user.banned || !msgData) return;
 
-        if (Date.now() > newMessage.timestamp + (15 * 1000 * 60) || Number(msgData.editcount) >= config.globalchat.editLimit) {
-            if (Number(msgData.editcount) >= config.globalchat.editLimit + 1) return;
+        if (Date.now() > newMessage.timestamp + (15 * 1000 * 60) || Number(msgData.editcount) >= this.ket.config.globalchat.editLimit) return;
 
-            await db.globalchat.update(msgData.id, { editcount: 'sql editcount + 1' })
-
-            return this.ket.say({
-                ctx: newMessage, emoji: 'negado', content: {
-                    embeds: {
-                        thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/918721199029231716/error.gif' },
-                        color: getColor('red'),
-                        title: `${getEmoji('sireneRed').mention} ${t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
-                        description: t('events:globalchat.editLimitDesc')
-                    }
-                }
-            })
-        }
         msgData.messages.forEach(async data => {
             let msgID = data.split('|')[0],
                 guildData = await db.servers.find(data.split('|')[1]),
@@ -59,7 +43,8 @@ module.exports = class MessageUpdateEvent {
                 }
             }).catch(() => { })
         })
-        db.globalchat.update(msgData.id, { editcount: 'sql editcount + 1' })
+
+        await db.globalchat.update(msgData.id, { editcount: 'sql editcount + 1' })
 
     }
 }

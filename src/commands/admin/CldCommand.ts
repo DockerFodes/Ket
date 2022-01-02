@@ -41,14 +41,14 @@ module.exports = class CldCommand extends CommandStructure {
                     .setTitle('Só sucexo bb')
                     .setColor('green')
                     .setDescription(b, 'bash');
-                this.ket.say({ ctx, content: { embeds: [embed.build()] } })
+                this.ket.say({ context: ctx.env, content: { embeds: [embed.build()] } })
             })
         } catch (e) {
             embed = new EmbedBuilder()
                 .setTitle('Ih deu merda viado')
                 .setColor('red')
                 .setDescription(inspect(e), 'bash');
-            this.ket.say({ ctx, content: { embeds: [embed.build()] } })
+            this.ket.say({ context: ctx.env, content: { embeds: [embed.build()] } })
         }
     }
 }

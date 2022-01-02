@@ -15,17 +15,18 @@ global.session = {
     log: function log(type: string = "log", setor = "CLIENT", message: string, error: any = "") {
         moment.locale("pt-BR");
         switch (type) {
+            case 'normal': return console.log(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`)
             case "log": return console.log(c.greenBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`));
             case "shard": return console.log(c.blueBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`));
             case "error":
-                // return console.error(c.redBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}\n${error}`));
+                console.error(c.redBright(`[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}\n${error}`));
                 return console.log(error);
         }
     }
 }
 module.exports = function start(DISCORD_TOKEN: string) {
     require('./src/components/core/ProtoTypes').start();
-    console.log(c.bgBlueBright("[ SHARDING MANAGER ] - Iniciando fragmentação..."));
+    global.session.log('normal', c.bgBlueBright("[ SHARDING MANAGER ] - Iniciando fragmentação..."))
     return new KetClient(`Bot ${DISCORD_TOKEN}`, settings.ERIS_LOADER_SETTINGS as ClientOptions).boot().then(() => {
         DISCORD_TOKEN = null;
         process.env.CLIENT_DISCORD_TOKEN = null;

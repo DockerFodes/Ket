@@ -67,7 +67,7 @@ module.exports = class EvalCommand extends CommandStructure {
                 .setDescription(util.inspect(e), 'js');
             canReturn = true
         } finally {
-            if (canReturn) ket.say({ ctx, content: { embeds: [embed.build()] } })
+            if (canReturn) ket.say({ context: ctx.env, content: { embeds: [embed.build()] } })
         }
     }
 }

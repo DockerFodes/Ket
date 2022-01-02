@@ -3,6 +3,7 @@ import { Message, Webhook } from "eris";
 const
     { inspect } = require('util'),
     axios = require('axios'),
+    moment = require('moment'),
     DidYouMean = require('didyoumean'),
     db = global.session.db,
     { Decoration, EmbedBuilder } = require('./Commands/CommandStructure'),
@@ -25,7 +26,7 @@ module.exports = class Utils {
         if (!user) {
             user = await db.users.create(ctx.uID, { lang: ctx.guild?.preferredLocale.startsWith('pt') ? 'pt' : 'en' }, true)
             if (globalchat) (await ctx.ket.say({
-                ctx, content: {
+                context: ctx.env, content: {
                     embeds: [{
                         ...ctx.t('events:globalchat.welcome', { avatar: ctx.author.dynamicAvatarURL('jpg') }),
                         color: getColor('green'),
@@ -48,6 +49,7 @@ module.exports = class Utils {
         let
             message = ctx.env,
             ket = ctx.ket,
+            user = ket.users.get(ctx.uID),
             guildsData = await db.servers.getAll(35),
             guilds = guildsData.filter(guild => guild.globalchat && guild.globalchat != message.channel.id),
             msgObj = {
@@ -88,50 +90,62 @@ module.exports = class Utils {
             })
             !buffer ? {} : msgObj.file.push({ file: buffer.data, name: message.attachments[i].filename })
         }
-
         if (message.author.bot) msgObj.embeds = message.embeds
 
+        !user.rateLimit ? user.rateLimit = 1 : user.rateLimit++;
+        !user.rateLimitTimeout ? user.rateLimitTimeout = setInterval(() => user.rateLimit <= 0 ? () => {clearInterval(user.rateLimitTimeout); user.rateLimitTimeout = null} : user.rateLimit--, 5000) : null
 
-        guilds.forEach(async (g) => {
+        if (user.rateLimit >= 13) {
+            await db.users.update(ctx.uID, {
+                banned: true,
+                banReason: `[ AUTO-MOD ] - Flood on global chat`
+            })
+            ket.say({ context: message, emoji: 'sireneRed', content: {
+                embeds: [{
+                    color: getColor('red'),
+                    title: `Auto-mod - Globalchat`,
+                    description: `[ AUTO-MOD ] - ${message.author.tag} (ID: ${message.author.id}) foi banido por ${moment.duration(user.rateLimit * 1000 * 60).format('h[h] m[m]')} por mal comportamento. O terceiro banimento será permanente.`
+                }]
+            } });
+            setTimeout(async () => await db.users.update(ctx.uID, { banned: null, banReason: null }), user.rateLimit * 1000 * 60)
+        }
+
+        for (let i in guilds) {
             let
-                channel = ket.guilds.get(g.id).channels.get(g.globalchat),
-                webhook = ket.webhooks.get(channel.id);
-            if (!channel || channel.nsfw || await this.checkPermissions({ ctx, command, channel, notReply: true }) === false) return;
+                channel = ket.guilds.get(guilds[i].id)?.channels.get(guilds[i].globalchat),
+                webhook = ket.webhooks.get(channel?.id);
+            if (!channel || channel.nsfw || await this.checkPermissions({ ctx, command, channel, notReply: true }) === false) continue;
             if (!webhook) {
                 webhook = await channel.getWebhooks().catch(() => { });
                 webhook = webhook.filter((w: Webhook) => w.name === 'Ket Global Chat' && w.user.id === ket.user.id)[0];
                 if (!webhook) webhook = await channel.createWebhook({ name: 'Ket Global Chat', options: { type: 1 } }).catch(() => { });
                 ket.webhooks.set(channel.id, webhook);
             }
-            if (!webhook) return;
+            if (!webhook) continue;
 
             if (message.messageReference && !message.author.bot) {
                 let ref = channel.messages.find(m => m.author.username === msg.author.username && this.msgFilter(m.filtredContent, 1990, true) === this.msgFilter(msg.filtredContent, 1990, true) && m.timestamp < msg.timestamp + 3000);
                 !msg ? null : msgObj.embeds = [{
                     color: getColor('green'),
                     author: { name: msg.author.username, icon_url: msg.author.dynamicAvatarURL('jpg') },
-                    description: `${!ref ? this.msgFilter(msg.filtredContent, 64) : `${this.msgFilter(msg.filtredContent, 64)}\n\n**[⬑ - - Ver mensagem - - ⬏](https://discord.com/channels/${g.id}/${g.globalchat}/${ref.id})**`}`,
+                    description: `${!ref ? this.msgFilter(msg.filtredContent, 64) : `${this.msgFilter(msg.filtredContent, 64)}\n\n**[⬑ - - Ver mensagem - - ⬏](https://discord.com/channels/${guilds[i].id}/${guilds[i].globalchat}/${ref.id})**`}`,
                     image: (msg.attachments[0] ? { url: `${msg.attachments[0].url}?size=128` } : null)
                 }]
             }
-            function send() {
-                ket.executeWebhook(webhook.id, webhook.token, msgObj).then((msg: Message) => msgs.push(`${msg.id}|${msg.guildID}`)).catch(() => { });
+            let send = async () => await ket.executeWebhook(webhook.id, webhook.token, msgObj).then((msg: Message) => msgs.push(`${msg.id}|${msg.guildID}`)).catch(() => { });
+
+            let rateLimit = ket.requestHandler.ratelimits[`/webhooks/${guilds[i].globalchat}/:token?&wait=true`];
+            if (rateLimit) {
+                setTimeout(async () => await send(), Date.now() - rateLimit.reset + ket.options.rest.ratelimiterOffset);
+                continue;
             }
-            let rateLimit = ket.requestHandler.ratelimits[`/webhooks/${g.globalchat}/:token?&wait=true`];
-            if (rateLimit) return setTimeout(() => send(), Date.now() - rateLimit.reset + ket.options.rest.ratelimiterOffset)
-            return send()
-        })
-        let i = 0
-        function save() {
-            if (i++ > 10) return global.session.log('error', 'Global Chat', `o cache de mensagens de webhooks está inconsistente, desativando save do banco de dados com ${guilds.length - msgs.length} não salvas.`, '')
-            if (msgs.length !== guilds.length) return setTimeout(() => save(), 300);
-            else db.globalchat.create(message.id, {
-                author: message.author.id,
-                editcount: 0,
-                messages: `{${msgs.join(',')}}`
-            })
+            await send();
         }
-        return save();
+        return await db.globalchat.create(message.id, {
+            author: message.author.id,
+            editcount: 0,
+            messages: `{${msgs.join(',')}}`
+        });
     }
 
     msgFilter(content: string, maxLength: number = 1990, ignoreEmojis: boolean = false) {
@@ -177,11 +191,11 @@ module.exports = class Utils {
         if (!ctx.channel) return false;
         if ([10, 11, 12].includes(ctx.channel.type) && !ctx.command.access.Threads) {
             ctx.ket.say({
-                ctx, content: {
-                    embeds: {
+                context: ctx.env, content: {
+                    embeds: [{
                         color: getColor('red'),
                         title: `${getEmoji('sireneRed').mention} ${t('events:no-threads')}`
-                    }
+                    }]
                 }, emoji: 'negado'
             })
             return false
@@ -190,7 +204,7 @@ module.exports = class Utils {
         missingPermissions = ctx.command.permissions.bot.filter((perm) => !ctx.me.permissions.has(perm)).map(value => t(`permissions:${value}`));
 
         if (missingPermissions[0] && !notReply) {
-            ctx.ket.say({ ctx, content: t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') }), embed: false, emoji: 'negado' })
+            ctx.ket.say({ context: ctx.env, content: t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') }), embed: false, emoji: 'negado' })
                 .catch(async () => {
                     let dmChannel = await ctx.author.getDMChannel();
                     dmChannel.createMessage(t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') }))
@@ -217,13 +231,13 @@ module.exports = class Utils {
     CommandError(ctx, error) {
         const { say, t, ket, args, config, command, author, uID, guild, gID, me, channel, cID } = ctx
         say({
-            ctx, content: {
-                embeds: {
+            context: ctx.env, content: {
+                embeds: [{
                     color: getColor('red'),
                     thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/918721199029231716/error.gif' },
                     title: `${getEmoji('sireneRed').mention} ${t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
                     description: t('events:error.desc', { error: error })
-                }
+                }]
             }, emoji: 'negado', flags: 64
         })
 

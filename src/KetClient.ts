@@ -141,33 +141,37 @@ module.exports = class KetClient extends Client {
         return user;
     }
 
-    async say({ ctx, content, emoji = null, embed = true, type = 'reply', message = null, interaction = null }) {
+    async say({ context, content, emoji = null, embed = true, type = 'reply', message = null, interaction = null }) {
         if (!content) return;
-        if (ctx.env instanceof CommandInteraction) interaction = ctx.env;
-        else message = ctx.env;
-        let user = await this.findUser(ctx.env, ctx.uID)
-
+        if (context instanceof CommandInteraction) interaction = context;
+        else message = context;
+        let user = await this.findUser(context, message ? context.author.id : context.member.user.id);
         let msg, msgObj = {
             content: '',
-            color: getColor('green'),
             embeds: embed ? [{
+                color: getColor('red'),
                 title: '',
                 description: ''
             }] : [],
             components: [],
             flags: 0,
             messageReference: message && type === 'reply' ? {
-                channelID: ctx.cID,
-                guildID: ctx.gID,
-                messageID: ctx.env.id,
+                channelID: context.channel.id,
+                guildID: context.guildID,
+                messageID: context.id,
                 failIfNotExists: false
-            } : null
+            } : null,
+            allowedMentions: {
+                everyone: false,
+                roles: false,
+                users: true,
+                repliedUser: true
+            }
         }
         if (typeof content === 'object') {
             msgObj = Object.assign(msgObj, content);
             content = content.embeds[0].description;
-        }
-        else (embed ? msgObj.embeds[0].description = content : msgObj.content = content);
+        } else (embed ? msgObj.embeds[0].description = content : msgObj.content = content);
 
         if (emoji) {
             content = (getEmoji(emoji).mention ? `${getEmoji(emoji).mention} **| ${content}**` : content);
@@ -175,8 +179,8 @@ module.exports = class KetClient extends Client {
         }
 
         if (message) {
-            if ((message.editedTimestamp && user?.lastCommand && user.lastCommand.msg.channel.id === message.channel.id && Date.now() < message.timestamp + 2 * 1000 * 60) || type === 'edit') msg = await message.channel.editMessage(user.lastCommand.msg.id, msgObj)
-            else msg = await message.channel.createMessage(msgObj)
+            if ((message.editedTimestamp && user?.lastCommand && user.lastCommand.msg.channel.id === message.channel.id && Date.now() < message.timestamp + 2 * 1000 * 60) || type === 'edit') msg = await message.channel.editMessage(user.lastCommand.msg.id, msgObj).catch(() => message.channel.createMessage(msgObj).catch(() => { }));
+            else msg = await message.channel.createMessage(msgObj).catch(() => { });
 
             user.lastCommand = {
                 message: message,
