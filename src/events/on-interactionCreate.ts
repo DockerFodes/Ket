@@ -48,19 +48,16 @@ module.exports = class InteractionCreateEvent {
         ctx.t = i18next.getFixedT(user?.lang);
         ctx.user = await KetUtils.checkUserGuildData(ctx);
 
-        if (ctx.command.permissions.onlyDevs && !ket.config.DEVS.includes(ctx.uID)) {
-            this.ket.say({
-                context: interaction, emoji: 'negado', content: {
-                    embeds: [{
-                        color: getColor('red'),
-                        title: `${getEmoji('sireneRed').mention} ${ctx.t('events:error.title')} ${getEmoji('sireneBlue')}`,
-                        description: ctx.t('events:isDev')
-                    }],
-                    flags: 64
-                }
-            })
-        }
         if (await KetUtils.checkPermissions({ ctx }) === false) return;
+        if (ctx.command.permissions.onlyDevs && !ket.config.DEVS.includes(ctx.uID)) return this.ket.say({
+            context: interaction, emoji: 'negado', content: {
+                embeds: [{
+                    color: getColor('red'),
+                    title: `${getEmoji('sireneRed').mention} ${ctx.t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
+                    description: ctx.t('events:isDev')
+                }]
+            }
+        })
 
         return new Promise(async (res, rej) => {
             try {
