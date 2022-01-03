@@ -241,7 +241,6 @@ module.exports = class Utils {
                 embeds: [{
                     color: getColor('red'),
                     thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/918721199029231716/error.gif' },
-                    title: `${getEmoji('sireneRed').mention} ${t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
                     description: t('events:error.desc', { error: error })
                 }]
             }, emoji: 'negado', flags: 64

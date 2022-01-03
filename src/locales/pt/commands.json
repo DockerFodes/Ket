@@ -1,3 +1,22 @@
 {
-    "ain": "que demains"
+    "globalchat": {
+        "channelNotFound": "Canal não encontrado! Tente mencionar algum chat ou copiar o ID.",
+        "messageNotFound": "Não consegui encontrar essa mensagem :(**\nTalvez ela não seja do chat global ou é antiga demais, apenas as últimas 500 mensagens são encontráveis.",
+
+        "start": {
+            "title": "Chat global iniciado com sucesso",
+            "description": "O chat global foi iniciado em {{channel.mention}}"
+        },
+        "stop": {
+            "title": "O chat global foi interrompido com sucesso",
+            "description": "Para ativar novamente use {{user.prefix}}chatglobal start"
+        },
+        "getinfo": {
+            "title": "Informações",
+            "fields": [
+                { "name": "Mensagem:", "value": "Mensagem original: `{{msgData.id}}`\nEditada `{{msgData.editcount}}` vezes\nData de envio: `{{timestamp}}`"},
+                { "name": "Autor", "value": "{{user.mention}} (ID: `{{user.id}}`, TAG: `{{user.tag}}`)\nMensagens enviadas no chat global: `{{messages}} mensagens`\nStatus de banimento: `{{isBanned}}`" }
+            ]
+        }
+    }
 }

@@ -1,5 +1,6 @@
 export { };
-import { ClientOptions, CommandInteraction, Member, Message, User } from "eris";
+import { Channel } from "diagnostics_channel";
+import { ClientOptions, CommandInteraction, Guild, GuildChannel, Member, Message, User } from "eris";
 import { ESMap } from "typescript";
 const
     { Client, Collection } = require('eris'),
@@ -126,7 +127,7 @@ module.exports = class KetClient extends Client {
         else search = String(text).toLowerCase();
 
         try {
-            if (isNaN(Number(search))) user = context?.mentions[0] || context.channel.guild.members.find((m: Member) => m.user.username.toLowerCase() === search || String(m.nick).toLowerCase() === search || m.user.username.startsWith(search) || String(m.nick).startsWith(search) || m.user.username.includes(search) || String(m.nick).includes(search));
+            if (isNaN(Number(search))) user = context?.mentions[0] || context.channel.guild.members.find((m: Member) => m.user.username.toLowerCase() === search || String(m.nick).toLowerCase() === search || m.user.username.toLowerCase().startsWith(search) || String(m.nick).toLowerCase().startsWith(search) || m.user.username.toLowerCase().includes(search) || String(m.nick).toLowerCase().includes(search));
             else {
                 if (this.users.has(search)) user = this.users.get(search);
                 else user = await this.getRESTUser(search);
@@ -141,6 +142,48 @@ module.exports = class KetClient extends Client {
         return user;
     }
 
+    async findChannel(context?: any, id?: string) {
+        let channel: Channel | GuildChannel,
+            guild: Guild = context.channel.guild;
+
+        try {
+            if (isNaN(Number(id))) channel = context?.channelMentions[0] || guild.channels.find((c: GuildChannel) => c.name.toLowerCase() === id || c.name.toLowerCase().startsWith(id) || c.name.toLowerCase().includes(id));
+            else {
+                if (guild.channels.has(id)) channel = guild.channels.get(id);
+                else channel = await this.getRESTCHannel(id);
+            }
+        } catch (e) {
+            channel = null;
+        }
+        return channel;
+    }
+
+    async findMessage(context?: any, id?: string, onlyIfHasFile: boolean = false) {
+        let messages = context.channel.messages,
+            ref = context.messageReference;
+
+        if (onlyIfHasFile) {
+            if (context.attachments[0]) return context;
+
+            if (ref) {
+                ref = await get(ref.messageID);
+                if (ref?.attachments[0]) return ref;
+            }
+
+            return Array(messages).reverse().find(msg => msg?.attachments[0] || msg?.embeds[0]?.image);
+
+        } else {
+            if (ref) return await get(ref.messageID);
+            else if (!isNaN(Number(id))) return await get(id);
+            else return null;
+        }
+
+        async function get(id: string) {
+            if (messages.has(id)) return messages.get(id);
+            else return await context.channel.getMessage(id);
+        }
+    }
+
     async say({ context, content, emoji = null, embed = true, type = 'reply', message = null, interaction = null }) {
         if (!content) return;
         if (context instanceof CommandInteraction) interaction = context;
@@ -150,7 +193,7 @@ module.exports = class KetClient extends Client {
             content: '',
             embeds: embed ? [{
                 color: getColor('red'),
-                title: '',
+                title: `${getEmoji('sireneRed').mention} ${global.session.t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
                 description: ''
             }] : [],
             components: [],

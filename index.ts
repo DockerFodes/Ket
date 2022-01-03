@@ -19,8 +19,8 @@ async function main() {
         log: async (type: string = "log", setor = "CLIENT", message: string, error: any = null) => {
             moment.locale("pt-BR");
             let str = `[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message + (error ? `\n${error}` : '')}`
-            appendFile(`${__dirname}/src/logs/output.txt`, `${str}\n`, () => { })
-            error ? appendFile(`${__dirname}/src/logs/errors.txt`, `${error}\n`, () => { }) : null
+            // appendFile(`${__dirname}/src/logs/output.txt`, `${str}\n`, () => { })
+            // error ? appendFile(`${__dirname}/src/logs/errors.txt`, error, () => { }) : null
             switch (type) {
                 case 'normal': return console.log(str)
                 case "log": return console.log(c.greenBright(str));

@@ -1,6 +1,5 @@
 export { };
-import { Client } from "eris"
-const { t } = require('i18next');
+import { Client } from "eris";
 
 module.exports.CommandStructure = class CommandStructure {
     ket: Client;

@@ -39,7 +39,7 @@ module.exports = class MessageCreateEvent {
         ctx = getContext({ ket, user, server, message, args, command, commandName }, ctx.t)
 
         await KetUtils.checkCache(ctx);
-        ctx.t = i18next.getFixedT(user?.lang);
+        ctx.t = global.session.t = i18next.getFixedT(user?.lang || 'pt');
         ctx.user = await KetUtils.checkUserGuildData(ctx);
 
         if (await KetUtils.checkPermissions({ ctx }) === false) return;
@@ -47,12 +47,10 @@ module.exports = class MessageCreateEvent {
             context: message, emoji: 'negado', content: {
                 embeds: [{
                     color: getColor('red'),
-                    title: `${getEmoji('sireneRed').mention} ${ctx.t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
                     description: ctx.t('events:isDev')
                 }]
             }
         })
-
         return new Promise(async (res, rej) => {
             try {
                 ctx.command.dontType ? null : await ctx.channel.sendTyping();

@@ -45,7 +45,7 @@ module.exports = class InteractionCreateEvent {
         ctx = getContext({ ket, user, server, interaction, args, command, commandName }, ctx.t)
 
         await KetUtils.checkCache(ctx);
-        ctx.t = i18next.getFixedT(user?.lang);
+        ctx.t = global.session.t = i18next.getFixedT(user?.lang || 'pt');
         ctx.user = await KetUtils.checkUserGuildData(ctx);
 
         if (await KetUtils.checkPermissions({ ctx }) === false) return;
@@ -53,7 +53,6 @@ module.exports = class InteractionCreateEvent {
             context: interaction, emoji: 'negado', content: {
                 embeds: [{
                     color: getColor('red'),
-                    title: `${getEmoji('sireneRed').mention} ${ctx.t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
                     description: ctx.t('events:isDev')
                 }]
             }
