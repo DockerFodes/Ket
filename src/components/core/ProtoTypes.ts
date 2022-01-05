@@ -61,7 +61,6 @@ module.exports = class ProtoTypes {
 		});
 
 		/** Canvas Structures **/
-		//@ts-ignore
 		if (!CanvasRenderingContext2D.prototype.roundRect) Object.defineProperty(CanvasRenderingContext2D.prototype, 'roundRect', {
 			value: function roundRect(x, y, width, height, radius, fill, stroke) {
 				if (typeof stroke === "undefined") stroke = true;
@@ -89,7 +88,7 @@ module.exports = class ProtoTypes {
 				return;
 			}
 		})
-		//@ts-ignore
+
 		if (!CanvasRenderingContext2D.prototype.roundImageCanvas) Object.defineProperty(CanvasRenderingContext2D.prototype, 'roundImageCanvas', {
 			value: function roundImageCanvas(img, w = img.width, h = img.height, r = w * 0.5) {
 				const canvas = createCanvas(w, h);
@@ -110,7 +109,7 @@ module.exports = class ProtoTypes {
 				return canvas;
 			}
 		})
-		//@ts-ignore
+
 		if (!CanvasRenderingContext2D.prototype.getLines) Object.defineProperty(CanvasRenderingContext2D.prototype, 'getLines', {
 			value: function getLines(text, maxWidth) {
 				var words = text.split(" ");

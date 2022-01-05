@@ -3,11 +3,13 @@
     "DEFAULT_PREFIX": ",",
     "DEVS": ["340626138076282900", "568493382884917258", "389080559714041856", "883461315769819208"],
     "TRUSTED_BOTS": ["777938917117919255", "789123515882012683", "737044809650274325", "297153970613387264"],
+    "DEV_MODE": true,
 
     "SUPPORT_SERVER": "https://discord.gg/zzrctuz9Sa",
     "BOT_INVITE": "https://discord.com/oauth2/authorize?client_id=777938917117919255&scope=bot+applications.commands&permissions=872423560",
     "channels": {
-        "database": "827392570681589790",
+        "guilds": "927782637106524181",
+        "database": "918991789304725575",
         "erros": "916745097712922685",
         "commandLogs": "916745050162098186",
         "suggestions": "835893819765030922",
@@ -41,7 +43,7 @@
             "https://chess.com",
 
             "Outros Sites",
-            
+
             "https://google.com/",
             "https://pt.wikipedia.org/",
             "https://dicio.com.br/",

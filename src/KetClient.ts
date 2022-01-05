@@ -1,6 +1,5 @@
 export { };
-import { Channel } from "diagnostics_channel";
-import { ClientOptions, CommandInteraction, Guild, GuildChannel, Member, Message, User } from "eris";
+import { ClientOptions, CommandInteraction, Guild, GuildChannel, Member, User } from "eris";
 import { ESMap } from "typescript";
 const
     { Client, Collection } = require('eris'),
@@ -23,8 +22,9 @@ module.exports = class KetClient extends Client {
 
         this.config = require('./json/settings.json');
 
-        // this.users = new Collection(this.User, this.config.ERIS_LOADER_SETTINGS.cacheLimit.users)
-        // this.guilds = new Collection(this.Guild, this.config.ERIS_LOADER_SETTINGS.cacheLimit.guilds)
+        // this.users = new Collection(User, this.config.ERIS_LOADER_SETTINGS.cacheLimit.users)
+        // this.guilds = new Collection(Guild, this.config.ERIS_LOADER_SETTINGS.cacheLimit.guilds)
+
         this.options.messageLimit = this.config.ERIS_LOADER_SETTINGS.cacheLimit.messages
 
         this.events = new (require('./components/core/EventHandler'))(this);
@@ -33,7 +33,7 @@ module.exports = class KetClient extends Client {
         this.aliases = new Map();
         this.shardUptime = new Map();
     }
-    async boot() {
+    public async boot() {
         this.loadLocales();
         this.loadCommands();
         this.loadListeners(`${__dirname}/events/`);
@@ -41,32 +41,12 @@ module.exports = class KetClient extends Client {
         return super.connect();
     }
 
-    loadLocales() {
+    public loadLocales() {
         require('./components/core/LocalesStructure')()
         return this;
     }
 
-    loadCommands() {
-        try {
-            readdir(`${__dirname}/commands/`, (_e: any, categories: string[]) => {
-                categories.forEach(category => {
-                    readdir(`${__dirname}/commands/${category}/`, (_e: any, files: string[]) => {
-                        files.forEach(async (command: string) => {
-                            const comando = new (require(`${__dirname}/commands/${category}/${command}`))(this);
-                            comando.config.dir = `${__dirname}/commands/${category}/${command}`;
-                            this.commands.set(comando.config.name, comando);
-                            return comando.config.aliases.forEach((aliase: any) => this.aliases.set(aliase, comando.config.name));
-                        })
-                    })
-                })
-            })
-        } catch (e) {
-            global.session.log('error', 'COMMANDS HANDLER', 'Erro ao carregar comandos:', e);
-        }
-        return this;
-    }
-
-    loadListeners(path: string) {
+    public loadListeners(path: string) {
         try {
             readdir(path, (_e: any, files: string[]) => {
                 files.forEach((fileName: string) => {
@@ -80,13 +60,13 @@ module.exports = class KetClient extends Client {
         return this;
     }
 
-    loadModules() {
+    public loadModules() {
         try {
             readdir(`${__dirname}/packages/`, (_e: any, categories: string[]) => {
                 categories.forEach((category: string) => {
                     readdir(`${__dirname}/packages/${category}/`, (_e: any, modules: string[]) => {
                         modules.forEach(async (file: string) => {
-                            if (file.startsWith("_")) return;
+                            if (file.startsWith("_") || category === 'postinstall') return;
                             const moduleFunc = require(`${__dirname}/packages/${category}/${file}`);
                             return moduleFunc(this);
                         })
@@ -100,7 +80,7 @@ module.exports = class KetClient extends Client {
         return this;
     }
 
-    async reloadCommand(commandName: string) {
+    public async reloadCommand(commandName: string) {
         const comando = this.commands.get(commandName) || this.commands.get(this.aliases.get(commandName));
         if (!comando) return 'Comando não encontrado';
         comando.config.aliases.forEach((aliase: any) => this.aliases.delete(aliase));
@@ -118,47 +98,116 @@ module.exports = class KetClient extends Client {
 
     }
 
-    async findUser(context?: any, text?: string, argsPosition: number = 0, returnMember: boolean = false) {
+    public async say({ context, content, emoji = null, embed = true, type = 'reply', message = null, interaction = null }) {
+        if (!content) return;
+        if (context instanceof CommandInteraction) interaction = context;
+        else message = context;
+        let user = await this.users.get(message ? context.author.id : context.member.id),
+            msgObj = {
+                content: '',
+                embeds: embed ? [{
+                    color: getColor('red'),
+                    title: `${getEmoji('sireneRed').mention} ${global.session.t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
+                    description: ''
+                }] : [],
+                components: [],
+                flags: 0,
+                messageReference: message && type === 'reply' ? {
+                    channelID: context.channel.id,
+                    guildID: context.guildID,
+                    messageID: context.id,
+                    failIfNotExists: false
+                } : null,
+                allowedMentions: {
+                    everyone: false,
+                    roles: false,
+                    users: true,
+                    repliedUser: true
+                }
+            },
+            botMessage, userMessage;
+        if (typeof content === 'object') {
+            msgObj = Object.assign(msgObj, content);
+            content = content.embeds[0].description;
+        } else (embed ? msgObj.embeds[0].description = content : msgObj.content = content);
+
+        if (emoji) {
+            content = (getEmoji(emoji).mention ? `${getEmoji(emoji).mention} **| ${content}**` : content);
+            embed ? msgObj.embeds[0].description = content : msgObj.content = content;
+        }
+
+        if (message) {
+            if ((message.editedTimestamp && user?.lastCommand && user.lastCommand.botMessage.channel.id === message.channel.id && Date.now() < message.timestamp + 2 * 1000 * 60) || type === 'edit') botMessage = await message.channel.editMessage(user.lastCommand.botMessage.id, msgObj).catch(() => message.channel.createMessage(msgObj).catch(() => { }));
+            else botMessage = await message.channel.createMessage(msgObj).catch(() => { });
+            [botMessage, message].forEach(ctx => {
+                ctx = {
+                    id: ctx.id,
+                    timestamp: ctx.timestamp,
+                    editedTimestamp: ctx.editedTimestamp,
+                    channel: { id: ctx.channel.id }
+                }
+            })
+            user.lastCommand = {
+                message,
+                botMessage
+            }
+            return botMessage;
+        } else {
+            switch (type) {
+                case 'reply': return interaction.createMessage(msgObj).catch(() => { });
+                case 'edit': return interaction.editOriginalMessage(msgObj).catch(() => { });
+            }
+        }
+    }
+
+    public async findUser(context?: any, text?: string, returnMember: boolean = false) {
         let search: string,
             user: User | Member,
             isInteraction = (context instanceof CommandInteraction ? true : false);
 
-        if (Array.isArray(text)) search = text[argsPosition].toLowerCase().replace('@', '');
+        if (isNaN(Number(text))) search = text.toLowerCase().replace('@', '');
         else search = String(text).toLowerCase();
 
         try {
-            if (isNaN(Number(search))) user = context?.mentions[0] || context.channel.guild.members.find((m: Member) => m.user.username.toLowerCase() === search || String(m.nick).toLowerCase() === search || m.user.username.toLowerCase().startsWith(search) || String(m.nick).toLowerCase().startsWith(search) || m.user.username.toLowerCase().includes(search) || String(m.nick).toLowerCase().includes(search));
+            if (isNaN(Number(text))) user = context?.mentions[0] || context.channel.guild.members.find((m: Member) => m.user.username.toLowerCase() === search || String(m.nick).toLowerCase() === search || m.user.username.toLowerCase().startsWith(search) || String(m.nick).toLowerCase().startsWith(search) || m.user.username.toLowerCase().includes(search) || String(m.nick).toLowerCase().includes(search));
             else {
-                if (this.users.has(search)) user = this.users.get(search);
-                else user = await this.getRESTUser(search);
+                if (super.users.has(search)) user = super.users.get(search);
+                else user = await super.getRESTUser(search);
             }
         } catch (e) {
             if (returnMember) user = context.member;
             else user = (isInteraction ? context.member.user : context.author)
         }
         if (user instanceof User && returnMember) user = context.channel.guild.members.get(user.id);
-        if (user instanceof Member && !returnMember) user = this.users.get(user.user.id);
+        if (user instanceof Member && !returnMember) user = super.users.get(user.user.id);
 
         return user;
     }
 
-    async findChannel(context?: any, id?: string) {
-        let channel: Channel | GuildChannel,
-            guild: Guild = context.channel.guild;
+    public async findChannel(context?: any, id?: string) {
+        let channel: GuildChannel,
+            guild: Guild = context.channel.guild,
+            client = this;
 
         try {
-            if (isNaN(Number(id))) channel = context?.channelMentions[0] || guild.channels.find((c: GuildChannel) => c.name.toLowerCase() === id || c.name.toLowerCase().startsWith(id) || c.name.toLowerCase().includes(id));
-            else {
-                if (guild.channels.has(id)) channel = guild.channels.get(id);
-                else channel = await this.getRESTCHannel(id);
-            }
+            if (context?.channelMentions) return await get(context.channelMentions[0]);
+
+            if (isNaN(Number(id))) channel = guild.channels.find((c: GuildChannel) => c.name.toLowerCase() === id || c.name.toLowerCase().startsWith(id) || c.name.toLowerCase().includes(id));
+            else return await get(id)
         } catch (e) {
+            console.log(e);
             channel = null;
         }
+
+        async function get(id) {
+            if (guild.channels.has(id)) return guild.channels.get(id);
+            else return await client.getRESTCHannel(id);
+        }
+        console.log(Object.keys(channel))
         return channel;
     }
 
-    async findMessage(context?: any, id?: string, onlyIfHasFile: boolean = false) {
+    public async findMessage(context?: any, id?: string, onlyIfHasFile: boolean = false) {
         let messages = context.channel.messages,
             ref = context.messageReference;
 
@@ -184,57 +233,23 @@ module.exports = class KetClient extends Client {
         }
     }
 
-    async say({ context, content, emoji = null, embed = true, type = 'reply', message = null, interaction = null }) {
-        if (!content) return;
-        if (context instanceof CommandInteraction) interaction = context;
-        else message = context;
-        let user = await this.findUser(context, message ? context.author.id : context.member.user.id);
-        let msg, msgObj = {
-            content: '',
-            embeds: embed ? [{
-                color: getColor('red'),
-                title: `${getEmoji('sireneRed').mention} ${global.session.t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
-                description: ''
-            }] : [],
-            components: [],
-            flags: 0,
-            messageReference: message && type === 'reply' ? {
-                channelID: context.channel.id,
-                guildID: context.guildID,
-                messageID: context.id,
-                failIfNotExists: false
-            } : null,
-            allowedMentions: {
-                everyone: false,
-                roles: false,
-                users: true,
-                repliedUser: true
-            }
+    public loadCommands() {
+        try {
+            readdir(`${__dirname}/commands/`, (_e: any, categories: string[]) => {
+                categories.forEach(category => {
+                    readdir(`${__dirname}/commands/${category}/`, (_e: any, files: string[]) => {
+                        files.forEach(async (command: string) => {
+                            const comando = new (require(`${__dirname}/commands/${category}/${command}`))(this);
+                            comando.config.dir = `${__dirname}/commands/${category}/${command}`;
+                            this.commands.set(comando.config.name, comando);
+                            return comando.config.aliases.forEach((aliase: any) => this.aliases.set(aliase, comando.config.name));
+                        })
+                    })
+                })
+            })
+        } catch (e) {
+            global.session.log('error', 'COMMANDS HANDLER', 'Erro ao carregar comandos:', e);
         }
-        if (typeof content === 'object') {
-            msgObj = Object.assign(msgObj, content);
-            content = content.embeds[0].description;
-        } else (embed ? msgObj.embeds[0].description = content : msgObj.content = content);
-
-        if (emoji) {
-            content = (getEmoji(emoji).mention ? `${getEmoji(emoji).mention} **| ${content}**` : content);
-            embed ? msgObj.embeds[0].description = content : msgObj.content = content;
-        }
-
-        if (message) {
-            if ((message.editedTimestamp && user?.lastCommand && user.lastCommand.msg.channel.id === message.channel.id && Date.now() < message.timestamp + 2 * 1000 * 60) || type === 'edit') msg = await message.channel.editMessage(user.lastCommand.msg.id, msgObj).catch(() => message.channel.createMessage(msgObj).catch(() => { }));
-            else msg = await message.channel.createMessage(msgObj).catch(() => { });
-
-            user.lastCommand = {
-                message: message,
-                msg: msg
-            }
-            return msg;
-        } else {
-            switch (type) {
-                case 'reply': return interaction.createMessage(msgObj).catch(() => { });
-                case 'edit': return interaction.editOriginalMessage(msgObj).catch(() => { });
-            }
-        }
+        return this;
     }
 }

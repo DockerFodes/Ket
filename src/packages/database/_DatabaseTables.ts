@@ -99,8 +99,7 @@ module.exports = class DatabaseTable {
                         for (let i in index) {
                             SQLString = `SELECT * FROM ${tableName} 
                             WHERE ${PrimaryKey} = '${index[i]}';`;
-                            let query = await postgres.query(SQLString);
-                            search.push(query.rows[0]);
+                            search.push((await postgres.query(SQLString)).rows[0]);
                         }
                     } else search = (await postgres.query(SQLString)).rows[0];
                 } catch (e) {
@@ -117,10 +116,10 @@ module.exports = class DatabaseTable {
                 ${limit ? `LIMIT ${limit}` : ''};
                 `
                 try {
-                    let search = await postgres.query(SQLString);
-                    return search.rows;
+                    return (await postgres.query(SQLString)).rows
                 } catch (e) {
-                    return global.session.log('error', 'DATABASE', `Falha ao GETALL documento na table ${tableName}\nSQL String: ${SQLString}`, e)
+                    global.session.log('error', 'DATABASE', `Falha ao GETALL documento na table ${tableName}\nSQL String: ${SQLString}`, e)
+                    return false;
                 }
             }
         }

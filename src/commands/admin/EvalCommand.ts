@@ -50,24 +50,24 @@ module.exports = class EvalCommand extends CommandStructure {
             message = ctx.env,
             evaled = ctx.args.join(" ").replace('```js', '').replace('```', ''),
             canReturn = (ctx.commandName === 'eval' ? true : false),
-            embed: typeof EmbedBuilder;
+            embed: typeof EmbedBuilder = new EmbedBuilder();
 
         try {
             if (ctx.args.join(' ').includes('await')) evaled = await eval(`async function executeEval() {\n${evaled}\n}\nexecuteEval()`);
             else evaled = await eval(evaled);
 
-            embed = new EmbedBuilder()
+            embed
                 .setTitle('Só sucexo bb')
                 .setColor('green')
                 .setDescription(util.inspect(evaled), 'js');
         } catch (e) {
-            embed = new EmbedBuilder()
+            embed
                 .setTitle('Ih deu merda viado')
                 .setColor('red')
                 .setDescription(util.inspect(e), 'js');
             canReturn = true
         } finally {
-            if (canReturn) ket.say({ context: ctx.env, content: { embeds: [embed.build()] } })
+            if (canReturn) return ket.say({ context: ctx.env, content: { embeds: [embed.build()] } })
         }
     }
 }

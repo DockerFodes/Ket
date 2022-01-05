@@ -16,11 +16,7 @@ module.exports = class EventHandler {
         if (name === 'ready') this.ket.once(name, (...args) => this.execute(name, args));
         else this.ket.on(name, (...args) => this.execute(name, args));
 
-        let eventData = {
-            name: name,
-            dir: dir
-        };
-        return this.events.push(eventData);
+        return this.events.push({ name: name, dir: dir });
     }
     execute(name: string, args: any[]) {
         return this.events.filter(evento => evento.name === name).forEach((event) => {

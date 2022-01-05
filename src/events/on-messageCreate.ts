@@ -1,5 +1,5 @@
 export { };
-import { Client } from "eris"
+import { Client, Message } from "eris"
 delete require.cache[require.resolve('../components/KetUtils')];
 const
     db = global.session.db,
@@ -13,11 +13,11 @@ module.exports = class MessageCreateEvent {
     constructor(ket: Client) {
         this.ket = ket;
     }
-    async start(message: any) {
+    async start(message: Message) {
         if (message.author?.bot && !this.ket.config.TRUSTED_BOTS.includes(message.author?.id)) return;
-        if (message.channel.type === 1) {
+        if (!message.guildID || message.channel.type === 1) {
             delete require.cache[require.resolve("../packages/events/_on-messageDMCreate")];
-            return new (require("../packages/events/_on-messageDMCreate"))(this).start(message);
+            return require("../packages/events/_on-messageDMCreate")(message, this.ket);
         };
         const ket = this.ket
         let server = await db.servers.find(message.guildID, true),
@@ -51,6 +51,26 @@ module.exports = class MessageCreateEvent {
                 }]
             }
         })
+        await db.users.update(ctx.uID, { commands: 'sql commands + 1' });
+        // let noargs = {
+        //     color: getColor('red'), 
+        //     thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/816183379435192330/noargs.thumb.gif' },
+        //     title: ctx.t("events:noargs.title", {  }),
+        //     fields: [{
+        //         name: t("events:noargs.field", { negado: ray.emotes.negado }),
+        //         value: `\`${user.prefix}${comando.config.name} ${t(`commands:${comando.config.name}.usage`)}\``,
+        //     },
+        //     {
+        //         name: t("events:noargs.ex"),
+        //         value: `\`${user.prefix}${comando.config.name} ${t(`commands:${comando.config.name}:ex`)}\``,
+        //     },
+        //     {
+        //         name: t("events:noargs.aliases"),
+        //         value: '`' + comando.config.aliases.join(" ").replace(new RegExp(' ', 'g'), '\`, \`') + '`',
+        //     },],
+        //     footer: { text: t("events:footer.f1", { prefix: user.prefix }), icon_url: message.author.displayAvatarURL({ format: 'jpg', dynamic: true }) }
+        // }
+
         return new Promise(async (res, rej) => {
             try {
                 ctx.command.dontType ? null : await ctx.channel.sendTyping();

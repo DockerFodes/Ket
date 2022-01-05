@@ -4,8 +4,7 @@ export { }
 const
     prompts = require('prompts'),
     gradient = require('gradient-string'),
-    cld = require('child_process'),
-    path = require('path'),
+    { resolve } = require('path'),
     { readFileSync, unlink } = require('fs');
 
 
@@ -35,10 +34,8 @@ export async function initialMenu() {
     console.clear();
     switch (menuResponse.value) {
         case 0: return process.exit();
-        case 1: global.session.canary = false;
-            return start(process.env.CLIENT_DISCORD_TOKEN);
-        case 2: global.session.canary = true;
-            return start(process.env.BETA_CLIENT_DISCORD_TOKEN);
+        case 1: return start(process.env.CLIENT_DISCORD_TOKEN);
+        case 2: return start(process.env.BETA_CLIENT_DISCORD_TOKEN);
         case 3: return logMenu();
     }
     return;
@@ -73,7 +70,7 @@ async function logMenu() {
     ];
     let logs: string = 'bunda';
     try {
-        let data = await readFileSync(path.resolve(`${global.session.rootDir}/src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.txt`), 'utf8');
+        let data = await readFileSync(resolve(`${global.session.rootDir}/src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.txt`), 'utf8');
         if (data === undefined) {
             logs = 'Nenhum arquivo de log foi encontrado.';
             logChoices[1].disabled = true;

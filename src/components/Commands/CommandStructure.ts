@@ -17,12 +17,12 @@ module.exports.CommandStructure = class CommandStructure {
                 onlyDevs: false
             },
             access: command.access || {
-                DM: true,
-                Threads: true
+                DM: false,
+                Threads: false
             },
             dontType: command.dontType || false,
             testCommand: command.testCommand || [],
-            data: command.data
+            data: command.data || null
         }
         this.ket = ket;
     }

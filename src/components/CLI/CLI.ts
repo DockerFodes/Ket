@@ -5,7 +5,8 @@ const
     { free } = require('mem-stat'),
     { duration } = require('moment'),
     { readdir } = require('fs'),
-    { t } = require('i18next');
+    { t } = require('i18next'),
+    { execSync } = require('child_process');
 
 module.exports = {
     cls() { this.clear(); },
@@ -16,7 +17,10 @@ module.exports = {
     c() { this.compile(); },
     async compile() {
         global.session.log('shard', 'TERMINAL CLIENT', 'Compilando arquivos...');
-        return require('child_process').exec(`tsc`, (a, res) => !res ? global.session.log('log', 'COMPILER', 'Arquivos compilados com sucesso') : global.session.log('error', 'COMPILER', 'Houve um erro ao compilar os arquivos:', res));
+        let res = await execSync(`tsc`)
+        !res
+            ? global.session.log('log', 'COMPILER', 'Arquivos compilados com sucesso')
+            : global.session.log('error', 'COMPILER', 'Houve um erro ao compilar os arquivos:', res);
     },
 
     e() { this.exit(); },
@@ -32,14 +36,14 @@ module.exports = {
             commands.push({
                 name: c.name,
                 description: `[${c.category}] - ${t(`commands:${c.name}.description`)}`,
-                options: c.data?.options ? [ ...c.data.options ] : []
+                options: c.data?.options ? [...c.data.options] : []
             })
         });
         try {
-            if(args[0]) await ket.bulkEditGuildCommands(args[0], commands)
+            if (args[0]) await ket.bulkEditGuildCommands(args[0], commands)
             else await ket.bulkEditCommands(commands)
             global.session.log('log', 'SLASH CLIENT', `${commands.length} comandos registrados com sucesso`)
-        } catch(e) {
+        } catch (e) {
             global.session.log('error', 'SLASH CLIENT', `Houve um erro ao registrar os comandos:`, e)
         }
         return;
@@ -75,7 +79,7 @@ module.exports = {
     },
 
     async restart({ ket }) {
-        new Promise((res, rej) => this.compile());
+        new Promise(async (res, rej) => await this.compile());
         let i = 0;
         let interval = setInterval(async () => {
             if (i > ket.config.ERIS_LOADER_SETTINGS.maxShards - 1) return clearInterval(interval);

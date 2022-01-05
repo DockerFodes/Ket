@@ -3288,6 +3288,8 @@ declare namespace Eris {
     }
 
     export class Shard extends EventEmitter implements SimpleJSON {
+        uptime: number;
+
         client: Client;
         connectAttempts: number;
         connecting: boolean;

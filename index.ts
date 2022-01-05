@@ -1,5 +1,5 @@
 export { };
-import type { ClientOptions } from "eris";
+import type { Client, ClientOptions } from "eris";
 const
     KetClient = require('./src/KetClient'),
     { initialMenu } = require('./src/components/CLI/KetMenu'),
@@ -18,7 +18,8 @@ async function main() {
         rootDir: __dirname,
         log: async (type: string = "log", setor = "CLIENT", message: string, error: any = null) => {
             moment.locale("pt-BR");
-            let str = `[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message + (error ? `\n${error}` : '')}`
+            let str = `[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`;
+            error ? console.error(error) : null;
             // appendFile(`${__dirname}/src/logs/output.txt`, `${str}\n`, () => { })
             // error ? appendFile(`${__dirname}/src/logs/errors.txt`, error, () => { }) : null
             switch (type) {
@@ -53,7 +54,6 @@ process
             process.exit();
             process.kill(process.pid, null);
         }
-        process.kill(process.pid, null);
     })
     .on('unhandledRejection', (reason, p) => global.session.log('error', "ANTI-CRASH", `SCRIPT REJEITADO:`, reason))
     .on("uncaughtException", (err, o) => global.session.log('error', 'ANTI-CRASH', `CATCH ERROR:`, err))

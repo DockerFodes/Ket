@@ -11,16 +11,16 @@ module.exports = class ReadyEvent {
         this.ket = ket;
     }
     async start() {
-        let status = [
+        let status: object[] = [
             { name: 'no vasco', type: 0 },
             { name: 'sua mãe da janela', type: 0 },
             { name: 'sua mãe na panela', type: 0 },
             { name: "mais um gol do vasco", type: 3 },
             { name: "os gemidos da sua mãe", type: 2 },
-            { name: 'Vasco x Flamengo', type: 5} 
+            { name: 'Vasco x Flamengo', type: 5 }
         ]
         //@ts-ignore
-        setInterval(() => this.ket.editStatus("dnd", status[Math.floor(Math.random() * status.length)]), 15 * 1_000)
+        setInterval(() => this.ket.editStatus("dnd", status[Math.floor(Math.random() * status.length)]), 25 * 1_000)
         global.session.log('log', "CLIENT", `Sessão iniciada como ${c.bgGreen(c.white(this.ket.user.tag))}\n${gradient('red', 'yellow')("◆ ▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬ ◆")}\nOperante em ${this.ket.guilds.size} templos com ${this.ket.users.size} subordinados`);
         TerminalClient(this.ket);
         /*        return setInterval(() => {

@@ -2,7 +2,7 @@ export { };
 import { Client } from "eris";
 import { SlashCommandBuilder } from "@discordjs/builders";
 const
-    { exec } = require('child_process'),
+    { execSync } = require('child_process'),
     { inspect } = require('util'),
     { CommandStructure, EmbedBuilder } = require('../../components/Commands/CommandStructure');
 
@@ -33,22 +33,20 @@ module.exports = class CldCommand extends CommandStructure {
         })
     }
     async execute(ctx) {
-        let embed: typeof EmbedBuilder;
+        let embed: typeof EmbedBuilder = new EmbedBuilder();
 
         try {
-            await exec(ctx.args.join(' '), (_a: string, b: string) => {
-                embed = new EmbedBuilder()
-                    .setTitle('Só sucexo bb')
-                    .setColor('green')
-                    .setDescription(b, 'bash');
-                this.ket.say({ context: ctx.env, content: { embeds: [embed.build()] } })
-            })
+            let data = await execSync(ctx.args.join(' '));
+            embed
+                .setTitle('Só sucexo bb')
+                .setColor('green')
+                .setDescription(data, 'bash');
         } catch (e) {
-            embed = new EmbedBuilder()
+            embed
                 .setTitle('Ih deu merda viado')
                 .setColor('red')
-                .setDescription(inspect(e), 'bash');
-            this.ket.say({ context: ctx.env, content: { embeds: [embed.build()] } })
+                .setDescription(inspect(e, { deaph: 1 }), 'bash');
         }
+        return this.ket.say({ context: ctx.env, content: { embeds: [embed.build()] } })
     }
 }

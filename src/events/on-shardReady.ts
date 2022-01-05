@@ -12,10 +12,7 @@ module.exports = class ShardReadyEvent {
     }
     async start(shardID: number) {
         global.session.log('shard', "SHARDING MANAGER", `Shard ${shardID} acordou`);
-        this.ket.shardUptime.set(shardID, {
-            id: shardID,
-            uptime: Date.now()
-        });
+        this.ket.shards.get(shardID).uptime = Date.now();
         // async function infoEmbed(shardID, ket) {
         //     let embed = {
         //         title: `${emoji('axo')} **Bot Info** ${emoji('axo')}`, description: `Bot Uptime 🗓️: \`\`\`fix\n${ket.startTime === 0 ? 'Iniciando...' : moment.duration(Date.now() - ket.startTime).}\`\`\` `,

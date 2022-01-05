@@ -12,10 +12,10 @@
             "description": "Para ativar novamente use {{user.prefix}}chatglobal start"
         },
         "getinfo": {
-            "title": "Informações",
+            "title": "Informações da Mensagem:",
+            "description": "Mensagem original: `{{msgData.id}}`\nEditada `{{msgData.editcount}}` vezes\nData de envio: `{{timestamp}}`",
             "fields": [
-                { "name": "Mensagem:", "value": "Mensagem original: `{{msgData.id}}`\nEditada `{{msgData.editcount}}` vezes\nData de envio: `{{timestamp}}`"},
-                { "name": "Autor", "value": "{{user.mention}} (ID: `{{user.id}}`, TAG: `{{user.tag}}`)\nMensagens enviadas no chat global: `{{messages}} mensagens`\nStatus de banimento: `{{isBanned}}`" }
+                { "name": "Informações do Autor", "value": "{{user.mention}} (ID: `{{user.id}}`, TAG: `{{user.tag}}`)\nMensagens enviadas no chat global: `{{messagesCount}} mensagens`\nStatus de banimento: `{{isBanned}}`" }
             ]
         }
     }

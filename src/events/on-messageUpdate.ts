@@ -1,9 +1,6 @@
 import { Client, Message } from "eris"
 const KetUtils = new (require('../components/KetUtils'))(),
-    db = global.session.db,
-    i18next = require('i18next'),
-    { Decoration } = require('../components/Commands/CommandStructure'),
-    { getEmoji, getColor } = Decoration;
+    db = global.session.db;
 
 module.exports = class MessageUpdateEvent {
     ket: Client;

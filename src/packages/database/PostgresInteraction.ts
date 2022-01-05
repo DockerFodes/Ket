@@ -57,6 +57,7 @@ module.exports = async (ket) => {
         await postgres.query(`CREATE TABLE public.servers (
                     id VARCHAR(20) NOT NULL PRIMARY KEY,
                     globalchat VARCHAR(20) NULL,
+                    lang VARCHAR(2) NULL,
                     partner BOOLEAN NULL,
                     banned BOOLEAN NULL,
                     banreason TEXT NULL
@@ -71,7 +72,7 @@ module.exports = async (ket) => {
                   );`);
     }; try { await postgres.query(`SELECT * FROM globalchat`); }
     catch (e) {
-        global.session.cyan('log', 'DATABASE', c.yellow(`Criando tabela de dados para chat global`))
+        global.session.log('log', 'DATABASE', c.yellow(`Criando tabela de dados para chat global`))
         await postgres.query(`CREATE TABLE public.globalchat (
                     id VARCHAR(20) NOT NULL PRIMARY KEY,
                     author VARCHAR(20) NOT NULL,

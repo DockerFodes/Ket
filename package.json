@@ -2,13 +2,19 @@
     "name": "ketdiscordbot",
     "version": "0.0.2",
     "description": "",
-    "main": "index.ts",
+    "main": "dist/index.js",
+    "engines": {
+        "npm": "^6.9.0",
+        "node": "^14.0.0"
+    },
     "scripts": {
-        "build": "echo Compilando arquivos... && tsc",
-        "direct-mode": "npm run build && node dist/index.js --no-menu",
-        "no-compile": "cross-env NODE_ENV=production node --expose-gc dist/index.js",
-        "start": "npm run build && cross-env NODE_ENV=production node --expose-gc --trace-warnings dist/index.js",
-        "start-ts": "ts-node-dev --ignore-watch ./ index.ts"
+        "build": "tsc",
+        "postinstall": "cross-env COPY 'src\\packages\\postinstall\\index.d.ts' 'node_modules\\eris\\index.d.ts' && cross-env COPY 'src\\packages\\postinstall\\i18next.js' 'node_modules\\i18next\\dist\\cjs'",
+        "start": "npm run build && npm run no-compile",
+        
+        "ts-mode": "ts-node-dev --ignore-watch ./ index.ts",
+        "direct-mode": "cross-env NODE_ENV=production node --expose-gc --trace-warnings dist/index.js --no-menu",
+        "no-compile": "cross-env NODE_ENV=production node --expose-gc --trace-warnings dist/index.js "
     },
     "repository": {
         "type": "git",
@@ -36,7 +42,6 @@
         "chalk": "^4.1.2",
         "child_process": "^1.0.2",
         "cpu-stat": "^2.0.1",
-        "cross-env": "^7.0.3",
         "didyoumean": "^1.2.2",
         "dotenv": "^10.0.0",
         "eris": "^0.16.1",
