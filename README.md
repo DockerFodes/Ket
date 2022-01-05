@@ -9,7 +9,7 @@
 - [x] Send stickers and allowed links
 - [x] Update messages
 - [x] Delete messages
-- [ ] Command to identify users
+- [x] Command to identify users
 
 ##### 🌎 Multi-Languages
 - [x] 🇧🇷 Português - Brasil
@@ -43,7 +43,7 @@ npm install
 ```
 > ⚠️ You may need to install 2 packages separately:
 ```bash
-npm install -g typescript pm2
+npm install -g typescript pm2 cross-env
 ```
 ### `4 -` 🌿 Preparing the environment 
 - Rename the ".env.example" file to ".env"
