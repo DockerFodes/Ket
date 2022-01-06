@@ -137,7 +137,8 @@ export async function TerminalClient(ket: Client) {
                 return termEval();
             }
         });
-        let evaled;
+        let evaled,
+            db = global.session.db;
         try {
             if (response.code.startsWith('.')) {
                 delete require.cache[require.resolve(`./CLI`)];
