@@ -128,15 +128,15 @@ module.exports = class Utils {
             if (message.messageReference) {
                 let ref = channel.messages.find(m => m.author.username === msg.author.username && this.msgFilter(m.filtredContent, 1990, true) === this.msgFilter(msg.filtredContent, 1990, true) && m.timestamp < msg.timestamp + 3000),
                     refAuthor = await db.users.find(msg.author.id);
-
-                if (!message.author.bot) !msg ? null : msgObj.embeds = [{
+                if (!message.author.bot && !message.author.webhookID) !msg ? null : msgObj.embeds = [{
                     color: getColor('green'),
                     author: { name: msg.author.username, icon_url: msg.author.dynamicAvatarURL('jpg') },
                     description: `${refAuthor?.banned ? '`mensagem de usuário banido`' : !ref ? this.msgFilter(msg.filtredContent, 64) : `${this.msgFilter(msg.filtredContent, 64)}\n\n**[⬑ - - Ver mensagem - - ⬏](https://discord.com/channels/${guilds[i].id}/${guilds[i].globalchat}/${ref.id})**`}`,
-                    image: (msg.attachments[0] && !refAuthor.banned ? { url: `${msg.attachments[0].url}?size=240` } : null)
+                    image: (msg.attachments[0] && !refAuthor?.banned ? { url: `${msg.attachments[0].url}?size=240` } : null)
                 }]
-                else if(refAuthor.banned) return;
+                else if (refAuthor?.banned) return;
             }
+            // if (!message.content && (msgObj.embeds || msgObj.file || message.stickerIDs)) msgObj.content = null;
 
             let send = async () => await ket.executeWebhook(webhook.id, webhook.token, msgObj).then((msg: Message) => msgs.push(`${msg.id}|${msg.guildID}`)).catch(() => { });
 
@@ -155,7 +155,7 @@ module.exports = class Utils {
     }
 
     msgFilter(content: string, maxLength: number = 1990, ignoreEmojis: boolean = false) {
-        if (!content) return '_ _';
+        if (!content) return '';
 
         const isInvite: RegExp = /(http|https|www|)(:\/\/|.)?(discord\.(gg|io|me|li|club|ga|net|tk|ml)|discordapp\.com\/invite|discord\.com\/invite)\/.+[a-z]/gi,
             isPishing: RegExp = /(http|https|)(:\/\/|)(d(l|1)|.*.cord|cor\.|steam|eam|gift|gfit|free|nitro|n1tro|nltro)(\.|)([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])/g,
