@@ -1,1 +1,1 @@
-worker: npm run direct-mode
+worker: pm2 start ecosystem.config.js

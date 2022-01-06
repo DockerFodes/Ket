@@ -1,5 +1,5 @@
 export { };
-import type { Client, ClientOptions } from "eris";
+import type { ClientOptions } from "eris";
 const
     KetClient = require('./src/KetClient'),
     { initialMenu } = require('./src/components/CLI/KetMenu'),
@@ -20,6 +20,7 @@ async function main() {
             moment.locale("pt-BR");
             let str = `[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`;
             error ? console.error(error) : null;
+            if(process.argv.includes('pm2')) return console.log(str)
             // appendFile(`${__dirname}/src/logs/output.txt`, `${str}\n`, () => { })
             // error ? appendFile(`${__dirname}/src/logs/errors.txt`, error, () => { }) : null
             switch (type) {
@@ -30,7 +31,7 @@ async function main() {
             }
         }
     }
-    module.exports = function start(DISCORD_TOKEN: string) {
+    module.exports = function (DISCORD_TOKEN: string) {
         require('./src/components/core/ProtoTypes').start();
         global.session.log('normal', 'SHARDING MANAGER', c.bgBlueBright("Iniciando fragmentação..."))
         return new KetClient(`Bot ${DISCORD_TOKEN}`, settings.ERIS_LOADER_SETTINGS as ClientOptions).boot().then(() => {
