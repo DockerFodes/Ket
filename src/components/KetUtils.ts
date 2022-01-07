@@ -177,7 +177,7 @@ module.exports = class Utils {
     async checkRateLimit(ctx, user) {
         !user.rateLimit ? user.rateLimit = 1 : user.rateLimit++;
         let messages = await db.globalchat.getAll(10, { key: 'id', type: 'DESC' }),
-            lastMessage = await ctx.ket.findMessage(ctx.env, messages[0].id)
+            lastMessage = !messages[0] ? null : await ctx.ket.findMessage(ctx.env, messages[0].id)
                 .catch(() => { });
 
         if (ctx.env?.content === lastMessage?.content) user.rateLimit = user.rateLimit + 2
