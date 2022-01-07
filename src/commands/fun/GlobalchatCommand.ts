@@ -28,7 +28,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     c.setName('start')
                         .setDescription('Start global chat on an existing channel')
                         .addChannelOption(option => option.setName('channel').setDescription('Mention the chat or paste the id.').setRequired(true))
-                        .addStringOption(option => option.setName('language').setDescription('The Main language of this server.'))
+                        
                 )
                 .addSubcommand(c =>
                     c.setName('stop')
@@ -43,21 +43,31 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                                 .setRequired(true)
                         )
                 )
+                .addSubcommand(c =>
+                    c.setName('ban')
+                        .setDescription('ban a user')
+                        .addStringOption(option =>
+                            option.setName('userid')
+                                .setDescription('The user id')
+                                .setRequired(true)
+                        )
+                )
         })
     }
     async execute(ctx) {
         if (!ctx.args[0]) return await this.ket.say({ context: ctx.env, content: 'kur', emoji: 'negado' });
+        const db = global.session.db;
 
         switch (ctx.args[0].toLowerCase()) {
             case 'start':
                 let channel = await this.ket.findChannel(ctx.env, ctx.args[1]);
                 if (!channel) return await this.ket.say({ context: ctx.env, emoji: 'negado', content: ctx.t('globalchat.channelNotFound') });
-                await global.session.db.servers.update(ctx.gID, {
+                await db.servers.update(ctx.gID, {
                     globalchat: channel.id,
                     lang: ctx.args[2] ? ctx.args[2] : (ctx.guild?.preferredLocale && ctx.guild.preferredLocale.startsWith('pt') ? 'pt' : 'en')
                 });
 
-                this.ket.say({
+                return this.ket.say({
                     context: ctx.env, emoji: 'autorizado', content: {
                         embeds: [{
                             color: getColor('green'),
@@ -65,13 +75,12 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                         }]
                     }
                 });
-                break;
             case 'stop':
-                await global.session.db.servers.update(ctx.gID, {
+                await db.servers.update(ctx.gID, {
                     globalchat: null
                 });
 
-                this.ket.say({
+                return this.ket.say({
                     context: ctx.env, emoji: 'autorizado', content: {
                         embeds: [{
                             color: getColor('green'),
@@ -79,22 +88,21 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                         }]
                     }
                 });
-                break;
             case 'getinfo':
                 let message = await this.ket.findMessage(ctx.env, ctx.args[1]),
-                    messages = await global.session.db.globalchat.getAll(),
+                    messages = await db.globalchat.getAll(),
                     msgData = messages.find(msg => msg.id === message.id || msg.messages.includes(message.id))
 
                 if (isNaN(Number(ctx.args[1])) && !ctx.env?.messageReference || !message || !msgData)
                     return await this.ket.say({ context: ctx.env, emoji: 'negado', content: ctx.t('globalchat.messageNotFound') });
 
-                let userData = await global.session.db.users.find(msgData.author),
+                let userData = await db.users.find(msgData.author),
                     user = await this.ket.findUser(ctx.env, msgData.author),
                     timestamp = moment.utc(message.timestamp).format('LLLL'),
                     isBanned = userData.banned ? 'BANNED' : 'not banned',
                     messagesCount = messages.filter(msg => msg.author === user.id).length;
 
-                await this.ket.say({
+                return this.ket.say({
                     context: ctx.env, content: {
                         embeds: [{
                             thumbnail: { url: user.dynamicAvatarURL('jpg') },
@@ -103,7 +111,23 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                         }]
                     }
                 })
-                break
+            case 'ban':
+                let member = await this.ket.findUser(ctx.env, ctx.args[1]);
+
+                await db.users.update(member.id, {
+                    banned: true,
+                    banReason: ctx.args.slice(2).join(' ')
+                })
+
+                return this.ket.say({
+                    context: ctx.env, content: {
+                        embeds: [{
+                            thumbnail: { url: member.dynamicAvatarURL('jpg') },
+                            color: getColor('green'),
+                            ...ctx.t('globalchat.ban', { member, ctx })
+                        }]
+                    }
+                })
         }
     }
 }

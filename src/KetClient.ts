@@ -219,7 +219,7 @@ module.exports = class KetClient extends Client {
                 if (ref?.attachments[0]) return ref;
             }
 
-            return Array(messages).reverse().find(msg => msg?.attachments[0] || msg?.embeds[0]?.image);
+            return messages.find(msg => msg?.attachments[0] || msg?.embeds[0]?.image);
 
         } else {
             if (ref) return await get(ref.messageID);

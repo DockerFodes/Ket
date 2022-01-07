@@ -13,10 +13,14 @@
         },
         "getinfo": {
             "title": "Informações da Mensagem:",
-            "description": "Mensagem original: `{{msgData.id}}`\nEditada `{{msgData.editcount}}` vezes\nData de envio: `{{timestamp}}`",
+            "description": "Mensagem original: `{{msgData.id}}`\nEditada `{{msgData.editcount}}` vezes\nData de envio: `{{timestamp}}`\nEnviada a `{{msgData.messages.length}} servidores`",
             "fields": [
                 { "name": "Informações do Autor", "value": "{{user.mention}} (ID: `{{user.id}}`, TAG: `{{user.tag}}`)\nMensagens enviadas no chat global: `{{messagesCount}} mensagens`\nStatus de banimento: `{{isBanned}}`" }
             ]
+        },
+        "ban": {
+            "title": "Usuário banido com sucesso!",
+            "description": "O usuário {{member.tag}} foi banido permanentemente com o motivo {{ctx.args.slice(2).join(' ')}}."
         }
     }
 }
