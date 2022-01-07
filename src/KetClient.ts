@@ -194,7 +194,6 @@ module.exports = class KetClient extends Client {
             if (isNaN(Number(id))) channel = guild.channels.find((c: GuildChannel) => c.name.toLowerCase() === id || c.name.toLowerCase().startsWith(id) || c.name.toLowerCase().includes(id));
             else return await get(id)
         } catch (e) {
-            console.log(e);
             channel = null;
         }
 
@@ -202,7 +201,6 @@ module.exports = class KetClient extends Client {
             if (guild.channels.has(id)) return guild.channels.get(id);
             else return await client.getRESTCHannel(id);
         }
-        console.log(Object.keys(channel))
         return channel;
     }
 

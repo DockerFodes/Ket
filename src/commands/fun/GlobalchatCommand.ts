@@ -97,7 +97,6 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     user = await this.ket.findUser(ctx.env, userData.id),
                     server = await db.servers.find(msg.guild),
                     message = await this.ket.getMessage(server.globalchat, msg.id);
-                console.log(userData)
                 moment.locale(ctx.user.lang);
 
                 return this.ket.say({
