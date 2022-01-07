@@ -87,16 +87,17 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     }
                 });
             case 'getinfo':
-                let messages = await db.globalchat.getAll(),
-                    msg = messages.find(msg => msg.id === ctx.args[1] || msg.messages.findIndex((data: string[]) => data.includes(ctx.args[1])) !== -1);
+                let data = await db.globalchat.getAll(500, { key: 'id', type: 'DESC' }),
+                    msg = data.find(msg => msg.id === ctx.args[1] || msg.messages.find((m) => m.includes(ctx.args[1])));
+
                 if (isNaN(Number(ctx.args[1])) || !ctx.args[1] || !msg)
                     return this.ket.say({ context: ctx.env, emoji: 'negado', content: ctx.t('globalchat.messageNotFound') });
 
                 let userData = await db.users.find(msg.author),
-                    user = await this.ket.findUser(ctx.env, msg.author),
+                    user = await this.ket.findUser(ctx.env, userData.id),
                     server = await db.servers.find(msg.guild),
                     message = await this.ket.getMessage(server.globalchat, msg.id);
-
+                console.log(userData)
                 moment.locale(ctx.user.lang);
 
                 return this.ket.say({
@@ -108,7 +109,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                                 msg, user, guild: this.ket.guilds.get(server.id),
                                 timestamp: moment.utc(message.timestamp).format('LLLL'),
                                 isBanned: userData.banned ? 'BANNED' : 'not banned',
-                                messagesCount: messages.filter(msg => msg.author === user.id).length
+                                messagesCount: data.filter(msg => msg.author === user.id).length
                             })
                         }]
                     }

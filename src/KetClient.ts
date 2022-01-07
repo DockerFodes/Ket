@@ -167,19 +167,18 @@ module.exports = class KetClient extends Client {
 
         if (isNaN(Number(text))) search = text.toLowerCase().replace('@', '');
         else search = String(text).toLowerCase();
-
         try {
             if (isNaN(Number(text))) user = context?.mentions[0] || context.channel.guild.members.find((m: Member) => m.user.username.toLowerCase() === search || String(m.nick).toLowerCase() === search || m.user.username.toLowerCase().startsWith(search) || String(m.nick).toLowerCase().startsWith(search) || m.user.username.toLowerCase().includes(search) || String(m.nick).toLowerCase().includes(search));
             else {
-                if (super.users.has(search)) user = super.users.get(search);
-                else user = await super.getRESTUser(search);
+                if (this.users.has(search)) user = this.users.get(search);
+                else user = await this.getRESTUser(search);
             }
         } catch (e) {
             if (returnMember) user = context.member;
             else user = (isInteraction ? context.member.user : context.author)
         }
         if (user instanceof User && returnMember) user = context.channel.guild.members.get(user.id);
-        if (user instanceof Member && !returnMember) user = super.users.get(user.user.id);
+        if (user instanceof Member && !returnMember) user = this.users.get(user.user.id);
 
         return user;
     }
