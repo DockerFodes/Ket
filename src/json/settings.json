@@ -56,7 +56,7 @@
         "defaultImageFormat": "jpg",
         "defaultImageSize": 2048,
         "getAllUsers": true,
-        "maxShards": 1,
+        "maxShards": 2,
         "allowedMentions": {
             "everyone": false,
             "roles": false,
