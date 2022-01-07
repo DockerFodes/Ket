@@ -75,6 +75,7 @@ module.exports = async (ket) => {
         global.session.log('log', 'DATABASE', c.yellow(`Criando tabela de dados para chat global`))
         await postgres.query(`CREATE TABLE public.globalchat (
                     id VARCHAR(20) NOT NULL PRIMARY KEY,
+                    guild VARCHAR(20) NOT NULL,
                     author VARCHAR(20) NOT NULL,
                     editcount NUMERIC DEFAULT 0,
                     messages VARCHAR(40)[] NULL
