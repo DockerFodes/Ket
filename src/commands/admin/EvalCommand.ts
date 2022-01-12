@@ -48,12 +48,14 @@ module.exports = class EvalCommand extends CommandStructure {
             db = global.session.db;
         let
             message = ctx.env,
-            evaled = ctx.args.join(" ").replace('```js', '').replace('```', ''),
+            evaled = ctx.args.join(" ")
+            .replace(/`\``(js|)/g, '')
+            .replace(/val /g, 'global.'),
             canReturn = (ctx.commandName === 'eval' ? true : false),
             embed: typeof EmbedBuilder = new EmbedBuilder();
 
         try {
-            if (ctx.args.join(' ').includes('await')) evaled = await eval(`async function executeEval() {\n${evaled}\n}\nexecuteEval()`);
+            if (ctx.args.join(' ').includes('await')) evaled = await eval(`async()=>{${evaled}}()`);
             else evaled = await eval(evaled);
 
             embed
