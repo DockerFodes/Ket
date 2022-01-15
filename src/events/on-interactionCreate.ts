@@ -32,8 +32,6 @@ module.exports = class InteractionCreateEvent {
             command = ket.commands.get(commandName) || ket.commands.get(ket.aliases.get(commandName));
 
         if (!command && (command = await KetUtils.commandNotFound(ctx, commandName)) === false) return;
-        else commandName = command.config.name
-
         function getArgs(option) {
             if (!option.value) args.push(option.name);
             else args.push(option.value)

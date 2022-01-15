@@ -35,7 +35,6 @@ module.exports = class MessageCreateEvent {
             command = ket.commands.get(commandName) || ket.commands.get(ket.aliases.get(commandName));
 
         if (!command && (command = await KetUtils.commandNotFound(ctx, commandName)) === false) return;
-        else commandName = command.config.name
         ctx = getContext({ ket, user, server, message, args, command, commandName }, ctx.t)
 
         await KetUtils.checkCache(ctx);
