@@ -25,8 +25,6 @@ module.exports = class KetClient extends Client {
         // this.users = new Collection(User, this.config.ERIS_LOADER_SETTINGS.cacheLimit.users)
         // this.guilds = new Collection(Guild, this.config.ERIS_LOADER_SETTINGS.cacheLimit.guilds)
 
-        this.options.messageLimit = this.config.ERIS_LOADER_SETTINGS.cacheLimit.messages
-
         this.events = new (require('./components/core/EventHandler'))(this);
         this.commands = new Collection();
         this.webhooks = new Map();

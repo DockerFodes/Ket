@@ -1,5 +1,4 @@
 export { };
-import type { ClientOptions } from "eris";
 const
     KetClient = require('./src/KetClient'),
     { initialMenu } = require('./src/components/CLI/KetMenu'),
@@ -38,7 +37,7 @@ async function main() {
     module.exports = function (DISCORD_TOKEN: string) {
         require('./src/components/core/ProtoTypes').start();
         global.session.log('normal', 'SHARDING MANAGER', c.bgBlueBright("Iniciando fragmentação..."))
-        return new KetClient(`Bot ${DISCORD_TOKEN}`, settings.ERIS_LOADER_SETTINGS as ClientOptions).boot().then(() => {
+        return new KetClient(`Bot ${DISCORD_TOKEN}`, settings.CLIENT_OPTIONS).boot().then(() => {
             DISCORD_TOKEN = null;
             process.env.CLIENT_DISCORD_TOKEN = null;
             process.env.BETA_CLIENT_DISCORD_TOKEN = null;

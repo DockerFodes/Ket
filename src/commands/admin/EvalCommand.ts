@@ -2,8 +2,6 @@ export { };
 import { SlashCommandBuilder } from "@discordjs/builders";
 const
     axios = require('axios'),
-    bytes = require('bytes'),
-    Canvas = require('canvas'),
     c = require('chalk'),
     cld = require('child_process'),
     Eris = require('eris'),

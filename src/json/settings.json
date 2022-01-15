@@ -1,10 +1,9 @@
 {
-            "BOT SETTINGS": "",
+        "BOT SETTINGS": "",
     "DEFAULT_PREFIX": ",",
     "DEVS": ["340626138076282900", "568493382884917258", "389080559714041856", "883461315769819208"],
     "TRUSTED_BOTS": ["777938917117919255", "789123515882012683", "737044809650274325", "297153970613387264"],
     "DEV_MODE": true,
-
     "SUPPORT_SERVER": "https://discord.gg/zzrctuz9Sa",
     "BOT_INVITE": "https://discord.com/oauth2/authorize?client_id=777938917117919255&scope=bot+applications.commands&permissions=872423560",
     "channels": {
@@ -22,28 +21,21 @@
         "editLimit": 3,
         "allowedLinks": [
             "CDNs de imagens/vídeos/gifs",
-
             "https://media.discordapp.net/attachments/",
             "https://cdn.discordapp.com/attachments/",
             "https://tenor.com/view/",
             "https://giphy.com/gifs/",
             "https://prnt.sc/",
-	    "https://imgur.com/",
+            "https://imgur.com/",
             "https://crunchyroll.com/",
-
             "Lojas de jogos grátis",
-
             "https://gog.com/game/",
             "https://epicgames.com/",
             "https://ubisoft.com/",
-
             "Sites de jogos",
-
             "https://roblox.com/",
             "https://chess.com",
-
             "Outros Sites",
-
             "https://google.com/",
             "https://pt.wikipedia.org/",
             "https://dicio.com.br/",
@@ -51,28 +43,17 @@
             "https://spotify.com/"
         ]
     },
-    "ERIS_LOADER_SETTINGS": {
-        "compress": true,
-        "defaultImageFormat": "jpg",
-        "defaultImageSize": 2048,
-        "getAllUsers": true,
-        "maxShards": 2,
+    "CLIENT_OPTIONS": {
         "allowedMentions": {
             "everyone": false,
             "roles": false,
             "users": true,
             "repliedUser": true
         },
-        "rest": {
-            "domain": "canary.discord.com",
-            "ratelimiterOffset": 500
-        },
-        "restMode": true,
-        "messageLimit": 25,
-        "cacheLimit": {
-            "users": 100,
-            "channels": 500
-        },
+        "compress": true,
+        "defaultImageFormat": "jpg",
+        "defaultImageSize": 2048,
+        "getAllUsers": true,
         "intents": [
             "guilds",
             "guildMembers",
@@ -81,6 +62,17 @@
             "guildMessageTyping",
             "guildPresences",
             "directMessages"
-        ]
+        ],
+        "maxShards": 2,
+        "messageLimit": 16,
+        "restMode": true,
+        "rest": {
+            "domain": "canary.discord.com",
+            "ratelimiterOffset": 500
+        },
+        "cacheLimit": {
+            "users": 100,
+            "channels": 500
+        }
     }
 }
