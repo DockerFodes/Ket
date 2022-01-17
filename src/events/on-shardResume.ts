@@ -6,6 +6,6 @@ module.exports = class ShardResumeEvent {
         this.ket = ket;
     }
     async start(shardID: number) {
-        this.ket.emit('shardReady', shardID);
+        return this.ket.emit('shardReady', shardID);
     }
 }

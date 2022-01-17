@@ -6,7 +6,7 @@ const
 	Eris = require('eris'),
 	{ EmbedBuilder, Decoration } = require('../Commands/CommandStructure'),
 	{ getEmoji } = Decoration//,
-	//{ CanvasRenderingContext2D, createCanvas } = require('canvas');
+//{ CanvasRenderingContext2D, createCanvas } = require('canvas');
 
 module.exports = class ProtoTypes {
 	ket: Client;
@@ -60,7 +60,7 @@ module.exports = class ProtoTypes {
 				return `${this.username}#${this.discriminator}`;
 			}
 		});
-        return;
+		return;
 		/** Canvas Structures **/
 		if (!CanvasRenderingContext2D.prototype.roundRect) Object.defineProperty(CanvasRenderingContext2D.prototype, 'roundRect', {
 			value: function roundRect(x, y, width, height, radius, fill, stroke) {

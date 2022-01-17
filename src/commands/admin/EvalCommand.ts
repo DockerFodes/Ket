@@ -47,11 +47,12 @@ module.exports = class EvalCommand extends CommandStructure {
         let
             message = ctx.env,
             evaled = ctx.args.join(" ")
-            .replace('```js', '')
-            .replace('```', '')
-            .replace(/val /g, 'global.'),
+                .replace('```js', '')
+                .replace('```', '')
+                .replace(/val /g, 'global.'),
             canReturn = (ctx.commandName === 'eval' ? true : false),
-            embed: typeof EmbedBuilder = new EmbedBuilder();
+            embed: typeof EmbedBuilder = new EmbedBuilder(),
+            bytes = (data) => data / 1024 / 1024; 
 
         try {
             if (ctx.args.join(' ').includes('await')) evaled = await eval(`async()=>{${evaled}}()`);

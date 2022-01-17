@@ -5,7 +5,8 @@ const
     { Client, Collection } = require('eris'),
     { readdir } = require('fs'),
     { Decoration } = require('./components/Commands/CommandStructure'),
-    { getEmoji, getColor } = Decoration;
+    { getEmoji, getColor } = Decoration,
+    { t } = require('i18next');
 
 module.exports = class KetClient extends Client {
     config: any;
@@ -22,8 +23,8 @@ module.exports = class KetClient extends Client {
 
         this.config = require('./json/settings.json');
 
-        // this.users = new Collection(User, this.config.ERIS_LOADER_SETTINGS.cacheLimit.users)
-        // this.guilds = new Collection(Guild, this.config.ERIS_LOADER_SETTINGS.cacheLimit.guilds)
+        // this.users = new Collection(User, this.config.CLIENT_OPTIONS.cacheLimit.users)
+        // this.guilds = new Collection(Guild, this.config.CLIENT_OPTIONS.cacheLimit.guilds)
 
         this.events = new (require('./components/core/EventHandler'))(this);
         this.commands = new Collection();
@@ -63,11 +64,7 @@ module.exports = class KetClient extends Client {
             readdir(`${__dirname}/packages/`, (_e: any, categories: string[]) => {
                 categories.forEach((category: string) => {
                     readdir(`${__dirname}/packages/${category}/`, (_e: any, modules: string[]) => {
-                        modules.forEach(async (file: string) => {
-                            if (file.startsWith("_") || category === 'postinstall') return;
-                            const moduleFunc = require(`${__dirname}/packages/${category}/${file}`);
-                            return moduleFunc(this);
-                        })
+                        modules.forEach(async (file: string) => file.startsWith("_") || category === 'postinstall' ? null : require(`${__dirname}/packages/${category}/${file}`)(this))
                     })
                 })
             })
@@ -105,7 +102,7 @@ module.exports = class KetClient extends Client {
                 content: '',
                 embeds: embed ? [{
                     color: getColor('red'),
-                    title: `${getEmoji('sireneRed').mention} ${global.session.t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
+                    title: `${getEmoji('sireneRed').mention} ${t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
                     description: ''
                 }] : [],
                 components: [],

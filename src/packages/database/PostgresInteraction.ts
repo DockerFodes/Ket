@@ -13,73 +13,93 @@ let
         port: Number(process.env.DATABASE_PORT),
         ssl: process.env.SSL_MODE == 'false' ? false : { rejectUnauthorized: false }
     },
-    postgres = global.session.postgres = new Client(PgConfig),
-    db: any = global.session.db = {
-        ready: false,
-        disconnect: () => postgres.end
-    };
+    postgres = global.session.postgres = new Client(PgConfig);
+
+global.session.db = {
+    ready: false,
+    disconnect: () => {
+        postgres.end()
+        global.session.db.ready = false;
+    }
+}
 
 module.exports = async (ket) => {
 
-    if (db.ready) return;
-    global.session.log('shard', 'DATABASE', 'Conectando ao banco de dados...')
-    try {
-        await postgres.connect();
+    if (global.session.db.ready) return;
+    global.session.log('shard', 'DATABASE', 'Conectando ao banco de dados...');
 
-        db = global.session.db = {
-            ready: true,
-            disconnect: () => postgres.end,
-            users: { ...(new table(postgres).set('users', 'id')) },
-            servers: { ...(new table(postgres).set('servers', 'id')) },
-            globalchat: { ...(new table(postgres).set('globalchat', 'id')) },
-            commands: { ...(new table(postgres).set('commands', 'name')) }
-        };
-        global.session.log('log', 'DATABASE', '√ Banco de dados operante');
-    } catch (error) {
-        global.session.log('error', 'DATABASE', `x Não foi possível realizar conexão ao banco de dados, tentando novamente em 15 segundos...`, error);
-        return setTimeout(() => module.exports(), 15000);
-    };
+    await postgres.connect()
+        .then(() => {
+            global.session.db = {
+                ready: true,
+                disconnect: () => {
+                    postgres.end()
+                    global.session.db.ready = false;
+                },
+                users: new table('users', 'id', postgres),
+                servers: new table('servers', 'id', postgres),
+                globalchat: new table('globalchat', 'id', postgres),
+                commands: new table('commands', 'name', postgres),
+                blacklist: new table('blacklist', 'id', postgres)
+            };
+            global.session.log('log', 'DATABASE', '√ Banco de dados operante');
+        })
+        .catch((error) => global.session.log('error', 'DATABASE', `x Não foi possível realizar conexão ao banco de dados`, error))
+
     /* DATABASE TESTS */
-    try { await postgres.query(`SELECT * FROM users`) }
-    catch (e) {
-        global.session.log('log', 'DATABASE', c.yellow(`Criando tabela de dados para usuários`))
-        await postgres.query(`CREATE TABLE public.users (
+    await postgres.query(`SELECT * FROM users`)
+        .catch(async () => {
+            global.session.log('log', 'DATABASE', c.yellow(`Criando tabela users`));
+            await postgres.query(`CREATE TABLE public.users (
+            id VARCHAR(20) NOT NULL PRIMARY KEY,
+            prefix VARCHAR(3) NOT NULL DEFAULT '${ket.config.DEFAULT_PREFIX}',
+            lang VARCHAR(2) DEFAULT 'pt',
+            commands NUMERIC CHECK(commands > -1) DEFAULT 1),
+            banned BOOLEAN NULL,
+            reason TEXT NULL);`)
+        })
+
+    await postgres.query(`SELECT * FROM servers`)
+        .catch(async () => {
+            global.session.log('log', 'DATABASE', c.blue(`Criando tabela servers`))
+            await postgres.query(`CREATE TABLE public.servers (
                     id VARCHAR(20) NOT NULL PRIMARY KEY,
-                    prefix VARCHAR(3) NOT NULL DEFAULT '${ket.config.DEFAULT_PREFIX}',
-                    lang VARCHAR(2) DEFAULT 'pt',
-                    commands NUMERIC CHECK(commands > -1) DEFAULT 1,
-                    banned BOOLEAN NULL,
-                    banReason TEXT NULL
-                );`);
-    }; try { await postgres.query(`SELECT * FROM servers`) }
-    catch (e) {
-        global.session.log('log', 'DATABASE', c.blue(`Criando tabela de dados para servidores`))
-        await postgres.query(`CREATE TABLE public.servers (
-                    id VARCHAR(20) NOT NULL PRIMARY KEY,
-                    globalchat VARCHAR(20) NULL,
                     lang VARCHAR(2) NULL,
-                    partner BOOLEAN NULL,
+                    globalchat VARCHAR(20) NULL,
+                    partner BOOLEAN NULL
                     banned BOOLEAN NULL,
-                    banreason TEXT NULL
-                );`);
-    }; try { await postgres.query(`SELECT * FROM commands`) }
-    catch (e) {
-        global.session.log('log', 'DATABASE', c.green(`Criando tabela de dados para comandos`))
-        await postgres.query(`CREATE TABLE public.commands (
-                    name TEXT NOT NULL PRIMARY KEY,
-                    maintenance BOOLEAN NULL,
-                    reason TEXT DEFAULT NULL
-                  );`);
-    }; try { await postgres.query(`SELECT * FROM globalchat`); }
-    catch (e) {
-        global.session.log('log', 'DATABASE', c.yellow(`Criando tabela de dados para chat global`))
-        await postgres.query(`CREATE TABLE public.globalchat (
+                    reason TEXT NULL);`)
+        })
+
+    await postgres.query(`SELECT * FROM commands`)
+        .catch(async () => {
+            global.session.log('log', 'DATABASE', c.green(`Criando tabela commands`))
+            await postgres.query(`CREATE TABLE public.commands (
+                        name TEXT NOT NULL PRIMARY KEY,
+                        maintenance BOOLEAN NULL,
+                        reason TEXT NULL
+                      );`)
+        })
+
+    await postgres.query(`SELECT * FROM globalchat`)
+        .catch(async () => {
+            global.session.log('log', 'DATABASE', c.yellow(`Criando tabela globalchat`))
+            await postgres.query(`CREATE TABLE public.globalchat (
                     id VARCHAR(20) NOT NULL PRIMARY KEY,
                     guild VARCHAR(20) NOT NULL,
                     author VARCHAR(20) NOT NULL,
                     editcount NUMERIC DEFAULT 0,
                     messages VARCHAR(40)[] NULL
-                  );`);
-    }
-    return;
+                  );`)
+        })
+
+    return await postgres.query(`SELECT * FROM blacklist`)
+        .catch(async () => {
+            global.session.log('log', 'DATABASE', c.red(`Criando tabela blacklist`))
+            await postgres.query(`CREATE TABLE public.blacklist (
+                    id VARCHAR(20) NOT NULL PRIMARY KEY,
+                    timeout NUMERIC NULL,
+                    warns NUMERIC DEFAULT 1
+                  );`)
+        })
 }

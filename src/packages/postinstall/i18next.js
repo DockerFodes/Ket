@@ -10,7 +10,7 @@ var _getPrototypeOf = require('@babel/runtime/helpers/getPrototypeOf');
 var _defineProperty = require('@babel/runtime/helpers/defineProperty');
 var _toArray = require('@babel/runtime/helpers/toArray');
 
-function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+function _interopDefaultLegacy(e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
 var _typeof__default = /*#__PURE__*/_interopDefaultLegacy(_typeof);
 var _classCallCheck__default = /*#__PURE__*/_interopDefaultLegacy(_classCallCheck);
@@ -235,15 +235,15 @@ function getLastOfPath(object, path, Empty) {
 
 function setPath(object, path, newValue) {
   var _getLastOfPath = getLastOfPath(object, path, Object),
-      obj = _getLastOfPath.obj,
-      k = _getLastOfPath.k;
+    obj = _getLastOfPath.obj,
+    k = _getLastOfPath.k;
 
   obj[k] = newValue;
 }
 function pushPath(object, path, newValue, concat) {
   var _getLastOfPath2 = getLastOfPath(object, path, Object),
-      obj = _getLastOfPath2.obj,
-      k = _getLastOfPath2.k;
+    obj = _getLastOfPath2.obj,
+    k = _getLastOfPath2.k;
 
   obj[k] = obj[k] || [];
   if (concat) obj[k] = obj[k].concat(newValue);
@@ -251,8 +251,8 @@ function pushPath(object, path, newValue, concat) {
 }
 function getPath(object, path) {
   var _getLastOfPath3 = getLastOfPath(object, path),
-      obj = _getLastOfPath3.obj,
-      k = _getLastOfPath3.k;
+    obj = _getLastOfPath3.obj,
+    k = _getLastOfPath3.k;
 
   if (!obj) return undefined;
   return obj[k];
@@ -334,7 +334,7 @@ function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { 
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf__default['default'](Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf__default['default'](this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn__default['default'](this, result); }; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () { })); return true; } catch (e) { return false; } }
 
 function deepFind(obj, path) {
   var keySeparator = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '.';
@@ -574,7 +574,7 @@ function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { 
 
 function _createSuper$1(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct$1(); return function _createSuperInternal() { var Super = _getPrototypeOf__default['default'](Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf__default['default'](this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn__default['default'](this, result); }; }
 
-function _isNativeReflectConstruct$1() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct$1() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () { })); return true; } catch (e) { return false; } }
 var checkedLoadedFor = {};
 
 var Translator = function (_EventEmitter) {
@@ -671,8 +671,8 @@ var Translator = function (_EventEmitter) {
       var keySeparator = options.keySeparator !== undefined ? options.keySeparator : this.options.keySeparator;
 
       var _this$extractFromKey = this.extractFromKey(keys[keys.length - 1], options),
-          key = _this$extractFromKey.key,
-          namespaces = _this$extractFromKey.namespaces;
+        key = _this$extractFromKey.key,
+        namespaces = _this$extractFromKey.namespaces;
 
       var namespace = namespaces[namespaces.length - 1];
       var lng = options.lng || this.language;
@@ -1702,9 +1702,9 @@ function parseFormatStr(formatStr) {
         if (!opt) return;
 
         var _opt$split = opt.split(':'),
-            _opt$split2 = _toArray__default['default'](_opt$split),
-            key = _opt$split2[0],
-            rest = _opt$split2.slice(1);
+          _opt$split2 = _toArray__default['default'](_opt$split),
+          key = _opt$split2[0],
+          rest = _opt$split2.slice(1);
 
         var val = rest.join(':');
         if (val.trim() === 'false') formatOptions[key.trim()] = false;
@@ -1774,8 +1774,8 @@ var Formatter = function () {
 
       var result = formats.reduce(function (mem, f) {
         var _parseFormatStr = parseFormatStr(f),
-            formatName = _parseFormatStr.formatName,
-            formatOptions = _parseFormatStr.formatOptions;
+          formatName = _parseFormatStr.formatName,
+          formatOptions = _parseFormatStr.formatOptions;
 
         if (_this.formats[formatName]) {
           var formatted = mem;
@@ -1808,7 +1808,7 @@ function _objectSpread$5(target) { for (var i = 1; i < arguments.length; i++) { 
 
 function _createSuper$2(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct$2(); return function _createSuperInternal() { var Super = _getPrototypeOf__default['default'](Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf__default['default'](this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn__default['default'](this, result); }; }
 
-function _isNativeReflectConstruct$2() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct$2() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () { })); return true; } catch (e) { return false; } }
 
 function remove(arr, what) {
   var found = arr.indexOf(what);
@@ -1869,7 +1869,7 @@ var Connector = function (_EventEmitter) {
 
           if (!options.reload && _this2.store.hasResourceBundle(lng, ns)) {
             _this2.state[name] = 2;
-          } else if (_this2.state[name] < 0) ; else if (_this2.state[name] === 1) {
+          } else if (_this2.state[name] < 0); else if (_this2.state[name] === 1) {
             if (pending.indexOf(name) < 0) pending.push(name);
           } else {
             _this2.state[name] = 1;
@@ -2125,9 +2125,9 @@ function _objectSpread$6(target) { for (var i = 1; i < arguments.length; i++) { 
 
 function _createSuper$3(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct$3(); return function _createSuperInternal() { var Super = _getPrototypeOf__default['default'](Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf__default['default'](this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn__default['default'](this, result); }; }
 
-function _isNativeReflectConstruct$3() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct$3() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () { })); return true; } catch (e) { return false; } }
 
-function noop() {}
+function noop() { }
 
 function bindMemberFunctions(inst) {
   var mems = Object.getOwnPropertyNames(Object.getPrototypeOf(inst));

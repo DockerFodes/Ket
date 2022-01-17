@@ -9,42 +9,42 @@ const
     { tz } = require('moment-timezone'),
     { appendFile } = require('fs');
 
-    duration(moment);
-    require('dotenv').config();
+duration(moment);
+require('dotenv').config();
 
-    global.session = {
-        rootDir: __dirname,
-        log: async (type: string = "log", setor = "CLIENT", message: string, error: any = null) => {
-            moment.locale("pt-BR");
-            let str = `[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`;
-            if (process.argv.includes('pm2')) return console.log(str)
-            
-            // appendFile(`${__dirname}/src/logs/output.txt`, `${str}\n`, () => { })
-            // error ? appendFile(`${__dirname}/src/logs/errors.txt`, error, () => { }) : null
-            switch (type) {
-                case 'normal': console.log(str);
-                    break
-                case "log": console.log(c.greenBright(str));
-                    break
-                case "shard": console.log(c.blueBright(str));
-                    break
-                case "error": console.error(c.redBright(str));
-                    break
-            }
-            error ? console.error(error) : null;
+global.session = {
+    rootDir: __dirname,
+    log: async (type: string = "log", setor = "CLIENT", message: string, error: any = null) => {
+        moment.locale("pt-BR");
+        let str = `[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`;
+        if (process.argv.includes('pm2')) return console.log(str);
+
+        // appendFile(`${__dirname}/src/logs/output.txt`, `${str}\n`, () => { })
+        // error ? appendFile(`${__dirname}/src/logs/errors.txt`, error, () => { }) : null
+        switch (type) {
+            case 'normal': console.log(str);
+                break
+            case "log": console.log(c.greenBright(str));
+                break
+            case "shard": console.log(c.blueBright(str));
+                break
+            case "error": console.error(c.redBright(str));
+                break
         }
+        error ? console.error(error) : null;
     }
-    module.exports = function (DISCORD_TOKEN: string) {
-        require('./src/components/core/ProtoTypes').start();
-        global.session.log('normal', 'SHARDING MANAGER', c.bgBlueBright("Iniciando fragmentação..."))
-        return new KetClient(`Bot ${DISCORD_TOKEN}`, settings.CLIENT_OPTIONS).boot().then(() => {
-            DISCORD_TOKEN = null;
-            process.env.CLIENT_DISCORD_TOKEN = null;
-            process.env.BETA_CLIENT_DISCORD_TOKEN = null;
-        })
-    }
-    if (process.argv.includes('--no-menu')) module.exports(process.env.CLIENT_DISCORD_TOKEN);
-    else initialMenu();
+}
+module.exports = function (DISCORD_TOKEN: string) {
+    require('./src/components/core/ProtoTypes').start();
+    global.session.log('normal', 'SHARDING MANAGER', c.bgBlueBright("Iniciando fragmentação..."))
+    return new KetClient(`Bot ${DISCORD_TOKEN}`, settings.CLIENT_OPTIONS).boot().then(() => {
+        DISCORD_TOKEN = null;
+        process.env.CLIENT_DISCORD_TOKEN = null;
+        process.env.BETA_CLIENT_DISCORD_TOKEN = null;
+    })
+}
+if (process.argv.includes('--no-menu')) module.exports(process.env.CLIENT_DISCORD_TOKEN);
+else initialMenu();
 
 process
     .on('SIGINT', async () => {

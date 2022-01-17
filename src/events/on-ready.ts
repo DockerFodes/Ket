@@ -18,15 +18,19 @@ module.exports = class ReadyEvent {
             { name: "mais um gol do vasco", type: 3 },
             { name: "os gemidos da sua mãe", type: 2 },
             { name: 'Vasco x Flamengo', type: 5 }
-        ]
-        //@ts-ignore
-        setInterval(() => this.ket.editStatus("dnd", status[Math.floor(Math.random() * status.length)]), 25 * 1_000)
+        ],
+            db = global.session.db;
+        setInterval(async () => {
+            //@ts-ignore
+            this.ket.editStatus("dnd", status[Math.floor(Math.random() * status.length)]);
+
+            (await db.blacklist.getAll())?.forEach(user => user.warns < 3 && Date.now() > Number(user.timeout) ? db.users.update(user.id, {
+                banned: null,
+                reason: null
+            }) : null);
+
+        }, 60_000)
         global.session.log('log', "CLIENT", `Sessão iniciada como ${c.bgGreen(c.white(this.ket.user.tag))}\n${gradient('red', 'yellow')("◆ ▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬ ◆")}\nOperante em ${this.ket.guilds.size} templos com ${this.ket.users.size} subordinados`);
-        TerminalClient(this.ket);
-        /*        return setInterval(() => {
-                    return global.infoEmbed(NaN, this.ket)
-                }, 2000)
-                */
-        return;
+        return TerminalClient(this.ket);
     }
 }

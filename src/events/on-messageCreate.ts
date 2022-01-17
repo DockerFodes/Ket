@@ -38,7 +38,7 @@ module.exports = class MessageCreateEvent {
         ctx = getContext({ ket, user, server, message, args, command, commandName }, ctx.t)
 
         await KetUtils.checkCache(ctx);
-        ctx.t = global.session.t = i18next.getFixedT(user?.lang || 'pt');
+        ctx.t = i18next.getFixedT(user?.lang || 'pt');
         ctx.user = await KetUtils.checkUserGuildData(ctx);
 
         if (await KetUtils.checkPermissions({ ctx }) === false) return;

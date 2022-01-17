@@ -91,17 +91,8 @@ async function logMenu() {
     }, {
         onCancel: () => logMenu()
     });
-    if (logOptions.value === 1) {
-        try {
-            return unlink(`${global.session.rootDir}/src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.txt`, () => {
-                console.log('Logs apagados com sucesso');
-                return setTimeout(() => logMenu(), 2000);
-            })
-
-        } catch (e) {
-            return global.session.log('error', 'KET PAINEL', 'Não foi possível apagar o arquivo de log.', e);
-        }
-    }
+    if (logOptions.value === 1) unlink(`${global.session.rootDir}/src/logs/${logResponse.value === 1 ? 'output' : 'errors'}.txt`, () => logMenu())
+        .catch(e => global.session.log('error', 'KET PAINEL', 'Não foi possível apagar o arquivo de log.', e))
     else return logMenu();
 }
 async function start(DISCORD_TOKEN: string) {

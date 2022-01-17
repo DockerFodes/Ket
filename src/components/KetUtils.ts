@@ -45,7 +45,7 @@ module.exports = class Utils {
         };
         await this.checkUserGuildData(ctx, true);
         await this.checkCache(ctx);
-        if (await this.checkPermissions({ ctx, command }) === false || ctx.channel.nsfw) return;
+        if (await this.checkPermissions({ ctx, command }) === false || ctx.channel.nsfw || ctx.author.bot && ctx.uID !== ctx.ket.user.id) return;
         let
             message = ctx.env,
             ket = ctx.ket,
@@ -104,13 +104,13 @@ module.exports = class Utils {
                 if (!channel || channel?.nsfw || await this.checkPermissions({ ctx, command, channel, notReply: true }) === false) return;
                 if (!webhook) {
                     webhook = await channel.getWebhooks().catch(() => { });
-                    webhook = webhook.filter((w: Webhook) => w.name === 'Ket Global Chat' && w.user.id === ket.user.id)[0];
+                    webhook = webhook?.filter((w: Webhook) => w.name === 'Ket Global Chat' && w.user.id === ket.user.id)[0];
                     if (!webhook) webhook = await channel.createWebhook({ name: 'Ket Global Chat', options: { type: 1 } }).catch(() => { });
                     ket.webhooks.set(channel.id, webhook);
                 }
                 if (!webhook) return;
                 if (message.messageReference && !message.author.bot) {
-                    let ref = channel.messages.find(m => m?.author.username === msg?.author.username && this.msgFilter(m?.filtredContent, 1990, true) === this.msgFilter(msg?.filtredContent, 1990, true) && m?.timestamp < msg?.timestamp + 1000),
+                    let ref = channel.messages.find(m => m?.author.username === msg?.author.username && this.msgFilter(m?.filtredContent, 1990, true) === this.msgFilter(msg?.filtredContent, 1990, true) && m?.timestamp < msg?.timestamp + 1000 && msg.attachments[0] ? m.attachments[0].name === msg.attachments[0].name : true),
                         refAuthor = await db.users.find(msg?.author.id);
 
                     !msg ? null : msgObj.embeds = [{
@@ -172,19 +172,26 @@ module.exports = class Utils {
 
     async checkRateLimit(ctx, user) {
         !user.rateLimit ? user.rateLimit = 1 : user.rateLimit++;
-        let messages = await db.globalchat.getAll(10, { key: 'id', type: 'DESC' }),
-            lastMessage = !messages[0] ? null : await ctx.ket.findMessage(ctx.env, messages[0].id)
-                .catch(() => { });
+        !global.rateLimit ? global.rateLimit = setInterval(() => ctx.ket.users.filter(user => user.rateLimit > 0).forEach(u => u.rateLimit--), 5000) : null;
 
-        if (ctx.env?.content === lastMessage?.content) user.rateLimit = user.rateLimit + 2
-
-        !user.rateLimitTimeout ? user.rateLimitTimeout = setInterval(() => user.rateLimit <= 0 ? () => { clearInterval(user.rateLimitTimeout); user.rateLimitTimeout = null } : user.rateLimit--, 5000) : null
+        let messages = await db.globalchat.getAll(10, { key: 'id', type: 'DESC' });
+        messages?.filter(m => m.author === ctx.uID)?.forEach(msg => {
+            let content = String(ctx.channel.messages.get(msg.id)?.content);
+            content.length > 1500 ? user.rateLimit++ : null;
+            this.checkSimilarity(content, ctx.env.content) >= 0.9 ? user.rateLimit++ : null
+        })
 
         if (user.rateLimit >= 10) {
             await db.users.update(ctx.uID, {
                 banned: true,
-                banReason: `[ AUTO-MOD ] - Flood on global chat`
-            })
+                reason: `[ AUTO-MOD ] - Mal comportamento no chat global`
+            });
+            let userBl = await db.blacklist.find(user.id)
+            if (userBl) userBl.warns < 3 ? await db.blacklist.update(user.id, {
+                timeout: Date.now() + user.rateLimit * 1000 * 60,
+                warns: 'sql warns + 1'
+            }) : null
+            else await db.blacklist.create(user.id, { timeout: Date.now() + user.rateLimit * 1000 * 60 })
             ctx.ket.say({
                 context: ctx.env, emoji: 'sireneRed', content: {
                     embeds: [{
@@ -194,7 +201,6 @@ module.exports = class Utils {
                     }]
                 }
             });
-            setTimeout(async () => await db.users.update(ctx.uID, { banned: null, banReason: null }), user.rateLimit * 1000 * 60)
             return false;
         } else return true;
     }
@@ -220,15 +226,16 @@ module.exports = class Utils {
 
         missingPermissions = ctx.command.permissions.bot.filter((perm) => !ctx.me.permissions.has(perm)).map(value => t(`permissions:${value}`));
 
-        if (missingPermissions[0] && !notReply) {
-            ctx.ket.say({ context: ctx.env, content: t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') }), embed: false, emoji: 'negado' })
-                .catch(async () => {
-                    let dmChannel = await ctx.author.getDMChannel();
-                    dmChannel.createMessage(t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') }))
-                        .catch(() => {
-                            if (ctx.me.permissions.has('changeNickname')) ctx.me.edit({ nick: "pls give me some permission" }).catch(() => { });
-                        });
-                });
+        if (missingPermissions[0]) {
+            notReply ? null :
+                ctx.ket.say({ context: ctx.env, content: t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') }), embed: false, emoji: 'negado' })
+                    .catch(async () => {
+                        let dmChannel = await ctx.author.getDMChannel();
+                        dmChannel.createMessage(t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') }))
+                            .catch(() => {
+                                if (ctx.me.permissions.has('changeNickname')) ctx.me.edit({ nick: "pls give me some permission" }).catch(() => { });
+                            });
+                    });
             return false;
         } else return true
     }
@@ -246,7 +253,7 @@ module.exports = class Utils {
     }
 
     CommandError(ctx, error) {
-        const { say, t, ket, args, config, command, author, uID, guild, gID, me, channel, cID } = ctx
+        const { t, ket, args, config, command, author, uID, guild, gID, me, channel, cID } = ctx
         ket.say({
             context: ctx.env, content: {
                 embeds: [{
@@ -278,49 +285,9 @@ module.exports = class Utils {
     }
 
     findResult(entrada: string, mapa: string[]) {
-        function checkSimilarity(str1: string, str2: string) {
-            if (str1 === str2) return 1.0;
-
-            const len1 = str1.length,
-                len2 = str2.length;
-
-            const maxDist = ~~(Math.max(len1, len2) / 2) - 1;
-            let matches = 0;
-
-            const hash1 = [];
-            const hash2 = [];
-
-            for (var i = 0; i < len1; i++)
-                for (var j = Math.max(0, i - maxDist); j < Math.min(len2, i + maxDist + 1); j++)
-                    if (str1.charAt(i) === str2.charAt(j) && !hash2[j]) {
-                        hash1[i] = 1;
-                        hash2[j] = 1;
-                        matches++;
-                        break;
-                    }
-
-            if (!matches) return 0.0;
-
-            let t = 0;
-            let point = 0;
-
-            for (var k = 0; k < len1; k++);
-            if (hash1[k]) {
-                while (!hash2[point])
-                    point++;
-
-                if (str1.charAt(k) !== str2.charAt(point++))
-                    t++;
-            }
-
-            t /= 2;
-
-            return ((matches / len1) + (matches / len2) + ((matches - t) / matches)) / 3.0;
-        }
-
         function Algorithm2(str: string, array: any, threshold: number = 60) {
             return array
-                .map(e => { return { e, v: checkSimilarity(str, e) } })
+                .map(e => { return { e, v: this.checkSimilarity(str, e) } })
                 .filter(({ v }) => v >= threshold / 100)
                 .reduce((_, curr, i, arr) => arr[i].v > curr ? arr[i].v : curr.e, null);
         }
@@ -329,5 +296,45 @@ module.exports = class Utils {
         let result = DidYouMean(entrada, mapa);
         if (!result) result = Algorithm2(entrada, mapa);
         return result;
+    }
+
+    checkSimilarity(str1: string, str2: string) {
+        if (str1 === str2) return 1.0;
+
+        const len1 = str1.length,
+            len2 = str2.length;
+
+        const maxDist = ~~(Math.max(len1, len2) / 2) - 1;
+        let matches = 0;
+
+        const hash1 = [];
+        const hash2 = [];
+
+        for (var i = 0; i < len1; i++)
+            for (var j = Math.max(0, i - maxDist); j < Math.min(len2, i + maxDist + 1); j++)
+                if (str1.charAt(i) === str2.charAt(j) && !hash2[j]) {
+                    hash1[i] = 1;
+                    hash2[j] = 1;
+                    matches++;
+                    break;
+                }
+
+        if (!matches) return 0.0;
+
+        let t = 0;
+        let point = 0;
+
+        for (var k = 0; k < len1; k++);
+        if (hash1[k]) {
+            while (!hash2[point])
+                point++;
+
+            if (str1.charAt(k) !== str2.charAt(point++))
+                t++;
+        }
+
+        t /= 2;
+
+        return ((matches / len1) + (matches / len2) + ((matches - t) / matches)) / 3.0;
     }
 }

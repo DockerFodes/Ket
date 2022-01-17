@@ -23,12 +23,6 @@ module.exports = {
             : global.session.log('error', 'COMPILER', 'Houve um erro ao compilar os arquivos:', res);
     },
 
-    e() { this.exit(); },
-    exit() {
-        process.emit('SIGINT', null);
-        return setTimeout(() => process.kill(process.pid, null), 5 * 1000);
-    },
-
     async deploy({ ket, args }) {
         let commands = []
         await ket.commands.forEach(command => {
@@ -47,6 +41,11 @@ module.exports = {
             global.session.log('error', 'SLASH CLIENT', `Houve um erro ao registrar os comandos:`, e)
         }
         return;
+    },
+
+    e() { this.exit(); },
+    exit() {
+        process.emit('SIGINT', null);
     },
 
     h() { this.help(); },
@@ -79,13 +78,12 @@ module.exports = {
     },
 
     async restart({ ket }) {
-        new Promise(async (res, rej) => await this.compile());
+        new Promise(async (res, rej) => res(await this.compile()));
         let i = 0;
         let interval = setInterval(async () => {
-            if (i > ket.config.ERIS_LOADER_SETTINGS.maxShards - 1) return clearInterval(interval);
+            if (i++ > ket.options.maxShards - 1) return clearInterval(interval);
             await ket.shards.get(i).disconnect();
             await ket.shards.get(i).connect();
-            i++;
         }, 5000);
         return;
     }
