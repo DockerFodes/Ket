@@ -6,21 +6,23 @@ const
     c = require('chalk'),
     moment = require("moment"),
     duration = require("moment-duration-format"),
-    { tz } = require('moment-timezone'),
-    { appendFile } = require('fs');
+    { tz } = require('moment-timezone');
 
 duration(moment);
 require('dotenv').config();
 
-global.session = {
-    rootDir: __dirname,
-    log: async (type: string = "log", setor = "CLIENT", message: string, error: any = null) => {
+global.session = { rootDir: __dirname }
+module.exports = function (DISCORD_TOKEN: string) {
+    require('./src/components/core/ProtoTypes').start();
+    const ket = new KetClient(`Bot ${DISCORD_TOKEN}`, settings.CLIENT_OPTIONS)
+
+    global.session.log = async (type: string = "log", setor = "CLIENT", message: string, error: any = '') => {
         moment.locale("pt-BR");
         let str = `[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`;
-        if (process.argv.includes('pm2')) return console.log(str);
-
-        // appendFile(`${__dirname}/src/logs/output.txt`, `${str}\n`, () => { })
-        // error ? appendFile(`${__dirname}/src/logs/errors.txt`, error, () => { }) : null
+        ket.executeWebhook(process.env.WEBHOOK_LOGS.split(' | ')[0], process.env.WEBHOOK_LOGS.split(' | ')[1], {
+            username: 'Ket Logs',
+            content: `\`${str}\n${error}\``
+        })
         switch (type) {
             case 'normal': console.log(str);
                 break
@@ -33,11 +35,10 @@ global.session = {
         }
         error ? console.error(error) : null;
     }
-}
-module.exports = function (DISCORD_TOKEN: string) {
-    require('./src/components/core/ProtoTypes').start();
     global.session.log('normal', 'SHARDING MANAGER', c.bgBlueBright("Iniciando fragmentação..."))
-    return new KetClient(`Bot ${DISCORD_TOKEN}`, settings.CLIENT_OPTIONS).boot().then(() => {
+
+
+    ket.boot().then(() => {
         DISCORD_TOKEN = null;
         process.env.CLIENT_DISCORD_TOKEN = null;
         process.env.BETA_CLIENT_DISCORD_TOKEN = null;
