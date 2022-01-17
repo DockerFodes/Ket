@@ -28,7 +28,6 @@
     ],
     "dependencies": {
         "@discordjs/builders": "^0.11.0",
-        "@types/i18next-fs-backend": "^1.1.2",
         "axios": "^0.24.0",
         "chalk": "^4.1.2",
         "cpu-stat": "^2.0.1",
@@ -43,10 +42,10 @@
         "moment-duration-format": "^2.3.2",
         "moment-timezone": "^0.5.33",
         "pg": "^8.7.1",
-        "prompts": "^2.4.2",
-        "util": "^0.12.4"
+        "prompts": "^2.4.2"
     },
     "devDependencies": {
+        "@types/i18next-fs-backend": "^1.1.2",
         "@types/node": "^16.11.17",
         "@types/pg": "^8.6.3"
     }

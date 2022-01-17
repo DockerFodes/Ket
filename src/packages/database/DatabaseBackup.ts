@@ -1,12 +1,10 @@
 import { Client } from "eris"
 
 module.exports = (ket: Client) => {
-    setInterval(async () => {
+    setInterval(() => {
         let db = global.session.db;
-        for (let [key, value] of Object.entries(db))
-            return typeof value === 'object'
-                ? ket.createMessage(ket.config.channels.database, `Backup da table ${key}`, { name: `${key}.json`, file: JSON.stringify((await db[key].getAll())) })
-                : null
-
-    }, 60000 * 30)
+        Object.entries(db).forEach(async ([key, value]) => typeof value === 'object'
+                ? ket.createMessage(ket.config.channels.database, `Backup da table \`${key}\``, { name: `${key}.json`, file: JSON.stringify((await db[key].getAll())) })
+                : null)
+    }, 60_000 * 30)
 }

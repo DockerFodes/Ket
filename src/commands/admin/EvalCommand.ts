@@ -47,7 +47,8 @@ module.exports = class EvalCommand extends CommandStructure {
         let
             message = ctx.env,
             evaled = ctx.args.join(" ")
-            .replace(/`\``(js|)/g, '')
+            .replace('```js', '')
+            .replace('```', '')
             .replace(/val /g, 'global.'),
             canReturn = (ctx.commandName === 'eval' ? true : false),
             embed: typeof EmbedBuilder = new EmbedBuilder();

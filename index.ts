@@ -9,7 +9,6 @@ const
     { tz } = require('moment-timezone'),
     { appendFile } = require('fs');
 
-async function main() {
     duration(moment);
     require('dotenv').config();
 
@@ -19,6 +18,7 @@ async function main() {
             moment.locale("pt-BR");
             let str = `[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")} ] - ${message}`;
             if (process.argv.includes('pm2')) return console.log(str)
+            
             // appendFile(`${__dirname}/src/logs/output.txt`, `${str}\n`, () => { })
             // error ? appendFile(`${__dirname}/src/logs/errors.txt`, error, () => { }) : null
             switch (type) {
@@ -45,8 +45,7 @@ async function main() {
     }
     if (process.argv.includes('--no-menu')) module.exports(process.env.CLIENT_DISCORD_TOKEN);
     else initialMenu();
-}
-main()
+
 process
     .on('SIGINT', async () => {
         try {
