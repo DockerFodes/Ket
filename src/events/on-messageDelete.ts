@@ -1,8 +1,9 @@
-import { Client, GuildChannel, Message } from "eris"
+import { GuildChannel, Message } from "eris";
+import KetClient from "../KetClient";
 const db = global.session.db;
 module.exports = class MessageDeleteEvent {
-    ket: Client;
-    constructor(ket: Client) {
+    ket: KetClient;
+    constructor(ket: KetClient) {
         this.ket = ket
     }
     async start(message: Message<GuildChannel>) {

@@ -1,5 +1,5 @@
 export { };
-import { Client } from "eris";
+import KetClient from "../../KetClient";
 import { SlashCommandBuilder } from "@discordjs/builders";
 const
     { execSync } = require('child_process'),
@@ -7,7 +7,7 @@ const
     { CommandStructure, EmbedBuilder } = require('../../components/Commands/CommandStructure');
 
 module.exports = class CldCommand extends CommandStructure {
-    constructor(ket: Client) {
+    constructor(ket: KetClient) {
         super(ket, {
             name: 'cld',
             aliases: [],
@@ -47,6 +47,6 @@ module.exports = class CldCommand extends CommandStructure {
                 .setColor('red')
                 .setDescription(inspect(e, { deaph: 1 }), 'bash');
         }
-        return this.ket.say({ context: ctx.env, content: { embeds: [embed.build()] } })
+        return this.ket.send({ context: ctx.env, content: { embeds: [embed.build()] } })
     }
 }

@@ -1,35 +1,43 @@
 export { };
-import { ClientOptions, CommandInteraction, Guild, GuildChannel, Member, User } from "eris";
+import { Client, ClientOptions, Collection, CommandInteraction, ExtendedUser, Guild, GuildChannel, JSONCache, Member, Message, Shard, SimpleJSON, User, Webhook } from "eris";
 import { ESMap } from "typescript";
-const
-    { Client, Collection } = require('eris'),
-    { readdir } = require('fs'),
-    { Decoration } = require('./components/Commands/CommandStructure'),
-    { getEmoji, getColor } = Decoration,
-    { t } = require('i18next');
+import EventHandler from "./components/core/EventHandler";
+import { readdir } from "fs";
+import { t } from "i18next";
 
-module.exports = class KetClient extends Client {
+const { Decoration } = require('./components/Commands/CommandStructure'),
+    { getEmoji, getColor } = Decoration;
+
+class usuario extends User {
+    tag: string;
+    lastCommand: {
+        botMsg: Message<GuildChannel>,
+        message: Message<GuildChannel>
+    }
+}
+
+class clientUser extends ExtendedUser {
+    tag: string;
+}
+
+export default class KetClient extends Client {
     config: any;
-    db: object;
-    events: any;
-    modules: ESMap<string, any>;
-    postgres: object;
+    events: EventHandler;
     commands: ESMap<string, any>;
     aliases: ESMap<string, string>;
-    shardUptime: ESMap<number, object>;
+    webhooks: ESMap<string, Webhook>;
+    user: clientUser;
+    users: Collection<usuario>;
+    shardUptime: ESMap<string | number, number>;
 
     constructor(token: string, options: ClientOptions) {
         super(token, options);
 
         this.config = require('./json/settings.json');
-
-        // this.users = new Collection(User, this.config.CLIENT_OPTIONS.cacheLimit.users)
-        // this.guilds = new Collection(Guild, this.config.CLIENT_OPTIONS.cacheLimit.guilds)
-
-        this.events = new (require('./components/core/EventHandler'))(this);
-        this.commands = new Collection();
-        this.webhooks = new Map();
+        this.events = new (EventHandler)(this);
+        this.commands = new Map();
         this.aliases = new Map();
+        this.webhooks = new Map();
         this.shardUptime = new Map();
     }
     public async boot() {
@@ -93,11 +101,11 @@ module.exports = class KetClient extends Client {
 
     }
 
-    public async say({ context, content, emoji = null, embed = true, type = 'reply', message = null, interaction = null }) {
+    public async send({ context, emoji = null, content, embed = true, type = 'reply', message = null, interaction = null }) {
         if (!content) return;
         if (context instanceof CommandInteraction) interaction = context;
         else message = context;
-        let user = await this.users.get(message ? context.author.id : context.member.id),
+        let user = this.users.get(message ? context.author.id : context.member.id),
             msgObj = {
                 content: '',
                 embeds: embed ? [{
@@ -120,7 +128,7 @@ module.exports = class KetClient extends Client {
                     repliedUser: true
                 }
             },
-            botMessage, userMessage;
+            botMsg;
         if (typeof content === 'object') {
             msgObj = Object.assign(msgObj, content);
             content = content.embeds[0].description;
@@ -132,9 +140,9 @@ module.exports = class KetClient extends Client {
         }
 
         if (message) {
-            if ((message.editedTimestamp && user?.lastCommand && user.lastCommand.botMessage.channel.id === message.channel.id && Date.now() < message.timestamp + 2 * 1000 * 60) || type === 'edit') botMessage = await message.channel.editMessage(user.lastCommand.botMessage.id, msgObj).catch(() => message.channel.createMessage(msgObj).catch(() => { }));
-            else botMessage = await message.channel.createMessage(msgObj).catch(() => { });
-            [botMessage, message].forEach(ctx => {
+            if ((message.editedTimestamp && user?.lastCommand && user.lastCommand.botMsg.channel.id === message.channel.id) || type === 'edit') botMsg = await message.channel.editMessage(user.lastCommand.botMsg.id, msgObj).catch(() => message.channel.createMessage(msgObj).catch(() => { }));
+            else botMsg = await message.channel.createMessage(msgObj).catch(() => { });
+            [botMsg, message].forEach(ctx => {
                 ctx = {
                     id: ctx.id,
                     timestamp: ctx.timestamp,
@@ -143,10 +151,10 @@ module.exports = class KetClient extends Client {
                 }
             })
             user.lastCommand = {
-                message,
-                botMessage
+                botMsg,
+                message
             }
-            return botMessage;
+            return botMsg;
         } else {
             switch (type) {
                 case 'reply': return interaction.createMessage(msgObj).catch(() => { });
@@ -194,7 +202,7 @@ module.exports = class KetClient extends Client {
 
         async function get(id) {
             if (guild.channels.has(id)) return guild.channels.get(id);
-            else return await client.getRESTCHannel(id);
+            else return await client.getRESTChannel(id);
         }
         return channel;
     }

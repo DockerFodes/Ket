@@ -1,5 +1,6 @@
 export { };
-import { Client, CommandInteraction } from "eris"
+import { CommandInteraction } from "eris";
+import KetClient from "../KetClient";
 delete require.cache[require.resolve('../components/KetUtils')];
 const
     db = global.session.db,
@@ -9,8 +10,8 @@ const
     i18next = require("i18next");
 
 module.exports = class InteractionCreateEvent {
-    ket: Client;
-    constructor(ket: Client) {
+    ket: KetClient;
+    constructor(ket: KetClient) {
         this.ket = ket;
     }
     async start(interaction: any) {
@@ -47,7 +48,7 @@ module.exports = class InteractionCreateEvent {
         ctx.user = await KetUtils.checkUserGuildData(ctx);
 
         if (await KetUtils.checkPermissions({ ctx }) === false) return;
-        if (ctx.command.permissions.onlyDevs && !ket.config.DEVS.includes(ctx.uID)) return this.ket.say({
+        if (ctx.command.permissions.onlyDevs && !ket.config.DEVS.includes(ctx.uID)) return this.ket.send({
             context: interaction, emoji: 'negado', content: {
                 embeds: [{
                     color: getColor('red'),

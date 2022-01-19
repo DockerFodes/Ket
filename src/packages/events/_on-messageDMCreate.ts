@@ -1,6 +1,7 @@
-import { Client, Message } from "eris"
+import KetClient from "../../KetClient";
+import { Message } from "eris"
 
-module.exports = async (message: Message, ket: Client) => {
+module.exports = async (message: Message, ket: KetClient) => {
     // if (message.content.match(/((?:discord\.gg|discordapp\.com\/invite|discord\.com\/invite))/g)) {
     //     const dmChannel = await message.author.getDMChannel();
     //     const invite = message.content.trim().split(' ').find((invite: string) => invite.includes('discord.gg'))

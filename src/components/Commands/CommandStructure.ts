@@ -1,8 +1,7 @@
-export { };
-import { Client } from "eris";
+import KetClient from "../../KetClient";
 
 module.exports.CommandStructure = class CommandStructure {
-    ket: Client;
+    ket: KetClient;
     config: object;
 
     constructor(ket, command) {
@@ -128,7 +127,7 @@ module.exports.EmbedBuilder = class EmbedBuilder {
     }
 }
 
-module.exports.Decoration = {
+export const Decoration = {
     getEmoji: function getEmoji(emoji: string) {
         let emojis = {
             autorizado: "<:autorizado:765952397595639828>",
@@ -176,7 +175,7 @@ module.exports.getContext = ({ ket, message = null, interaction = null, user, se
     return {
         ket: ket,
         config: ket.config,
-        say: ket.say,
+        say: ket.send,
         env: message ? message : interaction,
         user: user,
         server: server,

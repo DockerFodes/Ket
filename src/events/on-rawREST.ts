@@ -1,10 +1,11 @@
-import { Client, RawRESTRequest } from "eris"
+import { RawRESTRequest } from "eris";
+import KetClient from "../KetClient";
 const moment = require('moment'),
     c = require('chalk');
 
 module.exports = class RawRESTEvent {
-    ket: Client;
-    constructor(ket: Client) {
+    ket: KetClient;
+    constructor(ket: KetClient) {
         this.ket = ket;
     }
     async start(req: RawRESTRequest) {

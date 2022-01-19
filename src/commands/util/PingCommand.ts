@@ -1,9 +1,9 @@
 export { }
-import { Client } from "eris"
+import KetClient from "../../KetClient"
 const { CommandStructure } = require("../../components/Commands/CommandStructure")
 
 module.exports = class PingCommand extends CommandStructure {
-    constructor(ket: Client) {
+    constructor(ket: KetClient) {
         super(ket, {
             name: 'ping',
             aliases: [],
@@ -24,8 +24,8 @@ module.exports = class PingCommand extends CommandStructure {
     }
     async execute(ctx) {
         let time = Date.now();
-        await this.ket.say({ context: ctx.env, content: 'calculando o ping...', embed: false });
+        await this.ket.send({ context: ctx.env, content: 'calculando o ping...', embed: false });
         let totalTime = Date.now() - time;
-        this.ket.say({ context: ctx.env, content: `tempo de resposta: ${totalTime}ms`, type: 'edit' })
+        this.ket.send({ context: ctx.env, content: `tempo de resposta: ${totalTime}ms`, type: 'edit' })
     }
 }

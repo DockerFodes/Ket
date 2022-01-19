@@ -25,7 +25,7 @@ module.exports = class Utils {
         let user = await db.users.find(ctx.uID);
         if (!user) {
             user = await db.users.create(ctx.uID, { lang: ctx.guild?.preferredLocale.startsWith('pt') ? 'pt' : 'en' }, true)
-            if (globalchat) (await ctx.ket.say({
+            if (globalchat) (await ctx.ket.send({
                 context: ctx.env, content: {
                     embeds: [{
                         ...ctx.t('events:globalchat.welcome', { avatar: ctx.author.dynamicAvatarURL('jpg') }),
@@ -192,7 +192,7 @@ module.exports = class Utils {
                 warns: 'sql warns + 1'
             }) : null
             else await db.blacklist.create(user.id, { timeout: Date.now() + user.rateLimit * 1000 * 60 })
-            ctx.ket.say({
+            ctx.ket.send({
                 context: ctx.env, emoji: 'sireneRed', content: {
                     embeds: [{
                         color: getColor('red'),
@@ -213,7 +213,7 @@ module.exports = class Utils {
 
         if (!ctx.channel) return false;
         if ([10, 11, 12].includes(ctx.channel.type) && !ctx.command.access.Threads) {
-            ctx.ket.say({
+            ctx.ket.send({
                 context: ctx.env, content: {
                     embeds: [{
                         color: getColor('red'),
@@ -228,7 +228,7 @@ module.exports = class Utils {
 
         if (missingPermissions[0]) {
             notReply ? null :
-                ctx.ket.say({ context: ctx.env, content: t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') }), embed: false, emoji: 'negado' })
+                ctx.ket.send({ context: ctx.env, content: t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') }), embed: false, emoji: 'negado' })
                     .catch(async () => {
                         let dmChannel = await ctx.author.getDMChannel();
                         dmChannel.createMessage(t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') }))
@@ -254,7 +254,7 @@ module.exports = class Utils {
 
     CommandError(ctx, error) {
         const { t, ket, args, config, command, author, uID, guild, gID, me, channel, cID } = ctx
-        ket.say({
+        ket.send({
             context: ctx.env, content: {
                 embeds: [{
                     color: getColor('red'),

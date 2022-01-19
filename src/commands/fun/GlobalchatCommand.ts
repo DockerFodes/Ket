@@ -1,12 +1,12 @@
 export { };
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { Client } from "eris"
+import KetClient from "../../KetClient";
 import moment from "moment";
 const { CommandStructure, Decoration } = require('../../components/Commands/CommandStructure'),
     { getColor, getEmoji } = Decoration;
 
 module.exports = class GlobalChatCommand extends CommandStructure {
-    constructor(ket: Client) {
+    constructor(ket: KetClient) {
         super(ket, {
             name: 'globalchat',
             aliases: ['chatglobal', 'global'],
@@ -53,19 +53,19 @@ module.exports = class GlobalChatCommand extends CommandStructure {
         })
     }
     async execute(ctx) {
-        if (!ctx.args[0]) return await this.ket.say({ context: ctx.env, content: 'kur', emoji: 'negado' });
+        if (!ctx.args[0]) return await this.ket.send({ context: ctx.env, content: 'kur', emoji: 'negado' });
         const db = global.session.db;
 
         switch (ctx.args[0].toLowerCase()) {
             case 'start':
                 let channel = await this.ket.findChannel(ctx.env, ctx.args[1]);
-                if (!channel) return await this.ket.say({ context: ctx.env, emoji: 'negado', content: ctx.t('globalchat.channelNotFound') });
+                if (!channel) return await this.ket.send({ context: ctx.env, emoji: 'negado', content: ctx.t('globalchat.channelNotFound') });
                 await db.servers.update(ctx.gID, {
                     globalchat: channel.id,
                     lang: ctx.args[2]
                 });
 
-                return this.ket.say({
+                return this.ket.send({
                     context: ctx.env, emoji: 'autorizado', content: {
                         embeds: [{
                             color: getColor('green'),
@@ -78,7 +78,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     globalchat: null
                 });
 
-                return this.ket.say({
+                return this.ket.send({
                     context: ctx.env, emoji: 'autorizado', content: {
                         embeds: [{
                             color: getColor('green'),
@@ -91,7 +91,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     msg = data.find(msg => msg.id === ctx.args[1] || msg.messages.find((m) => m.includes(ctx.args[1])));
 
                 if (isNaN(Number(ctx.args[1])) || !ctx.args[1] || !msg)
-                    return this.ket.say({ context: ctx.env, emoji: 'negado', content: ctx.t('globalchat.messageNotFound') });
+                    return this.ket.send({ context: ctx.env, emoji: 'negado', content: ctx.t('globalchat.messageNotFound') });
 
                 let userData = await db.users.find(msg.author),
                     user = await this.ket.findUser(ctx.env, userData.id),
@@ -99,7 +99,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     message = await this.ket.getMessage(server.globalchat, msg.id);
                 moment.locale(ctx.user.lang);
 
-                return this.ket.say({
+                return this.ket.send({
                     context: ctx.env, content: {
                         embeds: [{
                             thumbnail: { url: user.dynamicAvatarURL('jpg') },

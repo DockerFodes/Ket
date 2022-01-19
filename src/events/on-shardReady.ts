@@ -1,12 +1,12 @@
-import { Client } from "eris"
+import KetClient from "../KetClient";
 
 module.exports = class ShardReadyEvent {
-    ket: Client;
-    constructor(ket: Client) {
+    ket: KetClient;
+    constructor(ket: KetClient) {
         this.ket = ket;
     }
     async start(shardID: number) {
         global.session.log('shard', "SHARDING MANAGER", `Shard ${shardID} acordou`);
-        return this.ket.shards.get(shardID).uptime = Date.now();
+        return this.ket.shardUptime.set(shardID, Date.now());
     }
 }

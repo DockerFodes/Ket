@@ -1,10 +1,10 @@
-import { Client } from "eris"
+import KetClient from "../../KetClient";
 interface event {
     name: string;
     dir: string;
 }
-module.exports = class EventHandler {
-    ket: Client;
+export default class EventHandler {
+    ket: KetClient;
     events: event[];
     eventData: any;
 

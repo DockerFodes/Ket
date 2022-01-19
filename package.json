@@ -1,11 +1,11 @@
 {
     "name": "ketdiscordbot",
-    "version": "0.0.4",
+    "version": "0.0.6",
     "description": "",
     "main": "dist/index.js",
     "scripts": {
         "build": "tsc",
-        "postinstall": "cp 'src/packages/postinstall/index.d.ts' 'node_modules/eris/index.d.ts' && cp 'src/packages/postinstall/i18next.js' 'node_modules/i18next/dist/cjs'",
+        "postinstall": "cp 'src/packages/postinstall/i18next.js' 'node_modules/i18next/dist/cjs'",
         "start": "npm run build && npm run no-compile",
         "ts-mode": "ts-node-dev --ignore-watch ./ index.ts",
         "direct-mode": "cross-env NODE_ENV=production node --expose-gc --trace-warnings dist/index.js --no-menu",
@@ -42,11 +42,14 @@
         "moment-duration-format": "^2.3.2",
         "moment-timezone": "^0.5.33",
         "pg": "^8.7.1",
-        "prompts": "^2.4.2"
+        "prompts": "^2.4.2",
+        "typescript": "^4.5.4"
     },
     "devDependencies": {
+        "@types/gradient-string": "^1.1.2",
         "@types/i18next-fs-backend": "^1.1.2",
         "@types/node": "^16.11.17",
-        "@types/pg": "^8.6.3"
+        "@types/pg": "^8.6.3",
+        "@types/prompts": "^2.0.14"
     }
 }

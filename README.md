@@ -1,5 +1,5 @@
 # ⭐ Ket Discord Bot ⭐
-✨ Ket is an excellent Discord bot made in TypeScript using Eris with lots of awesome features ✨
+✨ Ket is a shitty discord bot made in TypeScript using Eris ✨
 > ⚠️ Ket is still in the early stages of its development
 
 ## Features:
@@ -43,7 +43,7 @@ npm install
 ```
 > ⚠️ You may need to install 2 packages separately:
 ```bash
-npm install -g typescript pm2 cross-env
+npm install -g typescript pm2
 ```
 ### `4 -` 🌿 Preparing the environment 
 - Rename the ".env.example" file to ".env"

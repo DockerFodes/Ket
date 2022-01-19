@@ -1,8 +1,8 @@
-import { Client } from "eris"
+import KetClient from "../KetClient";
 
 module.exports = class ShardResumeEvent {
-    ket: Client;
-    constructor(ket: Client) {
+    ket: KetClient;
+    constructor(ket: KetClient) {
         this.ket = ket;
     }
     async start(shardID: number) {

@@ -59,7 +59,7 @@ module.exports = class EvalCommand extends CommandStructure {
             else evaled = await eval(evaled);
 
             embed
-                .setTitle('Só sucexo bb')
+                .setTitle('Só suSEXO bb')
                 .setColor('green')
                 .setDescription(util.inspect(evaled), 'js');
         } catch (e) {
@@ -69,7 +69,7 @@ module.exports = class EvalCommand extends CommandStructure {
                 .setDescription(util.inspect(e), 'js');
             canReturn = true
         } finally {
-            if (canReturn) return ket.say({ context: ctx.env, content: { embeds: [embed.build()] } })
+            if (canReturn) return ket.send({ context: ctx.env, content: { embeds: [embed.build()] } })
         }
     }
 }

@@ -1,10 +1,11 @@
-import { Client, Message } from "eris"
+import { Message } from "eris";
+import KetClient from "../KetClient";
 const KetUtils = new (require('../components/KetUtils'))(),
     db = global.session.db;
 
 module.exports = class MessageUpdateEvent {
-    ket: Client;
-    constructor(ket: Client) {
+    ket: KetClient;
+    constructor(ket: KetClient) {
         this.ket = ket;
     }
     async start(newMessage: any, oldMessage: Message) {

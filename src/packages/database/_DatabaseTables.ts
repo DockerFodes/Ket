@@ -1,6 +1,6 @@
 import { Client } from "pg";
 
-module.exports = class DatabaseTable {
+export default class DatabaseTable {
     postgres: Client;
     tableName: string;
     primaryKey: string;

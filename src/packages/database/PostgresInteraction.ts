@@ -1,11 +1,9 @@
-export { };
-const
-    c = require('chalk'),
-    { Client } = require('pg'),
-    table = require('./_DatabaseTables');
+import c from "chalk";
+import { Client } from "pg";
+import table from "./_DatabaseTables";
 
 let
-    PgConfig: typeof Client = {
+    PgConfig = {
         database: process.env.DATABASE_NAME,
         password: process.env.DATABASE_PASSWORD,
         user: process.env.DATABASE_USER,

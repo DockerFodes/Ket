@@ -1,5 +1,5 @@
 //@ts-nocheck
-import { Client } from "eris";
+import KetClient from "../../KetClient";
 
 export { }
 const
@@ -9,8 +9,8 @@ const
 //{ CanvasRenderingContext2D, createCanvas } = require('canvas');
 
 module.exports = class ProtoTypes {
-	ket: Client;
-	constructor(ket: Client) {
+	ket: KetClient;
+	constructor(ket: KetClient) {
 		this.ket = ket;
 	}
 	static start() {

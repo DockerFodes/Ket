@@ -1,11 +1,11 @@
-//@ts-nocheck
-import { Client } from "eris"
+import KetClient from "../../KetClient";
 
-module.exports = (ket: Client) => {
+module.exports = (ket: KetClient) => {
     async function backupAndCacheController() {
         //  Backup da database
         let db = global.session.db;
         if (!db) return setTimeout(() => module.exports(ket), 5_000)
+
         Object.entries(db).forEach(async ([key, value]) => typeof value === 'object'
             ? ket.createMessage(ket.config.channels.database, `Backup da table \`${key}\``, { name: `${key}.json`, file: JSON.stringify((await db[key].getAll())) })
             : null);
@@ -20,6 +20,7 @@ module.exports = (ket: Client) => {
         //  checando banimentos
         (await db.blacklist.getAll()).forEach(async user => !(await db.users.find(user.id)).banned ? db.users.update(user.id, { banned: true }) : null);
     }
+
     backupAndCacheController();
     setInterval(() => backupAndCacheController(), 60_000 * 30);
 }
