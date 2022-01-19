@@ -1,17 +1,17 @@
 import KetClient from "../../KetClient";
 
 module.exports = (ket: KetClient) => {
+    let db = global.session.db;
+    if (!db) return setTimeout(() => module.exports(ket), 5_000)
+
     async function backupAndCacheController() {
         //  Backup da database
-        let db = global.session.db;
-        if (!db) return setTimeout(() => module.exports(ket), 5_000)
-
         Object.entries(db).forEach(async ([key, value]) => typeof value === 'object'
             ? ket.createMessage(ket.config.channels.database, `Backup da table \`${key}\``, { name: `${key}.json`, file: JSON.stringify((await db[key].getAll())) })
             : null);
 
         //  cache controller
-        let users = (await global.session.postgres.query(`SELECT id from users;`)).rows.map(u => u.id),
+        let users = (await db.users.getAll()).map(u => u.id),
             nonCached = [];
         ket.users.forEach((u) => !users.includes(u.id) && u.id !== ket.user.id ? ket.users.delete(u.id) : null);
         users.forEach(user => !ket.users.has(user) ? nonCached.push(user) : null);

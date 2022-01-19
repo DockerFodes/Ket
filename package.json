@@ -35,7 +35,7 @@
         "dotenv": "^10.0.0",
         "eris": "^0.16.1",
         "gradient-string": "^1.2.0",
-        "i18next": "^21.6.3",
+        "i18next": "^21.6.6",
         "i18next-fs-backend": "^1.1.4",
         "mem-stat": "^1.0.5",
         "moment": "^2.29.1",
@@ -48,8 +48,8 @@
     "devDependencies": {
         "@types/gradient-string": "^1.1.2",
         "@types/i18next-fs-backend": "^1.1.2",
-        "@types/node": "^16.11.17",
-        "@types/pg": "^8.6.3",
+        "@types/node": "^16.11.21",
+        "@types/pg": "^8.6.4",
         "@types/prompts": "^2.0.14"
     }
 }

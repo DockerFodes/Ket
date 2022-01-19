@@ -52,10 +52,10 @@ module.exports = class EvalCommand extends CommandStructure {
                 .replace(/val /g, 'global.'),
             canReturn = (ctx.commandName === 'eval' ? true : false),
             embed: typeof EmbedBuilder = new EmbedBuilder(),
-            bytes = (data) => data / 1024 / 1024; 
+            mb = (data) => Math.floor(data / 1024 / 1024) + "MB"; 
 
         try {
-            if (ctx.args.join(' ').includes('await')) evaled = await eval(`async()=>{${evaled}}()`);
+            if (ctx.args.join(' ').includes('await')) evaled = await eval(`async function bah() {${evaled}};bah()`);
             else evaled = await eval(evaled);
 
             embed

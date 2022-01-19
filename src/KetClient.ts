@@ -102,7 +102,7 @@ export default class KetClient extends Client {
     }
 
     public async send({ context, emoji = null, content, embed = true, type = 'reply', message = null, interaction = null }) {
-        if (!content) return;
+        if (!content) return null;
         if (context instanceof CommandInteraction) interaction = context;
         else message = context;
         let user = this.users.get(message ? context.author.id : context.member.id),
@@ -140,7 +140,7 @@ export default class KetClient extends Client {
         }
 
         if (message) {
-            if ((message.editedTimestamp && user?.lastCommand && user.lastCommand.botMsg.channel.id === message.channel.id) || type === 'edit') botMsg = await message.channel.editMessage(user.lastCommand.botMsg.id, msgObj).catch(() => message.channel.createMessage(msgObj).catch(() => { }));
+            if ((message.editedTimestamp && user?.lastCommand && user.lastCommand.botMsg.channel.id === message.channel.id && message.timestamp < user.lastCommand.botMsg.timestamp) || type === 'edit') botMsg = await message.channel.editMessage(user.lastCommand.botMsg.id, msgObj).catch(() => message.channel.createMessage(msgObj).catch(() => { }));
             else botMsg = await message.channel.createMessage(msgObj).catch(() => { });
             [botMsg, message].forEach(ctx => {
                 ctx = {
