@@ -1,12 +1,10 @@
-export { };
-const
-    gradient = require('gradient-string'),
-    { usagePercent } = require('cpu-stat'),
-    { free } = require('mem-stat'),
-    { duration } = require('moment'),
-    { readdir } = require('fs'),
-    { t } = require('i18next'),
-    { execSync } = require('child_process');
+import gradient from "gradient-string";
+import { usagePercent } from "cpu-stat";
+import { free } from "mem-stat";
+import { execSync } from "child_process";
+import { readdir } from "fs";
+import { t } from "i18next";
+const { duration } = require('moment');
 
 module.exports = {
     cls() { this.clear(); },

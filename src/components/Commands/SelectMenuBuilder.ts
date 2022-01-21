@@ -1,4 +1,3 @@
-
 module.exports = class SelectionMenu {
     type: number;
     options: object[];

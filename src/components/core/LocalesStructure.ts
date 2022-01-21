@@ -1,8 +1,6 @@
-export { };
-const
-    { readdirSync } = require('fs'),
-    i18next = require('i18next'),
-    i18nbackend = require('i18next-fs-backend');
+import { readdirSync } from "fs";
+import i18next from "i18next";
+import i18nbackend from "i18next-fs-backend";
 
 module.exports = async function inicialize() {
     try {

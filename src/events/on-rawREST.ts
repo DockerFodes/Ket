@@ -1,7 +1,7 @@
 import { RawRESTRequest } from "eris";
 import KetClient from "../KetClient";
-const moment = require('moment'),
-    c = require('chalk');
+import c from "chalk";
+const moment = require('moment');
 
 module.exports = class RawRESTEvent {
     ket: KetClient;

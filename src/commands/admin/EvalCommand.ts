@@ -1,5 +1,7 @@
 export { };
 import { SlashCommandBuilder } from "@discordjs/builders";
+import { inspect } from "util";
+
 const
     axios = require('axios'),
     c = require('chalk'),
@@ -11,7 +13,6 @@ const
     path = require('path'),
     prompts = require('prompts'),
     CommandBuilder = SlashCommandBuilder,
-    util = require("util"),
     { CommandStructure, EmbedBuilder, Decoration } = require("../../components/Commands/CommandStructure"),
     { getEmoji, getColor } = Decoration;
 
@@ -61,12 +62,12 @@ module.exports = class EvalCommand extends CommandStructure {
             embed
                 .setTitle('Só suSEXO bb')
                 .setColor('green')
-                .setDescription(util.inspect(evaled), 'js');
+                .setDescription(inspect(evaled), 'js');
         } catch (e) {
             embed
                 .setTitle('Ih deu merda viado')
                 .setColor('red')
-                .setDescription(util.inspect(e), 'js');
+                .setDescription(inspect(e), 'js');
             canReturn = true
         } finally {
             if (canReturn) return ket.send({ context: ctx.env, content: { embeds: [embed.build()] } })

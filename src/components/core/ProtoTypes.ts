@@ -1,11 +1,11 @@
 import KetClient from "../../KetClient";
 import Eris from "eris";
 import axios from "axios";
+import { CanvasRenderingContext2D, createCanvas } from "canvas";
 const
 	moment = require('moment'),
 	{ EmbedBuilder, Decoration } = require('../Commands/CommandStructure'),
-	{ getEmoji } = Decoration,
-	{ CanvasRenderingContext2D, createCanvas } = require('canvas');
+	{ getEmoji } = Decoration;
 
 module.exports = class ProtoTypes {
 	ket: KetClient;
@@ -56,34 +56,34 @@ module.exports = class ProtoTypes {
 		})
 
 		//@ts-ignore
-if (!Eris.Member.prototype.mute) Object.defineProperty(Eris.Member.prototype, 'mute', {
-	value: async function mutar(args, reason) {
-		let regex: RegExp = /([0-9]+)( |)(h|m|s)/gi,
-			time: number = Date.now();
-		args.match(regex).forEach(t => {
-			let bah = Number(t.replace(/[a-z]+/gi, ''))
-			if (isNaN(bah)) return;
-			if (t.endsWith('h')) return time += bah * 60 * 60 * 1_000;
-			if (t.endsWith('m')) return time += bah * 60 * 1_000;
-			if (t.endsWith('s')) return time += bah * 1_000;
+		if (!Eris.Member.prototype.mute) Object.defineProperty(Eris.Member.prototype, 'mute', {
+			value: async function mutar(args, reason) {
+				let regex: RegExp = /([0-9]+)( |)(h|m|s)/gi,
+					time: number = Date.now();
+				args.match(regex).forEach(t => {
+					let bah = Number(t.replace(/[a-z]+/gi, ''))
+					if (isNaN(bah)) return;
+					if (t.endsWith('h')) return time += bah * 60 * 60 * 1_000;
+					if (t.endsWith('m')) return time += bah * 60 * 1_000;
+					if (t.endsWith('s')) return time += bah * 1_000;
+				})
+				let data = await axios({
+					"url": `https://${this.user._client.requestHandler.options.domain}${this.user._client.requestHandler.options.baseURL}/guilds/${this.guild.id}/members/${this.user.id}`,
+					"headers": {
+						"authorization": this.user._client._token,
+						"x-audit-log-reason": reason,
+						"content-type": "application/json"
+					},
+					data: {
+						"communication_disabled_until": moment(time).format()
+					},
+					"method": "PATCH"
+				})
+				if (data.status < 200 || data.status > 300)
+					throw new Error(`DiscordRESTError:\nStatus Code: ${data.status}\n${data.statusText}`);
+				else return true;
+			}
 		})
-		let data = await axios({
-			"url": `https://${this.user._client.requestHandler.options.domain}${this.user._client.requestHandler.options.baseURL}/guilds/${this.guild.id}/members/${this.user.id}`,
-			"headers": {
-				"authorization": this.user._client._token,
-				"x-audit-log-reason": reason,
-				"content-type": "application/json"
-			},
-			data: {
-				"communication_disabled_until": moment(time).format()
-			},
-			"method": "PATCH"
-		})
-		if (data.status < 200 || data.status > 300)
-			throw new Error(`DiscordRESTError:\nStatus Code: ${data.status}\n${data.statusText}`);
-		else return true;
-	}
-})
 
 		/* user.tag */
 		//@ts-ignore
@@ -145,6 +145,7 @@ if (!Eris.Member.prototype.mute) Object.defineProperty(Eris.Member.prototype, 'm
 			}
 		})
 
+		//@ts-ignore
 		if (!CanvasRenderingContext2D.prototype.getLines) Object.defineProperty(CanvasRenderingContext2D.prototype, 'getLines', {
 			value: function getLines(text, maxWidth) {
 				var words = text.split(" ");

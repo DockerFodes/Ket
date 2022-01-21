@@ -1,10 +1,9 @@
-export { };
-import { Message, Sticker, Webhook } from "eris";
+import { Message, Webhook } from "eris";
+import { inspect } from "util";
+import axios from "axios";
+import DidYouMean from "didyoumean";
 const
-    { inspect } = require('util'),
-    axios = require('axios'),
     moment = require('moment'),
-    DidYouMean = require('didyoumean'),
     db = global.session.db,
     { Decoration, EmbedBuilder } = require('./Commands/CommandStructure'),
     { getEmoji, getColor } = Decoration;

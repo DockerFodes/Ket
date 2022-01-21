@@ -1,10 +1,9 @@
 export { };
 import KetClient from "../../KetClient";
 import { SlashCommandBuilder } from "@discordjs/builders";
-const
-    { execSync } = require('child_process'),
-    { inspect } = require('util'),
-    { CommandStructure, EmbedBuilder } = require('../../components/Commands/CommandStructure');
+import { execSync } from "child_process";
+import { inspect } from "util";
+const { CommandStructure, EmbedBuilder } = require('../../components/Commands/CommandStructure');
 
 module.exports = class CldCommand extends CommandStructure {
     constructor(ket: KetClient) {
@@ -45,7 +44,7 @@ module.exports = class CldCommand extends CommandStructure {
             embed
                 .setTitle('Ih deu merda viado')
                 .setColor('red')
-                .setDescription(inspect(e, { deaph: 1 }), 'bash');
+                .setDescription(inspect(e), 'bash');
         }
         return this.ket.send({ context: ctx.env, content: { embeds: [embed.build()] } })
     }

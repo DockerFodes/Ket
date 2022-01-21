@@ -1,13 +1,13 @@
 export { };
 import { Message } from "eris";
 import KetClient from "../KetClient";
+import i18next from "i18next";
 delete require.cache[require.resolve('../components/KetUtils')];
 const
     db = global.session.db,
     KetUtils = new (require('../components/KetUtils'))(),
     { getContext, Decoration } = require('../components/Commands/CommandStructure'),
-    { getEmoji, getColor } = Decoration,
-    i18next = require("i18next");
+    { getEmoji, getColor } = Decoration;
 
 module.exports = class MessageCreateEvent {
     ket: KetClient;
