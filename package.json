@@ -2,14 +2,13 @@
     "name": "ketdiscordbot",
     "version": "0.0.6",
     "description": "",
-    "main": "dist/index.js",
+    "main": "dist/ndex.js",
     "scripts": {
         "build": "tsc",
         "postinstall": "cp 'src/packages/postinstall/i18next.js' 'node_modules/i18next/dist/cjs'",
         "start": "npm run build && npm run no-compile",
-        "ts-mode": "ts-node-dev --ignore-watch ./ index.ts",
-        "direct-mode": "cross-env NODE_ENV=production node --expose-gc --trace-warnings dist/index.js --no-menu",
-        "no-compile": "cross-env NODE_ENV=production node --expose-gc --trace-warnings dist/index.js "
+        "no-compile": "node --expose-gc --trace-warnings dist/index.js ",
+        "ts-mode": "ts-node-dev --ignore-watch ./ index.ts"
     },
     "repository": {
         "type": "git",
