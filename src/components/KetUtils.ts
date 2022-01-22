@@ -277,16 +277,18 @@ module.exports = class Utils {
     }
 
     async commandNotFound(ctx, commandName: string) {
-        let totalCommands: string[] = ctx.ket.commands.map((cmd: any) => cmd.config.name)
+        let totalCommands: string[] = [];
+        ctx.ket.commands.forEach((cmd: any) => totalCommands.push(cmd.config.name))
         ctx.command = ctx.ket.commands.get(this.findResult(commandName, totalCommands))
         if (!ctx.command) return false;
         return ctx.command;
     }
 
     findResult(entrada: string, mapa: string[]) {
+        const checkSimilarity = this.checkSimilarity
         function Algorithm2(str: string, array: any, threshold: number = 60) {
             return array
-                .map(e => { return { e, v: this.checkSimilarity(str, e) } })
+                .map(e => { return { e, v: checkSimilarity(str, e) } })
                 .filter(({ v }) => v >= threshold / 100)
                 .reduce((_, curr, i, arr) => arr[i].v > curr ? arr[i].v : curr.e, null);
         }

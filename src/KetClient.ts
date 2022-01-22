@@ -1,10 +1,10 @@
-export { };
-import { Client, ClientOptions, Collection, CommandInteraction, ExtendedUser, Guild, GuildChannel, JSONCache, Member, Message, Shard, SimpleJSON, User, Webhook } from "eris";
+import { Client, ClientOptions, Collection, CommandInteraction, ExtendedUser, Guild, GuildChannel, Member, Message, User, Webhook } from "eris";
 import { ESMap } from "typescript";
 import EventHandler from "./components/core/EventHandler";
-import { readdir } from "fs";
+import { readdirSync } from "fs";
 import { t } from "i18next";
-
+import i18next from "i18next";
+import i18nbackend from "i18next-fs-backend";
 const { Decoration } = require('./components/Commands/CommandStructure'),
     { getEmoji, getColor } = Decoration;
 
@@ -49,38 +49,58 @@ export default class KetClient extends Client {
     }
 
     public loadLocales() {
-        require('./components/core/LocalesStructure')()
-        return this;
+        try {
+            i18next.use(i18nbackend).init({
+                ns: ["commands", "events", "permissions"],
+                defaultNS: "commands",
+                preload: readdirSync(`${__dirname}/locales`),
+                fallbackLng: "pt",
+                backend: { loadPath: `${__dirname}/locales/{{lng}}/{{ns}}.json` },
+                interpolation: {
+                    escapeValue: false,
+                    useRawValueToEscape: true
+                },
+                returnEmptyString: false,
+                returnObjects: true
+            });
+            global.session.log('shard', 'LOCALES MANAGER', 'Locales carregados');
+            return true;
+        } catch (err) {
+            global.session.log('error', 'LOCALES MANAGER', "Houve um erro ao carregar os locales", err);
+            return false;
+        }
     }
 
     public loadListeners(path: string) {
         try {
-            readdir(path, (_e: any, files: string[]) => {
-                files.forEach((fileName: string) => {
-                    if (fileName.startsWith('_')) return;
-                    this.events.add(fileName.split(".")[0].replace('on-', ''), `${__dirname}/events/${fileName}`);
-                })
-            })
+            let files = readdirSync(path), i = 0;
+            for (let a in files) {
+                if (files[a].startsWith('_')) return; i++
+                this.events.add(files[a].split(".")[0].replace('on-', ''), `${__dirname}/events/${files[a]}`);
+            }
+            global.session.log('log', 'EVENTS LOADER', `${i} eventos carregados`)
+            return true;
         } catch (e) {
             global.session.log('error', "EVENTS LOADER", `Erro ao carregar eventos:`, e);
+            return false;
         }
-        return this;
     }
 
     public loadModules() {
         try {
-            readdir(`${__dirname}/packages/`, (_e: any, categories: string[]) => {
-                categories.forEach((category: string) => {
-                    readdir(`${__dirname}/packages/${category}/`, (_e: any, modules: string[]) => {
-                        modules.forEach(async (file: string) => file.startsWith("_") || category === 'postinstall' ? null : require(`${__dirname}/packages/${category}/${file}`)(this))
-                    })
-                })
-            })
+            let categories = readdirSync(`${__dirname}/packages/`);
+            for (let i in categories) {
+                if (categories[i] === 'postinstall') return;
+
+                let modules = readdirSync(`${__dirname}/packages/${categories[i]}/`);
+                for (let a in modules) modules[a].startsWith("_") ? null : require(`${__dirname}/packages/${categories[i]}/${modules[a]}`)(this)
+            }
             global.session.log('log', 'MODULES MANAGER', '√ Módulos inicializados');
+            return true;
         } catch (e) {
             global.session.log('error', 'MODULES MANAGER', 'Houve um erro ao carregar os módulos:', e);
+            return false;
         }
-        return this;
     }
 
     public async reloadCommand(commandName: string) {
@@ -161,6 +181,7 @@ export default class KetClient extends Client {
                 case 'edit': return interaction.editOriginalMessage(msgObj).catch(() => { });
             }
         }
+        return true;
     }
 
     public async findUser(context?: any, text?: string, returnMember: boolean = false) {
@@ -235,21 +256,22 @@ export default class KetClient extends Client {
 
     public loadCommands() {
         try {
-            readdir(`${__dirname}/commands/`, (_e: any, categories: string[]) => {
-                categories.forEach(category => {
-                    readdir(`${__dirname}/commands/${category}/`, (_e: any, files: string[]) => {
-                        files.forEach(async (command: string) => {
-                            const comando = new (require(`${__dirname}/commands/${category}/${command}`))(this);
-                            comando.config.dir = `${__dirname}/commands/${category}/${command}`;
-                            this.commands.set(comando.config.name, comando);
-                            return comando.config.aliases.forEach((aliase: any) => this.aliases.set(aliase, comando.config.name));
-                        })
-                    })
-                })
-            })
+            let categories = readdirSync(`${__dirname}/commands/`), i = 0;
+            for (let a in categories) {
+                let files = readdirSync(`${__dirname}/commands/${categories[a]}/`);
+                for (let b in files) {
+                    const comando = new (require(`${__dirname}/commands/${categories[a]}/${files[b]}`))(this);
+                    comando.config.dir = `${__dirname}/commands/${categories[a]}/${files[b]}`;
+                    this.commands.set(comando.config.name, comando);
+                    i++
+                    comando.config.aliases.forEach((aliase: any) => this.aliases.set(aliase, comando.config.name));
+                }
+            }
+            global.session.log('log', 'COMMANDS LOADER', `${i} comandos carregados`)
+            return true;
         } catch (e) {
-            global.session.log('error', 'COMMANDS HANDLER', 'Erro ao carregar comandos:', e);
+            global.session.log('error', 'COMMANDS LOADER', 'Erro ao carregar comandos:', e);
+            return false;
         }
-        return this;
     }
 }
