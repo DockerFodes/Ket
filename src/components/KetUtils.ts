@@ -109,13 +109,18 @@ module.exports = class Utils {
                 }
                 if (!webhook) return;
                 if (message.messageReference && !message.author.bot) {
-                    let ref = channel.messages.find(m => m?.author.username === msg?.author.username && this.msgFilter(m?.filtredContent, 1990, true) === this.msgFilter(msg?.filtredContent, 1990, true) && m?.timestamp < msg?.timestamp + 1000 && msg.attachments[0] ? m.attachments[0].name === msg.attachments[0].name : true),
-                        refAuthor = await db.users.find(msg?.author.id);
+                    let ref = channel.messages.find(m => m?.author.username === msg?.author.username && this.msgFilter(m?.filtredContent, 1990, true) === this.msgFilter(msg?.filtredContent, 1990, true) && m?.timestamp - msg?.timestamp < 1000 && (msg.attachments[0] ? m.attachments[0].name === msg.attachments[0].name : true)),
+                        refAuthor = await db.users.find(msg?.author.id),
+                        refContent = this.msgFilter(msg.filtredContent, 64).length === 0 ? "`⬑ - - Ver mensagem - - ⬏`" : this.msgFilter(msg.filtredContent, 64)
 
                     !msg ? null : msgObj.embeds = [{
                         color: getColor('green'),
                         author: { name: msg.author.username, icon_url: msg.author.dynamicAvatarURL('jpg') },
-                        description: `${refAuthor?.banned ? '`mensagem de usuário banido`' : !ref ? this.msgFilter(msg.filtredContent, 64) : `${this.msgFilter(msg.filtredContent, 64)}\n\n**[⬑ - - Ver mensagem - - ⬏](https://discord.com/channels/${g.id}/${g.globalchat}/${ref.id})**`}`,
+                        description: `${refAuthor?.banned
+                            ? '`mensagem de usuário banido`'
+                            : !ref
+                                ? refContent
+                                : `[${refContent}](https://discord.com/channels/${g.id}/${g.globalchat}/${ref.id})` }`,
                         thumbnail: (msg.attachments[0] && !refAuthor?.banned ? { url: `${msg.attachments[0].url}?size=240` } : null)
                     }]
                 }
@@ -176,7 +181,7 @@ module.exports = class Utils {
         let messages = await db.globalchat.getAll(10, { key: 'id', type: 'DESC' });
         messages?.filter(m => m.author === ctx.uID)?.forEach(msg => {
             let content = String(ctx.channel.messages.get(msg.id)?.content);
-            content.length > 1500 ? user.rateLimit++ : null;
+            content.length > 998 ? user.rateLimit++ : null;
             this.checkSimilarity(content, ctx.env.content) >= 0.9 ? user.rateLimit++ : null
         })
 
