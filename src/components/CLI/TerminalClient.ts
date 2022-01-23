@@ -35,7 +35,7 @@ export default async function(ket: KetClient) {
             evaled = await eval(`${response.code}`);
             console.log(evaled);
         } catch (e) {
-            global.session.log('error', 'TERMINAL CLIENT', `houve um erro ao executar o seu código:`, e);
+            console.log('TERMINAL CLIENT', e, 41);
         } finally {
             return termEval();
         }

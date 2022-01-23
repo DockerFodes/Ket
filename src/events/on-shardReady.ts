@@ -6,7 +6,7 @@ module.exports = class ShardReadyEvent {
         this.ket = ket;
     }
     async start(shardID: number) {
-        global.session.log('shard', "SHARDING MANAGER", `Shard ${shardID} acordou`);
+        console.log(`SHARD ${shardID}`, 'Conectada ao Discord', 34);
         return this.ket.shardUptime.set(shardID, Date.now());
     }
 }

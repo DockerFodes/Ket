@@ -63,10 +63,10 @@ export default class KetClient extends Client {
                 returnEmptyString: false,
                 returnObjects: true
             });
-            global.session.log('shard', 'LOCALES MANAGER', 'Locales carregados');
+            console.log('LOCALES', 'Locales carregados', 36)
             return true;
         } catch (err) {
-            global.session.log('error', 'LOCALES MANAGER', "Houve um erro ao carregar os locales", err);
+            console.log('LOCALES', 'Erro ao carregar locales: ' + err, 41)
             return false;
         }
     }
@@ -78,10 +78,10 @@ export default class KetClient extends Client {
                 if (files[a].startsWith('_')) return; i++
                 this.events.add(files[a].split(".")[0].replace('on-', ''), `${__dirname}/events/${files[a]}`);
             }
-            global.session.log('log', 'EVENTS LOADER', `${i} eventos carregados`)
+            console.log('EVENTS', `${i} Eventos carregados`, 2);
             return true;
         } catch (e) {
-            global.session.log('error', "EVENTS LOADER", `Erro ao carregar eventos:`, e);
+            console.log('EVENTS', `Erro ao carregar eventos: ${e}`, 2);
             return false;
         }
     }
@@ -95,10 +95,10 @@ export default class KetClient extends Client {
                 let modules = readdirSync(`${__dirname}/packages/${categories[i]}/`);
                 for (let a in modules) modules[a].startsWith("_") ? null : require(`${__dirname}/packages/${categories[i]}/${modules[a]}`)(this)
             }
-            global.session.log('log', 'MODULES MANAGER', '√ Módulos inicializados');
+            console.log('MODULES', '√ Módulos inicializados', 32);
             return true;
         } catch (e) {
-            global.session.log('error', 'MODULES MANAGER', 'Houve um erro ao carregar os módulos:', e);
+            console.log('MODULES', `Erro ao carregar módulos: ${e}`, 41);
             return false;
         }
     }
@@ -267,10 +267,10 @@ export default class KetClient extends Client {
                     comando.config.aliases.forEach((aliase: any) => this.aliases.set(aliase, comando.config.name));
                 }
             }
-            global.session.log('log', 'COMMANDS LOADER', `${i} comandos carregados`)
+            console.log('COMMANDS', `${i} comandos carregados`, 2);
             return true;
         } catch (e) {
-            global.session.log('error', 'COMMANDS LOADER', 'Erro ao carregar comandos:', e);
+            console.log('COMMANDS', `Erro ao carregar comandos: ${e}`, 41)
             return false;
         }
     }

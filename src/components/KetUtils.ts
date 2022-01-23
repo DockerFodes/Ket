@@ -115,12 +115,13 @@ module.exports = class Utils {
 
                     !msg ? null : msgObj.embeds = [{
                         color: getColor('green'),
+                        timestamp: moment(msg.timestamp).format(),
                         author: { name: msg.author.username, icon_url: msg.author.dynamicAvatarURL('jpg') },
                         description: `${refAuthor?.banned
                             ? '`mensagem de usuário banido`'
                             : !ref
                                 ? refContent
-                                : `[${refContent}](https://discord.com/channels/${g.id}/${g.globalchat}/${ref.id})` }`,
+                                : `[${refContent}](https://discord.com/channels/${g.id}/${g.globalchat}/${ref.id})`}`,
                         thumbnail: (msg.attachments[0] && !refAuthor?.banned ? { url: `${msg.attachments[0].url}?size=240` } : null)
                     }]
                 }
@@ -130,7 +131,6 @@ module.exports = class Utils {
                 let rateLimit = ket.requestHandler.ratelimits[`/webhooks/${g.globalchat}/:token?&wait=true`];
                 if (rateLimit)
                     return setTimeout(async () => await send(), Date.now() - rateLimit.reset + ket.options.rest.ratelimiterOffset);
-
                 res(send());
             })
         })

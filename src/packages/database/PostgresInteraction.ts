@@ -1,4 +1,3 @@
-import c from "chalk";
 import { Client } from "pg";
 import table from "./_DatabaseTables";
 
@@ -24,8 +23,6 @@ global.session.db = {
 module.exports = async (ket) => {
 
     if (global.session.db.ready) return;
-    global.session.log('shard', 'DATABASE', 'Conectando ao banco de dados...');
-
     await postgres.connect()
         .then(() => {
             global.session.db = {
@@ -40,14 +37,14 @@ module.exports = async (ket) => {
                 commands: new table('commands', 'name', postgres),
                 blacklist: new table('blacklist', 'id', postgres)
             };
-            global.session.log('log', 'DATABASE', '√ Banco de dados operante');
+            console.log('DATABASE', '√ Banco de dados operante', 32);
         })
-        .catch((error) => global.session.log('error', 'DATABASE', `x Não foi possível realizar conexão ao banco de dados`, error))
+        .catch((error) => console.log('DATABASE', `x Não foi possível realizar conexão ao banco de dados: ${error}`, 41))
 
     /* DATABASE TESTS */
     await postgres.query(`SELECT * FROM users`)
         .catch(async () => {
-            global.session.log('log', 'DATABASE', c.yellow(`Criando tabela users`));
+            console.log('DATABASE', 'Criando tabela users', 2);
             await postgres.query(`CREATE TABLE public.users (
             id VARCHAR(20) NOT NULL PRIMARY KEY,
             prefix VARCHAR(3) NOT NULL DEFAULT '${ket.config.DEFAULT_PREFIX}',
@@ -59,7 +56,7 @@ module.exports = async (ket) => {
 
     await postgres.query(`SELECT * FROM servers`)
         .catch(async () => {
-            global.session.log('log', 'DATABASE', c.blue(`Criando tabela servers`))
+            console.log('DATABASE', 'Criando tabela servers', 2);
             await postgres.query(`CREATE TABLE public.servers (
                     id VARCHAR(20) NOT NULL PRIMARY KEY,
                     lang VARCHAR(2) NULL,
@@ -71,7 +68,7 @@ module.exports = async (ket) => {
 
     await postgres.query(`SELECT * FROM commands`)
         .catch(async () => {
-            global.session.log('log', 'DATABASE', c.green(`Criando tabela commands`))
+            console.log('DATABASE', 'Criando tabela commands', 2);
             await postgres.query(`CREATE TABLE public.commands (
                         name TEXT NOT NULL PRIMARY KEY,
                         maintenance BOOLEAN NULL,
@@ -81,7 +78,7 @@ module.exports = async (ket) => {
 
     await postgres.query(`SELECT * FROM globalchat`)
         .catch(async () => {
-            global.session.log('log', 'DATABASE', c.yellow(`Criando tabela globalchat`))
+            console.log('DATABASE', 'Criando tabela globalchat', 2);
             await postgres.query(`CREATE TABLE public.globalchat (
                     id VARCHAR(20) NOT NULL PRIMARY KEY,
                     guild VARCHAR(20) NOT NULL,
@@ -93,7 +90,7 @@ module.exports = async (ket) => {
 
     return await postgres.query(`SELECT * FROM blacklist`)
         .catch(async () => {
-            global.session.log('log', 'DATABASE', c.red(`Criando tabela blacklist`))
+            console.log('DATABASE', 'Criando tabela blacklist', 2);
             await postgres.query(`CREATE TABLE public.blacklist (
                     id VARCHAR(20) NOT NULL PRIMARY KEY,
                     timeout NUMERIC NULL,
