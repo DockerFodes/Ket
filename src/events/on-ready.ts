@@ -1,7 +1,6 @@
 import KetClient from "../KetClient";
 import TerminalClient from "../components/CLI/TerminalClient";
 import gradient from "gradient-string";
-import c from "chalk";
 
 module.exports = class ReadyEvent {
     ket: KetClient;

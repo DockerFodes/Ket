@@ -4,7 +4,6 @@ import { inspect } from "util";
 
 const
     axios = require('axios'),
-    c = require('chalk'),
     cld = require('child_process'),
     Eris = require('eris'),
     fs = require('fs'),
