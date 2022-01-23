@@ -36,7 +36,7 @@ export default class DatabaseTable {
             if (returnValue) return await global.session.db[this.tableName].find(index)
             return true;
         } catch (e) {
-            global.session.log('error', 'DATABASE', `Falha ao CREATE documento na table ${this.tableName}\nSQL String: ${SQLString}`, e);
+            console.log(`DATABASE/CREATE ON ${this.tableName}`, `SQL: ${SQLString} Erro: ${e}`, 41);
             return false;
         }
     }
@@ -65,7 +65,7 @@ export default class DatabaseTable {
             if (returnValue) return await global.session.db[this.tableName].find(index);
             return true;
         } catch (e) {
-            global.session.log('error', 'DATABASE', `Falha ao UPDATE documento na table ${this.tableName}\nSQL String: ${SQLString}`, e);
+            console.log(`DATABASE/UPDATE ON ${this.tableName}`, `SQL: ${SQLString} Erro: ${e}`, 41);
             return false;
         }
     }
@@ -85,7 +85,7 @@ export default class DatabaseTable {
             else await this.postgres.query(SQLString);
             return true;
         } catch (e) {
-            global.session.log('error', 'DATABASE', `Falha ao DELETE documento na table ${this.tableName}\nSQL String: ${SQLString}`, e);
+            console.log(`DATABASE/DELETE ON ${this.tableName}`, `SQL: ${SQLString} Erro: ${e}`, 41);
             return false;
         }
     }
@@ -107,7 +107,7 @@ export default class DatabaseTable {
                 }
             } else search = (await this.postgres.query(SQLString)).rows[0];
         } catch (e) {
-            global.session.log('error', 'DATABASE', `Falha ao FIND documento na table ${this.tableName}\nSQL String: ${SQLString}`, e)
+            console.log(`DATABASE/FIND ON ${this.tableName}`, `SQL: ${SQLString} Erro: ${e}`, 41);
             search = false;
         }
         return (!search || (isArray && !search[0])) && createIfNull
@@ -123,9 +123,8 @@ export default class DatabaseTable {
         try {
             return (await this.postgres.query(SQLString)).rows
         } catch (e) {
-            global.session.log('error', 'DATABASE', `Falha ao GETALL documento na table ${this.tableName}\nSQL String: ${SQLString}`, e)
+            console.log(`DATABASE/GETALL ON ${this.tableName}`, `SQL: ${SQLString} Erro: ${e}`, 41);
             return false;
         }
     }
-
 }

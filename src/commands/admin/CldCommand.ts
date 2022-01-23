@@ -35,7 +35,7 @@ module.exports = class CldCommand extends CommandStructure {
         let embed: typeof EmbedBuilder = new EmbedBuilder();
 
         try {
-            let data = await execSync(ctx.args.join(' '));
+            let data = execSync(ctx.args.join(' '));
             embed
                 .setTitle('Só sucexo bb')
                 .setColor('green')
