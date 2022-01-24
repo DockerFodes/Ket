@@ -27,7 +27,7 @@ console.log = function () {
 
     if (PRODUCTION_MODE || !setor) return console.info(eval(`args.map(a => inspect(a)).join(', ')`))
     moment.locale("pt-BR");
-    console.info(`\x1B[${color}m${str}\x1B[0m`);
+    color === 41 ? console.error(`\x1B[${color}m${str}\x1B[0m`) : console.info(`\x1B[${color}m${str}\x1B[0m`);
 }
 const ket = new KetClient(`Bot ${PRODUCTION_MODE ? process.env.DISCORD_TOKEN : process.env.BETA_CLIENT_TOKEN}`, CLIENT_OPTIONS as ClientOptions)
 
@@ -38,6 +38,7 @@ ket.boot().then(() => {
     process.env.DISCORD_TOKEN = null;
     process.env.BETA_DISCORD_TOKEN = null;
 })
+
 process
     .on('SIGINT', async () => {
         try {
@@ -53,7 +54,6 @@ process
     .on("uncaughtException", (err, o) => console.log('ANTI-CRASH', `ERRO CAPTURADO:`, err, 41))
     .on('uncaughtExceptionMonitor', (err, o) => console.log('ANTI-CRASH', `BLOQUEADO:`, err, 41))
     .on('multipleResolves', (type, promise, reason) => console.log('ANTI-CRASH', `MULTIPLOS ERROS:`, promise, 41));
-for(let i = 0; i < 107; i++) console.log('COLORS', `Cor número ${i}`, i);
 /**
 * TONS DE BRANCO E CINZA
 * 1 branco

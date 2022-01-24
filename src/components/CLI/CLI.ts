@@ -2,7 +2,6 @@ import gradient from "gradient-string";
 import { usagePercent } from "cpu-stat";
 import { free } from "mem-stat";
 import { exec } from "child_process";
-import { t } from "i18next";
 const { duration } = require('moment');
 
 module.exports = {
@@ -23,7 +22,7 @@ module.exports = {
             let c = command.config
             commands.push({
                 name: c.name,
-                description: `[${c.category}] - ${t(`commands:${c.name}.description`)}`,
+                description: `[${c.category}] - ${global.t(`commands:${c.name}.description`)}`,
                 options: c.data?.options ? [...c.data.options] : []
             })
         });

@@ -27,7 +27,7 @@ module.exports = class Utils {
             if (globalchat) (await ctx.ket.send({
                 context: ctx.env, content: {
                     embeds: [{
-                        ...ctx.t('events:globalchat.welcome', { avatar: ctx.author.dynamicAvatarURL('jpg') }),
+                        ...global.t('events:globalchat.welcome', { avatar: ctx.author.dynamicAvatarURL('jpg') }),
                         color: getColor('green'),
                         image: { url: 'https://goyalankit.com/assets/img/el_gato2.gif' }
                     }]
@@ -211,7 +211,7 @@ module.exports = class Utils {
 
     async checkPermissions({ ctx = null, channel = null, command = null, notReply = null }) {
         let missingPermissions: string[] = [],
-            t = ctx.t;
+            t = global.t;
         channel ? ctx.channel = channel : null
         command ? ctx.command = command : null
 

@@ -59,7 +59,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
         switch (ctx.args[0].toLowerCase()) {
             case 'start':
                 let channel = await this.ket.findChannel(ctx.env, ctx.args[1]);
-                if (!channel) return await this.ket.send({ context: ctx.env, emoji: 'negado', content: ctx.t('globalchat.channelNotFound') });
+                if (!channel) return await this.ket.send({ context: ctx.env, emoji: 'negado', content: global.t('globalchat.channelNotFound') });
                 await db.servers.update(ctx.gID, {
                     globalchat: channel.id,
                     lang: ctx.args[2]
@@ -69,7 +69,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     context: ctx.env, emoji: 'autorizado', content: {
                         embeds: [{
                             color: getColor('green'),
-                            ...Object(ctx.t('globalchat.start', { channel }))
+                            ...global.t('globalchat.start', { channel })
                         }]
                     }
                 });
@@ -82,7 +82,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     context: ctx.env, emoji: 'autorizado', content: {
                         embeds: [{
                             color: getColor('green'),
-                            ...Object(ctx.t('globalchat.stop', { user: ctx.user }))
+                            ...global.t('globalchat.stop', { user: ctx.user })
                         }]
                     }
                 });
@@ -91,7 +91,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     msg = data.find(msg => msg.id === ctx.args[1] || msg.messages.find((m) => m.includes(ctx.args[1])));
 
                 if (isNaN(Number(ctx.args[1])) || !ctx.args[1] || !msg)
-                    return this.ket.send({ context: ctx.env, emoji: 'negado', content: ctx.t('globalchat.messageNotFound') });
+                    return this.ket.send({ context: ctx.env, emoji: 'negado', content: global.t('globalchat.messageNotFound') });
 
                 let userData = await db.users.find(msg.author),
                     user = await this.ket.findUser(ctx.env, userData.id),
@@ -104,7 +104,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                         embeds: [{
                             thumbnail: { url: user.dynamicAvatarURL('jpg') },
                             color: getColor('green'),
-                            ...ctx.t('globalchat.getinfo', {
+                            ...global.t('globalchat.getinfo', {
                                 msg, user, guild: this.ket.guilds.get(server.id),
                                 timestamp: moment.utc(message.timestamp).format('LLLL'),
                                 isBanned: userData.banned ? 'BANNED' : 'not banned',

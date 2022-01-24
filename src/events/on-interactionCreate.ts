@@ -1,7 +1,6 @@
 export { };
 import { CommandInteraction } from "eris";
 import KetClient from "../KetClient";
-import i18next from "i18next";
 delete require.cache[require.resolve('../components/KetUtils')];
 const
     db = global.session.db,
@@ -23,7 +22,8 @@ module.exports = class InteractionCreateEvent {
         const ket = this.ket
         let server = await db.servers.find(interaction.guildID, true),
             user = await db.users.find(interaction.member.user.id),
-            ctx = getContext({ ket, interaction, server, user })
+            ctx = getContext({ ket, interaction, server, user });
+            global.lang = user?.lang;
 
         if (user?.banned) return;
         if (server?.banned) return ctx.guild.leave();
@@ -41,18 +41,18 @@ module.exports = class InteractionCreateEvent {
         interaction.data?.options?.forEach((option: any) => getArgs(option))
 
 
-        ctx = getContext({ ket, user, server, interaction, args, command, commandName }, ctx.t)
+        ctx = getContext({ ket, user, server, interaction, args, command, commandName })
 
         await KetUtils.checkCache(ctx);
-        ctx.t = i18next.getFixedT(user?.lang || 'pt');
         ctx.user = await KetUtils.checkUserGuildData(ctx);
+        global.lang = user?.lang;
 
         if (await KetUtils.checkPermissions({ ctx }) === false) return;
         if (ctx.command.permissions.onlyDevs && !ket.config.DEVS.includes(ctx.uID)) return this.ket.send({
             context: interaction, emoji: 'negado', content: {
                 embeds: [{
                     color: getColor('red'),
-                    description: ctx.t('events:isDev')
+                    description: global.t('events:isDev')
                 }]
             }
         })

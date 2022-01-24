@@ -1,4 +1,7 @@
 {
+    "teste": {
+        "bah": "bahhh {{sus}}"
+    },
     "globalchat": {
         "channelNotFound": "Canal não encontrado! Tente mencionar algum chat ou copiar o ID.",
         "messageNotFound": "Não consegui encontrar essa mensagem :(**\n\nTalvez ela não seja do chat global ou é antiga demais, apenas as últimas 500 mensagens são encontráveis.** ",

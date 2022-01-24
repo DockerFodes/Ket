@@ -1,7 +1,5 @@
-export { };
 import { Message } from "eris";
 import KetClient from "../KetClient";
-import i18next from "i18next";
 delete require.cache[require.resolve('../components/KetUtils')];
 const
     db = global.session.db,
@@ -23,7 +21,8 @@ module.exports = class MessageCreateEvent {
         const ket = this.ket
         let server = await db.servers.find(message.guildID, true),
             user = await db.users.find(message.author.id),
-            ctx = getContext({ ket, message, server, user }, i18next.getFixedT(user?.lang || 'pt'))
+            ctx = getContext({ ket, message, server, user });
+        global.lang = user?.lang;
 
         if (user?.banned) return;
         if (server?.banned) return ctx.guild.leave();
@@ -36,10 +35,10 @@ module.exports = class MessageCreateEvent {
             command = ket.commands.get(commandName) || ket.commands.get(ket.aliases.get(commandName));
 
         if (!command && (command = await KetUtils.commandNotFound(ctx, commandName)) === false) return;
-        ctx = getContext({ ket, user, server, message, args, command, commandName }, ctx.t)
+        ctx = getContext({ ket, user, server, message, args, command, commandName })
 
         await KetUtils.checkCache(ctx);
-        ctx.t = i18next.getFixedT(user?.lang || 'pt');
+        global.lang = user?.lang;
         ctx.user = await KetUtils.checkUserGuildData(ctx);
 
         if (await KetUtils.checkPermissions({ ctx }) === false) return;
@@ -47,7 +46,7 @@ module.exports = class MessageCreateEvent {
             context: message, emoji: 'negado', content: {
                 embeds: [{
                     color: getColor('red'),
-                    description: ctx.t('events:isDev')
+                    description: global.t('events:isDev')
                 }]
             }
         })
@@ -55,7 +54,7 @@ module.exports = class MessageCreateEvent {
         // let noargs = {
         //     color: getColor('red'), 
         //     thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/816183379435192330/noargs.thumb.gif' },
-        //     title: ctx.t("events:noargs.title", {  }),
+        //     title: global.t("events:noargs.title", {  }),
         //     fields: [{
         //         name: t("events:noargs.field", { negado: ray.emotes.negado }),
         //         value: `\`${user.prefix}${comando.config.name} ${t(`commands:${comando.config.name}.usage`)}\``,

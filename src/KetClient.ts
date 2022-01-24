@@ -2,9 +2,6 @@ import { Client, ClientOptions, Collection, CommandInteraction, ExtendedUser, Gu
 import { ESMap } from "typescript";
 import EventHandler from "./components/core/EventHandler";
 import { readdirSync } from "fs";
-import { t } from "i18next";
-import i18next from "i18next";
-import i18nbackend from "i18next-fs-backend";
 const { Decoration } = require('./components/Commands/CommandStructure'),
     { getEmoji, getColor } = Decoration;
 
@@ -41,33 +38,53 @@ export default class KetClient extends Client {
         this.shardUptime = new Map();
     }
     public async boot() {
-        this.loadLocales();
-        this.loadCommands();
+        this.loadLocales(`${__dirname}/locales/`);
+        this.loadCommands(`${__dirname}/commands`);
         this.loadListeners(`${__dirname}/events/`);
-        this.loadModules();
+        this.loadModules(`${__dirname}/packages/`);
         return super.connect();
     }
 
-    public loadLocales() {
+    public loadLocales(path) {
+        let config = global.locale = {
+            defaultLang: 'pt',
+            defaultJSON: 'commands',
+            langs: readdirSync(path),
+            files: [],
+            filesMetadata: {}
+        }
         try {
-            i18next.use(i18nbackend).init({
-                ns: ["commands", "events", "permissions"],
-                defaultNS: "commands",
-                preload: readdirSync(`${__dirname}/locales`),
-                fallbackLng: "pt",
-                backend: { loadPath: `${__dirname}/locales/{{lng}}/{{ns}}.json` },
-                interpolation: {
-                    escapeValue: false,
-                    useRawValueToEscape: true
-                },
-                returnEmptyString: false,
-                returnObjects: true
-            });
+            config.files = readdirSync(`${path}/${config.defaultLang}/`)
+            for (let a in config.langs)
+                for (let b in config.files) {
+                    if (!config.filesMetadata[config.langs[a]]) config.filesMetadata[config.langs[a]] = {};
+                    config.filesMetadata[config.langs[a]][config.files[b].split('.json')[0]] = require(`${path}/${config.langs[a]}/${config.files[b]}`)
+                }
             console.log('LOCALES', 'Locales carregados', 36)
             return true;
-        } catch (err) {
-            console.log('LOCALES', 'Erro ao carregar locales: ' + err, 41)
+        } catch (e) {
+            console.log('LOCALES', 'Erro ao carregar locales: ' + e, 41)
             return false;
+        } finally {
+            global.t = (str: string, placeholders: object, lang: string) => {
+                const data = config.filesMetadata[lang || global.lang || config.defaultLang][str.includes(':') ? str.split(':')[0] : config.defaultJSON];
+                let content = eval(`data.${str.includes(':') ? str.split(':')[1] : str}`);
+                if (!data || !content) return 'String não encontrada';
+
+                let filtrar = (ctt) => {
+                    if (!placeholders) return ctt;
+                    Object.entries(placeholders).forEach(([key, value]) => {
+                        let regex: RegExp = eval(`/{{(${key}|${key}.+)}}/g`);
+                        ctt.match(regex).map(a => a.replace(/({{|}})/g, '')).forEach((match: string) => {
+                            let ph = placeholders[match.split('.')[0]][match.split('.')[1]];
+                            if (match.includes('.') && ph) ctt = ctt.replace(`{{${match}}}`, ph);
+                            else typeof value !== 'object' ? ctt = ctt.replace(regex, value) : null;
+                        });
+                    });
+                    return ctt;
+                }
+                return typeof content === 'object' ? JSON.parse(filtrar(JSON.stringify(content))) : filtrar(content);
+            }
         }
     }
 
@@ -86,16 +103,14 @@ export default class KetClient extends Client {
         }
     }
 
-    public loadModules() {
+    public loadModules(path: string) {
         try {
-            let categories = readdirSync(`${__dirname}/packages/`);
-            for (let i in categories) {
-                if (categories[i] === 'postinstall') return;
-
-                let modules = readdirSync(`${__dirname}/packages/${categories[i]}/`);
-                for (let a in modules) modules[a].startsWith("_") ? null : require(`${__dirname}/packages/${categories[i]}/${modules[a]}`)(this)
+            let categories = readdirSync(`${path}/`), i = 0;
+            for (let a in categories) {
+                let modules = readdirSync(`${path}/${categories[a]}/`);
+                for (let b in modules) modules[b].startsWith("_") ? null : require(`${path}/${categories[a]}/${i++ ? modules[b] : modules[b]}`)(this)
             }
-            console.log('MODULES', '√ Módulos inicializados', 32);
+            console.log('MODULES', `${i} Módulos inicializados`, 2);
             return true;
         } catch (e) {
             console.log('MODULES', `Erro ao carregar módulos: ${e}`, 41);
@@ -113,7 +128,7 @@ export default class KetClient extends Client {
             const command = new (require(comando.config.dir))(this);
             command.config.dir = comando.config.dir;
             this.commands.set(command.config.name, command);
-            command.config.aliases.forEach((aliase: any) => this.aliases.set(aliase, command.config.name));
+            command.config.aliases.forEach((aliase: string) => this.aliases.set(aliase, command.config.name));
             return true;
         } catch (e) {
             return e;
@@ -130,7 +145,7 @@ export default class KetClient extends Client {
                 content: '',
                 embeds: embed ? [{
                     color: getColor('red'),
-                    title: `${getEmoji('sireneRed').mention} ${t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
+                    title: `${getEmoji('sireneRed').mention} ${global.t('events:error.title')} ${getEmoji('sireneBlue').mention}`,
                     description: ''
                 }] : [],
                 components: [],
@@ -254,14 +269,14 @@ export default class KetClient extends Client {
         }
     }
 
-    public loadCommands() {
+    public loadCommands(path: string) {
         try {
-            let categories = readdirSync(`${__dirname}/commands/`), i = 0;
+            let categories = readdirSync(path), i = 0;
             for (let a in categories) {
-                let files = readdirSync(`${__dirname}/commands/${categories[a]}/`);
+                let files = readdirSync(`${path}/${categories[a]}/`);
                 for (let b in files) {
-                    const comando = new (require(`${__dirname}/commands/${categories[a]}/${files[b]}`))(this);
-                    comando.config.dir = `${__dirname}/commands/${categories[a]}/${files[b]}`;
+                    const comando = new (require(`${path}/${categories[a]}/${files[b]}`))(this);
+                    comando.config.dir = `${path}/${categories[a]}/${files[b]}`;
                     this.commands.set(comando.config.name, comando);
                     i++
                     comando.config.aliases.forEach((aliase: any) => this.aliases.set(aliase, comando.config.name));
