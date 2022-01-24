@@ -2,24 +2,6 @@
 ✨ Ket is a shitty discord bot made in TypeScript using Eris ✨
 > ⚠️ Ket is still in the early stages of its development
 
-## Features:
-##### 📣 Global chat
-- [x] Send messages
-- [x] Upload images/videos/gifs
-- [x] Send stickers and allowed links
-- [x] Update messages
-- [x] Delete messages
-- [x] Command to identify users
-
-##### 🌎 Multi-Languages
-- [x] 🇧🇷 Português - Brasil
-- [ ] 🇺🇸 English - USA
-- [ ] 🇪🇸 Spanish - Spain
-- [ ] 🇫🇷 Française - France
-
-##### Commands:
-- [ ] under development...
-
 - - - -
 
 # How to install 🤔
@@ -55,8 +37,7 @@ To start just type:
 ```bash
 npm start
 ```
-and press ENTER in the menu
-> ⚠️ To skip the menu use `npm run direct-mode` or the `--no-menu` when starting
+> ⚠️ To skip compilation use `npm run noCompile`
 
 - - - -
 
