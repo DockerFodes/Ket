@@ -18,6 +18,7 @@ console.clear();
 
 type colorChoices = 1 | 2 | 3 | 4 | 7 | 8 | 9 | 21 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 41 | 42 | 43 | 44 | 45 | 46 | 47 | 52 | 90 | 91 | 92 | 93 | 94 | 95 | 96 | 97 | 100 | 101 | 102 | 103 | 104 | 105 | 106 | 107;
 console.log = function () {
+    moment.locale("pt-BR");
     let args = Object.entries(arguments).map(([_key, value]) => value),
         color = isNaN(args[args.length - 1]) ? 1 : args.pop(),
         setor = String(args[0]).toUpperCase() === args[0] ? args.shift() : null,
@@ -29,8 +30,8 @@ console.log = function () {
         content: `\`${str}\``.slice(0, 2000)
     }) : null;
 
-    if (PRODUCTION_MODE || !setor) return console.info(eval(`args.map(a => inspect(a)).join(', ')`))
-    moment.locale("pt-BR");
+    if (!setor) return console.info(eval(`args.map(a => inspect(a)).join(', ')`));
+    if(PRODUCTION_MODE) return console.info(str);
     console.info(`\x1B[${color}m${str}\x1B[0m`);
     color === 41 ? console.error(args.join(' ')) : null
 }
