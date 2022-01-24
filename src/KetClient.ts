@@ -26,6 +26,7 @@ export default class KetClient extends Client {
     user: clientUser;
     users: Collection<usuario>;
     shardUptime: ESMap<string | number, number>;
+    shardGuilds: ESMap<number, string[]>;
 
     constructor(token: string, options: ClientOptions) {
         super(token, options);
@@ -260,8 +261,8 @@ export default class KetClient extends Client {
             return messages.find(msg => msg?.attachments[0] || msg?.embeds[0]?.image);
 
         } else {
-            if (ref) return await get(ref.messageID);
-            else if (!isNaN(Number(id))) return await get(id);
+            if (!isNaN(Number(id))) return await get(id);
+            else if (ref) return await get(ref.messageID);
             else return null;
         }
 

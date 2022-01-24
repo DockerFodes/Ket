@@ -23,10 +23,7 @@ module.exports = class ReadyEvent {
 
             (await db.blacklist.getAll())?.forEach(async user => {
                 if (user.warns < 3 && Date.now() > Number(user.timeout)) {
-                    await db.users.update(user.id, {
-                        banned: null,
-                        reason: null
-                    })
+                    await db.users.update(user.id, { banned: null })
                     await db.blacklist.delete(user.id)
                 }
             });

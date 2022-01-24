@@ -1,6 +1,5 @@
 export { };
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { inspect } from "util";
 
 const
     axios = require('axios'),
@@ -8,6 +7,7 @@ const
     Eris = require('eris'),
     fs = require('fs'),
     gradient = require("gradient-string"),
+    { inspect } = require('util'),
     moment = require("moment"),
     path = require('path'),
     prompts = require('prompts'),
@@ -52,7 +52,7 @@ module.exports = class EvalCommand extends CommandStructure {
                 .replace(/val /g, 'global.'),
             canReturn = (ctx.commandName === 'eval' ? true : false),
             embed: typeof EmbedBuilder = new EmbedBuilder(),
-            mb = (data) => Math.floor(data / 1024 / 1024) + "MB"; 
+            mb = (data) => Math.floor(data / 1024 / 1024) + "MB";
 
         try {
             if (ctx.args.join(' ').includes('await')) evaled = await eval(`async function bah() {${evaled}};bah()`);

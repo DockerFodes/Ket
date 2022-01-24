@@ -17,7 +17,7 @@ module.exports = class MessageUpdateEvent {
         const user = await db.users.find(newMessage.author.id),
             msgData = await db.globalchat.find(newMessage.id);
 
-        if (user.banned || !msgData) return;
+        if (user?.banned || !msgData) return;
 
         if (Date.now() > newMessage.timestamp + (15 * 1000 * 60) || Number(msgData.editcount) >= this.ket.config.globalchat.editLimit) return;
 
@@ -33,7 +33,7 @@ module.exports = class MessageUpdateEvent {
                 if (!webhook) return;
             }
             this.ket.editWebhookMessage(webhook.id, webhook.token, msgID, {
-                content: KetUtils.msgFilter(newMessage.filtredContent),
+                content: KetUtils.msgFilter(newMessage.cleanContent),
                 allowedMentions: {
                     everyone: false,
                     roles: false,

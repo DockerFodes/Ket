@@ -8,9 +8,9 @@ module.exports = class RawRESTEvent {
         this.ket = ket;
     }
     async start(req: RawRESTRequest) {
-        if (req.resp.statusCode === 429) {
+        if (req.resp.statusCode === 429 || req.resp.headers['x-ratelimit-scope']) {
             let rl = this.ket.requestHandler.ratelimits[req.route],
-                timeout = moment.duration(Date.now() - rl.reset).format(" dd[d] hh[h] mm[m] ss[s] S[ms]");
+                timeout = moment.duration(Date.now() - rl.reset).format(" dd[D] hh[H] mm[M] ss[S] S[MS]");
 
             console.log(`${String(req.resp.headers['x-ratelimit-scope']).toUpperCase()} RATE LIMIT/${timeout}`, `${rl.limit} ${req.method}S em ${req.route}`)
         }

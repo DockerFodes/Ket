@@ -50,8 +50,7 @@ module.exports = async (ket) => {
             prefix VARCHAR(3) NOT NULL DEFAULT '${ket.config.DEFAULT_PREFIX}',
             lang VARCHAR(2) DEFAULT 'pt',
             commands NUMERIC CHECK(commands > -1) DEFAULT 1),
-            banned BOOLEAN NULL,
-            reason TEXT NULL);`)
+            banned TEXT NULL);`)
         })
 
     await postgres.query(`SELECT * FROM servers`)
@@ -61,9 +60,8 @@ module.exports = async (ket) => {
                     id VARCHAR(20) NOT NULL PRIMARY KEY,
                     lang VARCHAR(2) NULL,
                     globalchat VARCHAR(20) NULL,
-                    partner BOOLEAN NULL
-                    banned BOOLEAN NULL,
-                    reason TEXT NULL);`)
+                    partner BOOLEAN NULL,
+                    banned TEXT NULL);`)
         })
 
     await postgres.query(`SELECT * FROM commands`)

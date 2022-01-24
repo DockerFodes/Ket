@@ -22,36 +22,37 @@ module.exports = class ProtoTypes {
 			}
 		})
 
+		delete Eris.Message.prototype.cleanContent
 		//@ts-ignore
-		if (!Eris.Message.prototype.filtredContent) Object.defineProperty(Eris.Message.prototype, 'filtredContent', {
+		Object.defineProperty(Eris.Message.prototype, 'cleanContent', {
 			get() {
-				let filtredContent = this.content || ""
-				filtredContent = filtredContent.replace(new RegExp(`<@!?${this.author.id}>`, "g"), `@\u200b${this.author.username}`);
+				let cleanContent = this.content || ""
+				cleanContent = cleanContent.replace(new RegExp(`<@!?${this.author.id}>`, "g"), `@\u200b${this.author.username}`);
 				if (this.mentions) {
 					this.mentions.forEach((mention) => {
 						if (this.channel.guild) {
 							const member = this.channel.guild.members.get(mention.id);
 							if (member && member.nick)
-								filtredContent = filtredContent.replace(new RegExp(`<@!?${mention.id}>`, "g"), `@\u200b${member.username}`);
+								cleanContent = cleanContent.replace(new RegExp(`<@!?${mention.id}>`, "g"), `@\u200b${member.username}`);
 						}
-						filtredContent = filtredContent.replace(new RegExp(`<@!?${mention.id}>`, "g"), "@\u200b" + mention.username);
+						cleanContent = cleanContent.replace(new RegExp(`<@!?${mention.id}>`, "g"), "@\u200b" + mention.username);
 					});
 				}
 
 				if (this.channel.guild && this.roleMentions) {
 					for (const roleID of this.roleMentions) {
 						const role = this.channel.guild.roles.get(roleID);
-						filtredContent = filtredContent.replace(new RegExp(`<@&${roleID}>`, "g"), `@\u200b${role ? role.name : "deleted-role"}`);
+						cleanContent = cleanContent.replace(new RegExp(`<@&${roleID}>`, "g"), `@\u200b${role ? role.name : "deleted-role"}`);
 					}
 				}
 
 				this.channelMentions.forEach((id) => {
 					const channel = this._client.getChannel(id);
 					if (channel && channel.name)
-						filtredContent = filtredContent.replace(`<#${channel.id}>`, `#${channel.name ? channel.name : 'deleted-channel'}`);
+						cleanContent = cleanContent.replace(`<#${channel.id}>`, `#${channel.name ? channel.name : 'deleted-channel'}`);
 				});
 
-				return filtredContent;
+				return cleanContent;
 			}
 		})
 

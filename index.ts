@@ -1,11 +1,15 @@
 import { ClientOptions } from "eris";
 import KetClient from "./src/KetClient";
 import { PRODUCTION_MODE, CLIENT_OPTIONS } from "./src/json/settings.json";
+import express from "express";
 const
     moment = require("moment"),
     duration = require("moment-duration-format"),
     { tz } = require('moment-timezone'),
     { inspect } = require('util');
+const app = express();
+app.get("/", (req, res) => res.sendStatus(200));
+app.listen(process.env.PORT);
 
 duration(moment);
 require('dotenv').config();

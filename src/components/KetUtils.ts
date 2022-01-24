@@ -23,14 +23,18 @@ module.exports = class Utils {
         await db.servers.find(ctx.gID, true)
         let user = await db.users.find(ctx.uID);
         if (!user) {
-            user = await db.users.create(ctx.uID, {}, true)
-            if (globalchat) (await ctx.author.getDMChannel()).createMessage({
-                embeds: [{
-                    ...global.t('events:globalchat.welcome', { avatar: ctx.author.dynamicAvatarURL('jpg') }),
-                    color: getColor('green'),
-                    image: { url: 'https://goyalankit.com/assets/img/el_gato2.gif' }
-                }]
-            }).catch(() => { });
+            user = await db.users.create(ctx.uID, { lang: 'pt' }, true)
+            try {
+                if (globalchat) (await ctx.author.getDMChannel()).createMessage({
+                    embeds: [{
+                        ...global.t('events:globalchat.welcome', { avatar: ctx.author.dynamicAvatarURL('jpg') }),
+                        color: getColor('green'),
+                        image: { url: 'https://goyalankit.com/assets/img/el_gato2.gif' }
+                    }]
+                })
+            } catch (e) {
+
+            }
         }
         return user;
     }
@@ -42,7 +46,7 @@ module.exports = class Utils {
         };
         await this.checkUserGuildData(ctx, true);
         await this.checkCache(ctx);
-        if (await this.checkPermissions({ ctx, command }) === false || ctx.channel.nsfw || ctx.author.bot && ctx.uID !== ctx.ket.user.id) return;
+        if ((ctx.uID === ctx.ket.user.id && ctx.env.content.startsWith(getEmoji('negado').mention)) || await this.checkPermissions({ ctx, command }) === false || ctx.channel.nsfw || ctx.author.bot && ctx.uID !== ctx.ket.user.id) return;
         let
             message = ctx.env,
             ket = ctx.ket,
@@ -51,8 +55,8 @@ module.exports = class Utils {
             guilds = guildsData.filter(guild => guild.globalchat && guild.globalchat != message.channel.id),
             msgObj = {
                 username: message.author.username,
-                avatarURL: message.author.dynamicAvatarURL('jpg', 256),
-                content: this.msgFilter(message.filtredContent),
+                avatarURL: message.author.dynamicAvatarURL('jpg'),
+                content: ctx.ket.config.DEVS.includes(ctx.uID) ? message.cleanContent : this.msgFilter(message.cleanContent),
                 embeds: null,
                 file: [],
                 stickerIDs: null,
@@ -70,7 +74,7 @@ module.exports = class Utils {
 
         if (message.messageReference) message.channel.messages.has(message.messageReference.messageID)
             ? msg = message.channel.messages.get(message.messageReference.messageID)
-            : msg = await ket.getMessage(message.messageReference.channelID, message.messageReference.messageID);
+            : msg = await ket.findMessage(message, message.messageReference.messageID);
 
         if (message.stickerItems) for (let i in message.stickerItems) {
             let buffer = await axios({
@@ -107,9 +111,9 @@ module.exports = class Utils {
                 }
                 if (!webhook) return;
                 if (message.messageReference && !message.author.bot) {
-                    let ref = channel.messages.find(m => m?.author.username === msg?.author.username && this.msgFilter(m?.filtredContent, 1990, true) === this.msgFilter(msg?.filtredContent, 1990, true) && m?.timestamp - msg?.timestamp < 1000 && (msg.attachments[0] ? m.attachments[0].name === msg.attachments[0].name : true)),
+                    let ref = channel.messages.find(m => m?.author.username === msg?.author.username && this.msgFilter(m?.cleanContent, 1990, true) === this.msgFilter(msg?.cleanContent, 1990, true) && m?.timestamp - msg?.timestamp < 1000 && (msg.attachments[0] ? m.attachments[0].name === msg.attachments[0].name : true)),
                         refAuthor = await db.users.find(msg?.author.id),
-                        refContent = this.msgFilter(msg.filtredContent, 64).length === 0 ? "`⬑ - - Ver mensagem - - ⬏`" : this.msgFilter(msg.filtredContent, 64)
+                        refContent = this.msgFilter(msg.cleanContent, 64).length === 0 ? "`⬑ - - Ver mensagem - - ⬏`" : this.msgFilter(msg.cleanContent, 64)
 
                     !msg ? null : msgObj.embeds = [{
                         color: getColor('green'),
@@ -126,9 +130,11 @@ module.exports = class Utils {
 
                 let send = async () => await ket.executeWebhook(webhook.id, webhook.token, msgObj).then((msg: Message) => msgs.push(`${msg.id}|${msg.guildID}`)).catch(() => { });
 
-                let rateLimit = ket.requestHandler.ratelimits[`/webhooks/${g.globalchat}/:token?&wait=true`];
-                if (rateLimit)
-                    return setTimeout(async () => await send(), Date.now() - rateLimit.reset + ket.options.rest.ratelimiterOffset);
+                // let rateLimit = ket.requestHandler.ratelimits[`/webhooks/${g.globalchat}/:token?&wait=true`];
+                // if (rateLimit) {
+                //     console.log(Date.now() - rateLimit.reset + ket.options.rest.ratelimiterOffset)
+                //     return setTimeout(async () => await send(), Date.now() - rateLimit.reset + ket.options.rest.ratelimiterOffset);
+                // }
                 res(send());
             })
         })
@@ -186,8 +192,7 @@ module.exports = class Utils {
 
         if (user.rateLimit >= 10) {
             await db.users.update(ctx.uID, {
-                banned: true,
-                reason: `[ AUTO-MOD ] - Mal comportamento no chat global`
+                banned: `[ AUTO-MOD ] - Mal comportamento no chat global, timeout: ${Date.now() + user.rateLimit * 1000 * 60}`
             });
             let userBl = await db.blacklist.find(user.id)
             if (userBl) userBl.warns < 3 ? await db.blacklist.update(user.id, {
@@ -211,8 +216,8 @@ module.exports = class Utils {
     async checkPermissions({ ctx = null, channel = null, command = null, notReply = null }) {
         let missingPermissions: string[] = [],
             t = global.t;
-        channel ? ctx.channel = channel : null
-        command ? ctx.command = command : null
+        channel ? ctx.channel = channel : null;
+        command ? ctx.command = command : null;
 
         if (!ctx.channel) return false;
         if ([10, 11, 12].includes(ctx.channel.type) && !ctx.command.access.Threads) {
@@ -240,7 +245,7 @@ module.exports = class Utils {
                             });
                     });
             return false;
-        } else return true
+        } else return true;
     }
 
     async sendCommandLog(ctx) {
@@ -251,8 +256,8 @@ module.exports = class Utils {
                 .setTitle(`${user?.prefix || config.DEFAULT_PREFIX}${command.name}`)
                 .addField('Autor:', `${author.tag} (ID: ${author.id})`, false, 'fix')
                 .addField('Servidor:', `# ${guild?.name} (ID: ${gID})`, false, 'cs')
-                .addField('Argumentos:', `- ${!args[0] ? 'Nenhum argumento foi usado neste comando' : args.join(' ')}`, false, 'diff')
-        ket.createMessage(config.channels.commandLogs, { embed: embed.build() })
+                .addField('Argumentos:', `- ${!args[0] ? 'Nenhum argumento foi usado neste comando' : args.join(' ')}`, false, 'diff');
+        ket.createMessage(config.channels.commandLogs, { embed: embed.build() });
     }
 
     CommandError(ctx, error) {
