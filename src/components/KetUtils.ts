@@ -23,16 +23,14 @@ module.exports = class Utils {
         await db.servers.find(ctx.gID, true)
         let user = await db.users.find(ctx.uID);
         if (!user) {
-            user = await db.users.create(ctx.uID, { lang: ctx.guild?.preferredLocale.startsWith('pt') ? 'pt' : 'en' }, true)
-            if (globalchat) (await ctx.ket.send({
-                context: ctx.env, content: {
-                    embeds: [{
-                        ...global.t('events:globalchat.welcome', { avatar: ctx.author.dynamicAvatarURL('jpg') }),
-                        color: getColor('green'),
-                        image: { url: 'https://goyalankit.com/assets/img/el_gato2.gif' }
-                    }]
-                },
-            })).deleteAfter(30);
+            user = await db.users.create(ctx.uID, {}, true)
+            if (globalchat) (await ctx.author.getDMChannel()).createMessage({
+                embeds: [{
+                    ...global.t('events:globalchat.welcome', { avatar: ctx.author.dynamicAvatarURL('jpg') }),
+                    color: getColor('green'),
+                    image: { url: 'https://goyalankit.com/assets/img/el_gato2.gif' }
+                }]
+            }).catch(() => { });
         }
         return user;
     }

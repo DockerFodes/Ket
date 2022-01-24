@@ -175,7 +175,6 @@ module.exports.getContext = ({ ket, message = null, interaction = null, user, se
     return {
         ket: ket,
         config: ket.config,
-        say: ket.send,
         env: message ? message : interaction,
         user: user,
         server: server,
@@ -191,6 +190,5 @@ module.exports.getContext = ({ ket, message = null, interaction = null, user, se
         cID: ctx.channel.id,
         command: command?.config,
         commandName: commandName,
-        t: t
     }
 }

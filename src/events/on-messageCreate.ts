@@ -13,7 +13,7 @@ module.exports = class MessageCreateEvent {
         this.ket = ket;
     }
     async start(message: Message) {
-        if (message.author?.bot /*&& !this.ket.config.TRUSTED_BOTS.includes(message.author?.id)*/) return;
+        if (message.author?.bot && !this.ket.config.TRUSTED_BOTS.includes(message.author?.id)) return;
         if (!message.guildID || message.channel.type === 1) {
             delete require.cache[require.resolve("../packages/events/_on-messageDMCreate")];
             return require("../packages/events/_on-messageDMCreate")(message, this.ket);
