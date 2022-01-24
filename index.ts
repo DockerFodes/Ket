@@ -4,7 +4,8 @@ import { PRODUCTION_MODE, CLIENT_OPTIONS } from "./src/json/settings.json";
 const
     moment = require("moment"),
     duration = require("moment-duration-format"),
-    { tz } = require('moment-timezone');
+    { tz } = require('moment-timezone'),
+    { inspect } = require('util');
 
 duration(moment);
 require('dotenv').config();
