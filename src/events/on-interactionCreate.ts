@@ -23,7 +23,7 @@ module.exports = class InteractionCreateEvent {
         let server = await db.servers.find(interaction.guildID, true),
             user = await db.users.find(interaction.member.user.id),
             ctx = getContext({ ket, interaction, server, user });
-            global.lang = user?.lang;
+        global.lang = user?.lang;
 
         if (user?.banned) return;
         if (server?.banned) return ctx.guild.leave();

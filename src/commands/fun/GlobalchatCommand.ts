@@ -96,7 +96,8 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                 let userData = await db.users.find(msg.author),
                     user = await this.ket.findUser(ctx.env, userData.id),
                     server = await db.servers.find(msg.guild),
-                    message = await this.ket.getMessage(server.globalchat, msg.id);
+                    message = await this.ket.getMessage(server.globalchat, msg.id)
+                        .catch(() => { });
                 moment.locale(ctx.user.lang);
 
                 return this.ket.send({
@@ -105,8 +106,8 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                             thumbnail: { url: user.dynamicAvatarURL('jpg') },
                             color: getColor('green'),
                             ...global.t('globalchat.getinfo', {
-                                msg, user, guild: this.ket.guilds.get(server.id),
-                                timestamp: moment.utc(message.timestamp).format('LLLL'),
+                                msg, user, guild: this.ket.guilds.get(server.id), messages: msg.messages,
+                                timestamp: moment.utc(message?.timestamp || Date.now()).format('LLLL'),
                                 isBanned: userData.banned ? 'BANNED' : 'not banned',
                                 messagesCount: data.filter(msg => msg.author === user.id).length
                             })

@@ -1,5 +1,8 @@
+# Pastas
 node_modules/
 dist/
+.vscode
 
+# Arquivos
 package-lock.json
 .env

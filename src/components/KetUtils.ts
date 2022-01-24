@@ -164,7 +164,8 @@ module.exports = class Utils {
         if (content.match(isUrl)) {
             let config = require('../json/settings.json');
 
-            content.match(isUrl).forEach(text => {
+            content.split(' ').forEach(text => {
+                if (!content.match(text)) return;
                 for (let i in config.globalchat.allowedLinks)
                     if (text.replace('www.', '').startsWith(config.globalchat.allowedLinks[i])) return;
 

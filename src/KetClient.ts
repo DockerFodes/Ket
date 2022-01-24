@@ -66,19 +66,21 @@ export default class KetClient extends Client {
             console.log('LOCALES', 'Erro ao carregar locales: ' + e, 41)
             return false;
         } finally {
-            global.t = (str: string, placeholders: object, lang: string) => {
+            return global.t = (str: string, placeholders: object, lang: string) => {
                 const data = config.filesMetadata[lang || global.lang || config.defaultLang][str.includes(':') ? str.split(':')[0] : config.defaultJSON];
                 let content = eval(`data.${str.includes(':') ? str.split(':')[1] : str}`);
-                if (!data || !content) return 'String não encontrada';
+                if (!data || !content) return 'Placeholder não encontrado';
 
                 let filtrar = (ctt) => {
                     if (!placeholders) return ctt;
                     Object.entries(placeholders).forEach(([key, value]) => {
-                        let regex: RegExp = eval(`/{{(${key}|${key}.+)}}/g`);
-                        ctt.match(regex).map(a => a.replace(/({{|}})/g, '')).forEach((match: string) => {
-                            let ph = placeholders[match.split('.')[0]][match.split('.')[1]];
-                            if (match.includes('.') && ph) ctt = ctt.replace(`{{${match}}}`, ph);
-                            else typeof value !== 'object' ? ctt = ctt.replace(regex, value) : null;
+                        let regex: RegExp = eval(`/{{(${key}|${key}.*?)}}/g`);
+                        ctt.match(regex).map(a => a.replace(eval(`/({{|}})/g`), '')).forEach((match: string) => {
+                            try {
+                                let ph = placeholders[match.split('.')[0]][match.split('.')[1]];
+                                if (match.includes('.') && ph) ctt = ctt.replace(`{{${match}}}`, ph);
+                                else typeof value !== 'object' ? ctt = ctt.replace(`{{${match}}}`, value) : null;
+                            } catch (e) { }
                         });
                     });
                     return ctt;

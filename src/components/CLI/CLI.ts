@@ -19,10 +19,10 @@ module.exports = {
     async deploy({ ket, args }) {
         let commands = []
         await ket.commands.forEach(command => {
-            let c = command.config
+            let c = command.config;
             commands.push({
                 name: c.name,
-                description: `[${c.category}] - ${global.t(`commands:${c.name}.description`)}`,
+                description: `[${c.category}] - ${global.t(`${c.name}.description`)}`,
                 options: c.data?.options ? [...c.data.options] : []
             })
         });

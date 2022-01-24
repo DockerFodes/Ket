@@ -27,7 +27,8 @@ console.log = function () {
 
     if (PRODUCTION_MODE || !setor) return console.info(eval(`args.map(a => inspect(a)).join(', ')`))
     moment.locale("pt-BR");
-    color === 41 ? console.error(`\x1B[${color}m${str}\x1B[0m`) : console.info(`\x1B[${color}m${str}\x1B[0m`);
+    console.info(`\x1B[${color}m${str}\x1B[0m`);
+    color === 41 ? console.error(args.join(' ')) : null
 }
 const ket = new KetClient(`Bot ${PRODUCTION_MODE ? process.env.DISCORD_TOKEN : process.env.BETA_CLIENT_TOKEN}`, CLIENT_OPTIONS as ClientOptions)
 
