@@ -1,5 +1,5 @@
 export { };
-import { CommandInteraction } from "eris";
+import { CommandInteraction, ComponentInteraction } from "eris";
 import KetClient from "../KetClient";
 delete require.cache[require.resolve('../components/KetUtils')];
 const
@@ -14,6 +14,10 @@ module.exports = class InteractionCreateEvent {
         this.ket = ket;
     }
     async start(interaction: any) {
+        if(this.ket.config.channels.homeInteractions.includes(interaction.channel.id) && (interaction instanceof ComponentInteraction)) {
+            delete require.cache[require.resolve("../packages/home/_homeInteractions")];
+            return new (require("../packages/home/_homeInteractions"))(this.ket, interaction);
+        }
         if (!(interaction instanceof CommandInteraction) || interaction.type != 2) return;
         if (interaction.channel.type === 1) {
             delete require.cache[require.resolve("../packages/events/_on-messageDMCreate")];
