@@ -14,14 +14,17 @@ module.exports = async function (ket: KetClient, interaction: any) {
             description: `${getEmoji('negado').mention} **| Role not found!**`
         }]
     })
-
-    await interaction.member.addRole(role.id).catch(() => { });
-    return interaction.createMessage({
-        embeds: [{
-            color: role.color,
-            description: `${getEmoji('autorizado').mention} **| Role added!**`
-        }]
-    });
+    try {
+        interaction.channel.guild.roles.filter(r => r.name.includes('🌈') && interaction.member.roles.has(r.id))?.forEach(r => interaction.member.removeRole(r.id));
+        await interaction.member.addRole(role.id);
+        return interaction.createMessage({
+            embeds: [{
+                color: role.color,
+                description: `${getEmoji('autorizado').mention} **| Role added!**`
+            }]
+        });
+    } catch (e) {
+    }
     let colorMsgObj = {
         embeds: [{
             title: 'ㅤ➯ Choose a color for you',
