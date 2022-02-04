@@ -1,9 +1,9 @@
 import { Client } from "pg";
 import KetClient from "../../KetClient";
 import table from "./_DatabaseInteraction";
-import { receive } from "./db";
+import { receive } from "../db";
 
-module.exports = async (ket: KetClient) => {
+export default async (ket: KetClient) => {
     let postgres = global.session.postgres = new Client({
         database: process.env.DATABASE_NAME,
         password: process.env.DATABASE_PASSWORD,

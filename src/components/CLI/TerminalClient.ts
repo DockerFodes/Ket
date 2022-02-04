@@ -1,7 +1,7 @@
 import KetClient from "../../KetClient";
 import prompts from "prompts";
 import gradient from "gradient-string";
-import db from "../../packages/database/db";
+import db from "../../components/db";
 
 export default async function (ket: KetClient) {
     termEval();

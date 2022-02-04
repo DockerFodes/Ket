@@ -2,8 +2,8 @@ import { Message } from "eris";
 import KetClient from "../KetClient";
 import DMexec from "../packages/home/_on-messageDMCreate";
 import { getContext, getColor } from "../components/Commands/CommandStructure";
-import db from "../packages/database/db";
-const KetUtils = new (require('../components/KetUtils'))();
+import db from "../components/db";
+const KetUtils = new (require('../components/Core/KetUtils'))();
 
 module.exports = class MessageCreateEvent {
     ket: KetClient;

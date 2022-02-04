@@ -1,8 +1,9 @@
 import { Client, ClientOptions, Collection, CommandInteraction, ExtendedUser, Guild, GuildChannel, Member, Message, User, Webhook } from "eris";
 import { ESMap } from "typescript";
-import EventHandler from "./components/core/EventHandler";
+import EventHandler from "./components/Core/EventHandler";
 import { readdirSync } from "fs";
 import { getEmoji, getColor } from './components/Commands/CommandStructure';
+import DatabaseConnection from "./components/Database/DatabaseConnection";
 
 class usuario extends User {
     tag: string;
@@ -37,10 +38,11 @@ export default class KetClient extends Client {
         this.shardUptime = new Map();
     }
     public async boot() {
+        await DatabaseConnection(this);
         await this.loadLocales(`${__dirname}/locales/`);
         this.loadCommands(`${__dirname}/commands`);
         this.loadListeners(`${__dirname}/events/`);
-        this.loadModules(`${__dirname}/packages/`);
+        // await this.loadModules(`${__dirname}/packages/`);
         return super.connect();
     }
 
@@ -104,12 +106,12 @@ export default class KetClient extends Client {
         }
     }
 
-    public loadModules(path: string) {
+    public async loadModules(path: string) {
         try {
             let categories = readdirSync(`${path}/`), i = 0;
             for (let a in categories) {
                 let modules = readdirSync(`${path}/${categories[a]}/`);
-                for (let b in modules) modules[b].startsWith("_") ? null : require(`${path}/${categories[a]}/${i++ ? modules[b] : modules[b]}`)(this)
+                for (let b in modules) modules[b].startsWith("_") || modules[b].startsWith('db') ? null : (await import(`${path}/${categories[a]}/${i++ ? modules[b] : modules[b]}`)).default(this)
             }
             console.log('MODULES', `${i} Módulos inicializados`, 2);
             return true;

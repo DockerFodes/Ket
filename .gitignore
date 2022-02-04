@@ -2,6 +2,7 @@
 node_modules/
 dist/
 .vscode/
+migrations/
 
 # Arquivos
 package-lock.json

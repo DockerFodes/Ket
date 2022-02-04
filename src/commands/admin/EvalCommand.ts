@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import CommandStructure, { EmbedBuilder, getEmoji, getColor } from "../../components/Commands/CommandStructure";
-import db from "../../packages/database/db";
+import db from "../../components/db";
 const
     axios = require('axios'),
     cld = require('child_process'),

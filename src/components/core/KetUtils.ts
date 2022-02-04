@@ -2,12 +2,12 @@ import { Message, Webhook } from "eris";
 import { inspect } from "util";
 import axios from "axios";
 import DidYouMean from "didyoumean";
-import { getEmoji, getColor, EmbedBuilder } from './Commands/CommandStructure';
-import db from "../packages/database/db";
+import { getEmoji, getColor, EmbedBuilder } from '../Commands/CommandStructure';
+import db from "../db";
 const moment = require('moment');
 
 module.exports = class Utils {
-    constructor() {}
+    constructor() { }
 
     async checkCache(ctx) {
         if (!ctx.ket.users.has(ctx.uID)) await ctx.ket.getRESTUser(ctx.uID);

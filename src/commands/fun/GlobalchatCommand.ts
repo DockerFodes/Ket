@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import KetClient from "../../KetClient";
 import moment from "moment";
 import CommandStructure, { getColor } from "../../components/Commands/CommandStructure";
-import db from "../../packages/database/db";
+import db from "../../components/db";
 
 module.exports = class GlobalChatCommand extends CommandStructure {
     constructor(ket: KetClient) {

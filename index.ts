@@ -36,7 +36,7 @@ async function main() {
     console.log('SHARD MANAGER', 'Iniciando fragmentação', 46);
 
     duration(moment);
-    require('./src/components/core/ProtoTypes').start();
+    require('./src/components/Core/ProtoTypes').start();
     const app = express();
     app.get("/", (_req, res: Response) => res.sendStatus(200));
     app.listen(process.env.PORT);
@@ -58,7 +58,7 @@ async function main() {
     process
         .on('SIGINT', async () => {
             try {
-                await (await import('./src/packages/database/db')).default.disconnect();
+                await (await import('./src/components/db')).default.disconnect();
                 console.log('DATABASE', '√ Banco de dados desconectado', 33);
                 ket.editStatus('dnd', { name: 'Encerrando...', type: 0 });
             } catch (e) {

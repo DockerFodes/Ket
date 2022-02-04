@@ -1,6 +1,6 @@
 import { GuildChannel, Message } from "eris";
 import KetClient from "../KetClient";
-import db from "../packages/database/db";
+import db from "../components/db";
 
 module.exports = class MessageDeleteEvent {
     ket: KetClient;

@@ -1,7 +1,7 @@
 import KetClient from "../KetClient";
 import TerminalClient from "../components/CLI/TerminalClient";
 import gradient from "gradient-string";
-import db from "../packages/database/db";
+import db from "../components/db";
 module.exports = class ReadyEvent {
     ket: KetClient;
     constructor(ket: KetClient) {

@@ -1,7 +1,7 @@
 let db: any;
 
 export function receive(database: any) {
-    db = database
+    db = database;
 }
 
 export default db;
