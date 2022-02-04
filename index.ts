@@ -23,9 +23,6 @@ console.log = function () {
     if (!setor) return console.info(args[0]);
     if (PRODUCTION_MODE) return console.info(str);
     console.info(`\x1B[${color}m${str}\x1B[0m`);
-    // color !== 41
-    // ? console.info(`\x1B[${color}m${str}\x1B[0m`)
-    // : console.info()
 }
 console.error = function () {
     console.log('ANTI-CRASH', 'ERRO GENÉRICO:', String(arguments['0'].stack.slice(0, 256)), 41);
