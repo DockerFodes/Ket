@@ -1,65 +1,75 @@
 import { ClientOptions } from "eris";
 import KetClient from "./src/KetClient";
 import { PRODUCTION_MODE, CLIENT_OPTIONS } from "./src/json/settings.json";
-import express from "express";
+import express, { Response } from "express";
 const
     moment = require("moment"),
     duration = require("moment-duration-format"),
     { tz } = require('moment-timezone'),
     { inspect } = require('util');
-const app = express();
-app.get("/", (req, res) => res.sendStatus(200));
-app.listen(process.env.PORT);
-
-duration(moment);
 require('dotenv').config();
-require('./src/components/core/ProtoTypes').start();
-console.clear();
-
+const ket = new KetClient(`Bot ${PRODUCTION_MODE ? process.env.DISCORD_TOKEN : process.env.BETA_CLIENT_TOKEN}`, CLIENT_OPTIONS as ClientOptions)
 type colorChoices = 1 | 2 | 3 | 4 | 7 | 8 | 9 | 21 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 41 | 42 | 43 | 44 | 45 | 46 | 47 | 52 | 90 | 91 | 92 | 93 | 94 | 95 | 96 | 97 | 100 | 101 | 102 | 103 | 104 | 105 | 106 | 107;
 console.log = function () {
     moment.locale("pt-BR");
-    let args = Object.entries(arguments).map(([_key, value]) => value),
-        color = isNaN(args[args.length - 1]) ? 1 : args.pop(),
-        setor = String(args[0]).toUpperCase() === args[0] ? args.shift() : null,
-        str = `[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")}/${Math.floor(process.memoryUsage().rss / 1024 / 1024)}MB ] - ${args.join(' ')}`;
+    let args: any[] = Object.entries(arguments).map(([_key, value]) => value),
+        color: number = isNaN(args[args.length - 1]) ? 1 : args.pop(),
+        setor: null | string = String(args[0]).split('/')[0].toUpperCase() === String(args[0]).split('/')[0]
+            ? args.shift()
+            : null,
+        str: string = `[ ${setor} | ${moment.tz(Date.now(), "America/Bahia").format("LT")}/${Math.floor(process.memoryUsage().rss / 1024 / 1024)}MB ] - ${args.join(' ')}`;
+    sendWebhook(str);
 
-    PRODUCTION_MODE ? ket.executeWebhook(process.env.WEBHOOK_LOGS.split(' | ')[0], process.env.WEBHOOK_LOGS.split(' | ')[1], {
-        username: 'Ket Logs',
-        avatarURL: "https://cdn.discordapp.com/attachments/788376558271201290/932605381539139635/797062afbe6a08ae32e443277f14b7e2.jpg",
-        content: `\`${str}\``.slice(0, 2000)
-    }) : null;
-
-    if (!setor) return console.info(eval(`args.map(a => inspect(a)).join(', ')`));
-    if(PRODUCTION_MODE) return console.info(str);
+    if (!setor) return console.info(args[0]);
+    if (PRODUCTION_MODE) return console.info(str);
     console.info(`\x1B[${color}m${str}\x1B[0m`);
-    color === 41 ? console.error(args.join(' ')) : null
+    // color !== 41
+    // ? console.info(`\x1B[${color}m${str}\x1B[0m`)
+    // : console.info()
 }
-const ket = new KetClient(`Bot ${PRODUCTION_MODE ? process.env.DISCORD_TOKEN : process.env.BETA_CLIENT_TOKEN}`, CLIENT_OPTIONS as ClientOptions)
+console.error = function () {
+    console.log('ANTI-CRASH', 'ERRO GENÉRICO:', String(arguments['0'].stack.slice(0, 256)), 41);
+}
 
-global.session = { rootDir: __dirname }
+console.clear();
 console.log('SHARD MANAGER', 'Iniciando fragmentação', 46);
+
+duration(moment);
+require('./src/components/core/ProtoTypes').start();
+const app = express();
+app.get("/", (_req, res: Response) => res.sendStatus(200));
+app.listen(process.env.PORT);
+global.session = { rootDir: __dirname }
 
 ket.boot().then(() => {
     process.env.DISCORD_TOKEN = null;
     process.env.BETA_DISCORD_TOKEN = null;
 })
 
+function sendWebhook(str: string) {
+    PRODUCTION_MODE ? ket.executeWebhook(process.env.WEBHOOK_LOGS.split(' | ')[0], process.env.WEBHOOK_LOGS.split(' | ')[1], {
+        username: "Anime's Lost Logs",
+        avatarURL: "https://cdn.discordapp.com/attachments/788376558271201290/932605381539139635/797062afbe6a08ae32e443277f14b7e2.jpg",
+        content: `\`${str}\``.slice(0, 2000)
+    }) : null;
+}
+
 process
     .on('SIGINT', async () => {
         try {
             await global.session.db.disconnect();
-            console.log('DATABASE', '√ Banco de dados desconectado', 33)
+            console.log('DATABASE', '√ Banco de dados desconectado', 33);
+            ket.editStatus('dnd', { name: 'Encerrando...', type: 0 });
         } catch (e) {
             console.log('DATABASE', 'x Houve um erro ao encerrar a conexão com o banco de dados:', e, 41)
         } finally {
             process.exit();
         }
     })
-    .on('unhandledRejection', (reason, p) => console.log('ANTI-CRASH', `SCRIPT REJEITADO:`, reason, 41))
-    .on("uncaughtException", (err, o) => console.log('ANTI-CRASH', `ERRO CAPTURADO:`, err, 41))
-    .on('uncaughtExceptionMonitor', (err, o) => console.log('ANTI-CRASH', `BLOQUEADO:`, err, 41))
-    .on('multipleResolves', (type, promise, reason) => console.log('ANTI-CRASH', `MULTIPLOS ERROS:`, promise, 41));
+    .on('unhandledRejection', (error: Error) => console.log('SCRIPT REJEITADO: ', String(error.stack.slice(0, 256)), 41))
+    .on("uncaughtException", (error: Error) => console.log('ERRO CAPTURADO: ', String(error.stack.slice(0, 256)), 41))
+    .on('uncaughtExceptionMonitor', (error: Error) => console.log('BLOQUEADO: ', String(error.stack.slice(0, 256)), 41));
+    // .on('multipleResolves', (type, promise, reason) => reject('MULTIPLOS ERROS: ', reason));
 /**
 * TONS DE BRANCO E CINZA
 * 1 branco

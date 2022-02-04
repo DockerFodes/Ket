@@ -3,7 +3,7 @@ import roles from "../../json/roles.json";
 const { Decoration } = require('../../components/Commands/CommandStructure'),
     { getEmoji, getColor } = Decoration;
 
-module.exports = async function (ket: KetClient, interaction: any) {
+export default async function (interaction: any) {
     if (!['colors', 'notifications'].includes(interaction.data.custom_id) || interaction.data.component_type !== 3 || !roles[interaction.data.values[0]]) return;
     await interaction.defer(64).catch(() => { });
     let role = interaction.channel.guild.roles.get(roles[interaction.data.values[0]])

@@ -26,7 +26,6 @@ export default class KetClient extends Client {
     user: clientUser;
     users: Collection<usuario>;
     shardUptime: ESMap<string | number, number>;
-    shardGuilds: ESMap<number, string[]>;
 
     constructor(token: string, options: ClientOptions) {
         super(token, options);
@@ -64,7 +63,7 @@ export default class KetClient extends Client {
             console.log('LOCALES', 'Locales carregados', 36)
             return true;
         } catch (e) {
-            console.log('LOCALES', 'Erro ao carregar locales: ' + e, 41)
+            console.log('LOCALES', e, 41)
             return false;
         } finally {
             return global.t = (str: string, placeholders: object, lang: string) => {
@@ -101,7 +100,7 @@ export default class KetClient extends Client {
             console.log('EVENTS', `${i} Eventos carregados`, 2);
             return true;
         } catch (e) {
-            console.log('EVENTS', `Erro ao carregar eventos: ${e}`, 2);
+            console.log('EVENTS', e, 41);
             return false;
         }
     }
@@ -116,7 +115,7 @@ export default class KetClient extends Client {
             console.log('MODULES', `${i} Módulos inicializados`, 2);
             return true;
         } catch (e) {
-            console.log('MODULES', `Erro ao carregar módulos: ${e}`, 41);
+            console.log('MODULES', e, 41);
             return false;
         }
     }
@@ -180,17 +179,15 @@ export default class KetClient extends Client {
         if (message) {
             if ((message.editedTimestamp && user?.lastCommand && user.lastCommand.botMsg.channel.id === message.channel.id && message.timestamp < user.lastCommand.botMsg.timestamp) || type === 'edit') botMsg = await message.channel.editMessage(user.lastCommand.botMsg.id, msgObj).catch(() => message.channel.createMessage(msgObj).catch(() => { }));
             else botMsg = await message.channel.createMessage(msgObj).catch(() => { });
-            [botMsg, message].forEach(ctx => {
-                ctx = {
-                    id: ctx.id,
-                    timestamp: ctx.timestamp,
-                    editedTimestamp: ctx.editedTimestamp,
-                    channel: { id: ctx.channel.id }
-                }
-            })
+            let obj = {
+                id: null,
+                timestamp: null,
+                editedTimestamp: null,
+                channel: { id: null }
+            }
             user.lastCommand = {
-                botMsg,
-                message
+                botMsg: Object.assign(obj, botMsg),
+                message: Object.assign(obj, message)
             }
             return botMsg;
         } else {
@@ -288,7 +285,7 @@ export default class KetClient extends Client {
             console.log('COMMANDS', `${i} comandos carregados`, 2);
             return true;
         } catch (e) {
-            console.log('COMMANDS', `Erro ao carregar comandos: ${e}`, 41)
+            console.log('COMMANDS', e, 41)
             return false;
         }
     }
