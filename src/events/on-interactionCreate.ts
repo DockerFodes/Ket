@@ -1,11 +1,9 @@
-export { };
 import { CommandInteraction, ComponentInteraction } from "eris";
 import DMexec from "../packages/home/_on-messageDMCreate";
 import homeInteractions from "../packages/home/_homeInteractions";
 import KetClient from "../KetClient";
-const KetUtils = new (require('../components/KetUtils'))(),
-    { getContext, Decoration } = require('../components/Commands/CommandStructure'),
-    { getEmoji, getColor } = Decoration;
+import { getContext, getColor } from "../components/Commands/CommandStructure";
+const KetUtils = new (require('../components/KetUtils'))();
 
 module.exports = class InteractionCreateEvent {
     ket: KetClient;

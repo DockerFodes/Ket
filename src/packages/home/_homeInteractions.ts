@@ -1,7 +1,5 @@
-import KetClient from "../../KetClient";
 import roles from "../../json/roles.json";
-const { Decoration } = require('../../components/Commands/CommandStructure'),
-    { getEmoji, getColor } = Decoration;
+import { getEmoji, getColor } from "../../components/Commands/CommandStructure";
 
 export default async function (interaction: any) {
     if (!['colors', 'notifications'].includes(interaction.data.custom_id) || interaction.data.component_type !== 3 || !roles[interaction.data.values[0]]) return;

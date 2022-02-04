@@ -2,11 +2,9 @@ import { Message, Webhook } from "eris";
 import { inspect } from "util";
 import axios from "axios";
 import DidYouMean from "didyoumean";
+import { getEmoji, getColor, EmbedBuilder } from './Commands/CommandStructure';
 let db = global.session.db;
-const
-    moment = require('moment'),
-    { Decoration, EmbedBuilder } = require('./Commands/CommandStructure'),
-    { getEmoji, getColor } = Decoration;
+const moment = require('moment');
 
 module.exports = class Utils {
     constructor() {
@@ -256,8 +254,8 @@ module.exports = class Utils {
             embed = new EmbedBuilder()
                 .setColor('green')
                 .setTitle(`${user?.prefix || config.DEFAULT_PREFIX}${command.name}`)
-                .addField('Autor:', `${author.tag} (ID: ${author.id})`, false, 'fix')
                 .addField('Servidor:', `# ${guild?.name} (ID: ${gID})`, false, 'cs')
+                .addField('Autor:', `${author.tag} (ID: ${author.id})`, false, 'fix')
                 .addField('Argumentos:', `- ${!args[0] ? 'Nenhum argumento foi usado neste comando' : args.join(' ')}`, false, 'diff');
         ket.createMessage(config.channels.commandLogs, { embed: embed.build() });
     }

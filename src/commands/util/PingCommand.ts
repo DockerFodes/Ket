@@ -1,6 +1,5 @@
-export { }
 import KetClient from "../../KetClient"
-const { CommandStructure } = require("../../components/Commands/CommandStructure")
+import CommandStructure from "../../components/Commands/CommandStructure"
 
 module.exports = class PingCommand extends CommandStructure {
     constructor(ket: KetClient) {

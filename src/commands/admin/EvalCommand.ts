@@ -1,6 +1,5 @@
-export { };
 import { SlashCommandBuilder } from "@discordjs/builders";
-
+import CommandStructure, { EmbedBuilder, getEmoji, getColor } from "../../components/Commands/CommandStructure";
 const
     axios = require('axios'),
     cld = require('child_process'),
@@ -10,9 +9,7 @@ const
     { inspect } = require('util'),
     moment = require("moment"),
     path = require('path'),
-    CommandBuilder = SlashCommandBuilder,
-    { CommandStructure, EmbedBuilder, Decoration } = require("../../components/Commands/CommandStructure"),
-    { getEmoji, getColor } = Decoration;
+    CommandBuilder = SlashCommandBuilder;
 
 module.exports = class EvalCommand extends CommandStructure {
     constructor(ket) {
@@ -50,7 +47,7 @@ module.exports = class EvalCommand extends CommandStructure {
                 .replace('```', '')
                 .replace(/val /g, 'global.'),
             canReturn = (ctx.commandName === 'eval' ? true : false),
-            embed: typeof EmbedBuilder = new EmbedBuilder(),
+            embed = new EmbedBuilder(),
             mb = (data: number) => Math.floor(data / 1024 / 1024) + "MB";
         function filtrar(content: string) {
             content = inspect(content)

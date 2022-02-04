@@ -2,8 +2,7 @@ import { Client, ClientOptions, Collection, CommandInteraction, ExtendedUser, Gu
 import { ESMap } from "typescript";
 import EventHandler from "./components/core/EventHandler";
 import { readdirSync } from "fs";
-const { Decoration } = require('./components/Commands/CommandStructure'),
-    { getEmoji, getColor } = Decoration;
+import { getEmoji, getColor } from './components/Commands/CommandStructure';
 
 class usuario extends User {
     tag: string;

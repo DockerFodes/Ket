@@ -2,10 +2,7 @@ import KetClient from "../../KetClient";
 import Eris from "eris";
 import axios from "axios";
 import { CanvasRenderingContext2D, createCanvas } from "canvas";
-const
-	moment = require('moment'),
-	{ EmbedBuilder, Decoration } = require('../Commands/CommandStructure'),
-	{ getEmoji } = Decoration;
+const moment = require('moment');
 
 module.exports = class ProtoTypes {
 	ket: KetClient;

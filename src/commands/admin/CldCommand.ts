@@ -1,9 +1,8 @@
-export { };
 import KetClient from "../../KetClient";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { execSync } from "child_process";
 import { inspect } from "util";
-const { CommandStructure, EmbedBuilder } = require('../../components/Commands/CommandStructure');
+import CommandStructure, { EmbedBuilder } from '../../components/Commands/CommandStructure';
 
 module.exports = class CldCommand extends CommandStructure {
     constructor(ket: KetClient) {
@@ -32,10 +31,10 @@ module.exports = class CldCommand extends CommandStructure {
         })
     }
     async execute(ctx) {
-        let embed: typeof EmbedBuilder = new EmbedBuilder();
+        let embed = new EmbedBuilder();
 
         try {
-            let data = execSync(ctx.args.join(' '));
+            let data: any = execSync(ctx.args.join(' '));
             embed
                 .setTitle('Só sucexo bb')
                 .setColor('green')

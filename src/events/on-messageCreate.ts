@@ -1,10 +1,8 @@
 import { Message } from "eris";
 import KetClient from "../KetClient";
 import DMexec from "../packages/home/_on-messageDMCreate";
-const
-    KetUtils = new (require('../components/KetUtils'))(),
-    { getContext, Decoration } = require('../components/Commands/CommandStructure'),
-    { getEmoji, getColor } = Decoration;
+import { getContext, getColor } from "../components/Commands/CommandStructure";
+const KetUtils = new (require('../components/KetUtils'))();
 
 module.exports = class MessageCreateEvent {
     ket: KetClient;

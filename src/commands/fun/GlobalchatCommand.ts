@@ -1,9 +1,7 @@
-export { };
 import { SlashCommandBuilder } from "@discordjs/builders";
 import KetClient from "../../KetClient";
 import moment from "moment";
-const { CommandStructure, Decoration } = require('../../components/Commands/CommandStructure'),
-    { getColor, getEmoji } = Decoration;
+import CommandStructure, { getColor } from "../../components/Commands/CommandStructure";
 
 module.exports = class GlobalChatCommand extends CommandStructure {
     constructor(ket: KetClient) {
@@ -94,9 +92,9 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     return this.ket.send({ context: ctx.env, emoji: 'negado', content: global.t('globalchat.messageNotFound') });
 
                 let userData = await db.users.find(msg.author),
-                    user = await this.ket.findUser(ctx.env, userData.id),
+                    user: any = await this.ket.findUser(ctx.env, userData.id),
                     server = await db.servers.find(msg.guild),
-                    message = await this.ket.getMessage(server.globalchat, msg.id)
+                    message: any = await this.ket.getMessage(server.globalchat, msg.id)
                         .catch(() => { });
                 moment.locale(ctx.user.lang);
 
