@@ -1,37 +1,37 @@
 import KetClient from "../../KetClient";
-interface event {
-    name: string;
-    dir: string;
-}
 export default class EventHandler {
     ket: KetClient;
-    events: event[];
-    eventData: any;
+    events: { name: string, run: any }[];
 
-    constructor(ket) {
+    constructor(ket: KetClient) {
         this.ket = ket;
         this.events = [];
     }
     add(name: string, dir: string) {
-        if (name === 'ready') this.ket.once(name, (...args) => this.execute(name, args));
-        else this.ket.on(name, (...args) => this.execute(name, args));
-
-        return this.events.push({ name: name, dir: dir });
+        name === 'ready'
+            ? this.ket.once(name, (...args) => this.execute(name, args))
+            : this.ket.on(name, (...args) => this.execute(name, args));
+        return this.events.push({ name: name, run: require(dir) })
     }
     execute(name: string, args: any[]) {
-        return this.events.filter(evento => evento.name === name).forEach((event) => {
-            delete require.cache[require.resolve(event.dir)];
+        return this.events.filter(e => e.name === name).forEach((event) => {
             try {
-                new (require(event.dir))(this.ket).start(...args);
-            } catch (e) {
-                this.ket.emit('error', e);
+                return new (event.run)(this.ket).on(...args);
+            } catch (error: any) {
+                return console.log(`EVENTS/${event.name}`, 'ERRO GENÉRICO:', String(error.stack).slice(0, 256), 41)
             }
-            return;
+            // .catch((error: Error) => )
+            // delete require.cache[require.resolve(event.dir)];
+            // try {
+            // return new (require(event.dir))(this.ket).on(...args);
+            // } catch (e) {
+            // return this.ket.emit('error', e);
+            // }
         })
     }
     remove(name: string) {
-        if (!this.events.filter(event => event.name === name)[0]) return false;
-        delete this.events[this.events.findIndex(event => event.name === name)];
+        if (!this.events.find(e => e.name === name)[0]) return false;
+        delete this.events[this.events.findIndex(e => e.name === name)];
         return true;
     }
 }

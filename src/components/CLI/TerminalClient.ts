@@ -2,17 +2,18 @@ import KetClient from "../../KetClient";
 import prompts from "prompts";
 import gradient from "gradient-string";
 
-export default async function(ket: KetClient) {
+export default async function (ket: KetClient) {
     termEval();
     async function termEval() {
+        delete require.cache[require.resolve(`./CLI`)];
+        let commands = require(`./CLI`);
+
         const response: any = await prompts({
             name: 'code',
             message: `${ket.user.username}$`,
             type: 'text',
             validate: async (code) => {
                 if (!code.startsWith('.')) return true;
-                delete require.cache[require.resolve(`./CLI`)];
-                const commands = require(`./CLI`);
                 if (!eval(`commands${code.trim().split(/ /g).shift()}`)) return 'Comando não encontrado, digite .help para ver a lista de comandos.';
                 else return true;
             }
@@ -26,8 +27,6 @@ export default async function(ket: KetClient) {
             db = global.session.db;
         try {
             if (response.code.startsWith('.')) {
-                delete require.cache[require.resolve(`./CLI`)];
-                const commands = require(`./CLI`);
                 const args = response.code.trim().split(/ /g);
                 return await eval(`commands${args.shift()}({ ket, args })`);
             }

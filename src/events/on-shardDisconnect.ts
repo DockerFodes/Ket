@@ -5,7 +5,7 @@ module.exports = class ShardDisconnect {
     constructor(ket: KetClient) {
         this.ket = ket;
     }
-    async start(error: string, shardID: number) {
+    async on(error: string, shardID: number) {
         console.log(`SHARD ${shardID}`, `Reiniciando: ${error}`, 41);
         return this.ket.shardUptime.set(shardID, NaN);
     }

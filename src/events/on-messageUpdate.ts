@@ -8,7 +8,7 @@ module.exports = class MessageUpdateEvent {
     constructor(ket: KetClient) {
         this.ket = ket;
     }
-    async start(newMessage: any, oldMessage: Message) {
+    async on(newMessage: any, oldMessage: Message) {
         if ((String(oldMessage?.content).trim() === String(newMessage?.content).trim() && !newMessage.editedTimestamp) || newMessage.author?.bot) return;
         const guild = await db.servers.find(newMessage.guildID)
 

@@ -7,7 +7,7 @@ module.exports = class ReadyEvent {
     constructor(ket: KetClient) {
         this.ket = ket;
     }
-    async start() {
+    async on() {
         let status: object[] = [
             { name: 'no vasco', type: 0 },
             { name: 'sua mãe da janela', type: 0 },
@@ -28,7 +28,7 @@ module.exports = class ReadyEvent {
                 }
             });
         }, 60_000)
-        console.log('READY', `Sessão iniciada como ${this.ket.user.tag}`, 33);
+        console.log('GATEWAY', `Sessão iniciada como ${this.ket.user.tag}`, 33);
         console.info(gradient('red', 'yellow')("◆ ▬▬▬▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬▬▬▬ ◆"));
         console.log(`Operante em ${this.ket.guilds.size} templos com ${this.ket.guilds.map(g => g.memberCount).reduce((acc, crt) => acc + crt) - this.ket.guilds.size} subordinados`);
         return TerminalClient(this.ket);

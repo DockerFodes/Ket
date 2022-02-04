@@ -1,10 +1,10 @@
 import { Client } from "pg";
 
-export default class DatabaseTable {
+export default class DatabaseInteraction {
     postgres: Client;
     tableName: string;
     primaryKey: string;
-    constructor(tableName, primaryKey, postgres: Client) {
+    constructor(tableName: string, primaryKey: string, postgres: Client) {
         this.tableName = tableName;
         this.primaryKey = primaryKey;
         this.postgres = postgres;

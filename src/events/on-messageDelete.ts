@@ -1,12 +1,12 @@
 import { GuildChannel, Message } from "eris";
 import KetClient from "../KetClient";
-const db = global.session.db;
+let db = global.session.db;
 module.exports = class MessageDeleteEvent {
     ket: KetClient;
     constructor(ket: KetClient) {
         this.ket = ket
     }
-    async start(message: Message<GuildChannel>) {
+    async on(message: Message<GuildChannel>) {
         let guild = await db.servers.find(message.guildID);
         if (message.channel.id !== guild.globalchat || Date.now() > message.timestamp + (15 * 1000 * 60) || message.author?.bot) return;
 

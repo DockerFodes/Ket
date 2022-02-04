@@ -1,5 +1,6 @@
 import { Client } from "pg";
-import table from "./_DatabaseTables";
+import KetClient from "../../KetClient";
+import table from "./_DatabaseInteraction";
 
 let
     PgConfig = {
@@ -20,7 +21,7 @@ global.session.db = {
     }
 }
 
-module.exports = async (ket) => {
+module.exports = async (ket: KetClient) => {
 
     if (global.session.db.ready) return;
     await postgres.connect()
@@ -86,7 +87,7 @@ module.exports = async (ket) => {
                   );`)
         })
 
-    return await postgres.query(`SELECT * FROM blacklist`)
+    await postgres.query(`SELECT * FROM blacklist`)
         .catch(async () => {
             console.log('DATABASE', 'Criando tabela blacklist', 2);
             await postgres.query(`CREATE TABLE public.blacklist (
@@ -95,4 +96,30 @@ module.exports = async (ket) => {
                     warns NUMERIC DEFAULT 1
                   );`)
         })
+
+    if (!ket.config.PRODUCTION_MODE) return;
+    async function backupAndCacheController() {
+        //  Backup da database
+        Object.entries(global.session.db).forEach(async ([key, value]) => typeof value === 'object'
+            ? ket.createMessage(ket.config.channels.database, `Backup da table \`${key}\``, { name: `${key}.json`, file: JSON.stringify((await global.session.db[key].getAll())) })
+            : null);
+
+        //  cache controller
+        let users = (await global.session.db.users.getAll()).map(u => u.id),
+            nonCached = [];
+        ket.users.forEach((u) => !users.includes(u.id) && u.id !== ket.user.id ? ket.users.delete(u.id) : null);
+        users.forEach(user => !ket.users.has(user) ? nonCached.push(user) : null);
+        for (let i in nonCached) new Promise((res, rej) => setTimeout(async () => res(await ket.getRESTUser(nonCached[i])), 5_000));
+
+        //  checando banimentos
+        (await global.session.db.blacklist.getAll())
+            .forEach(async user =>
+                !(await global.session.db.users.find(user.id)).banned
+                    ? global.session.db.users.update(user.id, { banned: true })
+                    : null
+            );
+    }
+
+    backupAndCacheController();
+    setInterval(() => backupAndCacheController(), 60_000 * 30);
 }

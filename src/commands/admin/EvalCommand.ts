@@ -10,7 +10,6 @@ const
     { inspect } = require('util'),
     moment = require("moment"),
     path = require('path'),
-    prompts = require('prompts'),
     CommandBuilder = SlashCommandBuilder,
     { CommandStructure, EmbedBuilder, Decoration } = require("../../components/Commands/CommandStructure"),
     { getEmoji, getColor } = Decoration;
@@ -52,24 +51,27 @@ module.exports = class EvalCommand extends CommandStructure {
                 .replace(/val /g, 'global.'),
             canReturn = (ctx.commandName === 'eval' ? true : false),
             embed: typeof EmbedBuilder = new EmbedBuilder(),
-            mb = (data) => Math.floor(data / 1024 / 1024) + "MB";
+            mb = (data: number) => Math.floor(data / 1024 / 1024) + "MB";
+        function filtrar(content: string) {
+            content = inspect(content)
+                .replace(new RegExp(`${this.ket._token}|${process.env.DATABASE_PASSWORD}|${process.env.WEBHOOK_LOGS}`, 'gi'), 'censored key')
+        }
 
         try {
             if (ctx.args.join(' ').includes('await')) evaled = await eval(`async function bah() {${evaled}};bah()`);
             else evaled = await eval(evaled);
-
             embed
                 .setTitle('Só suSEXO bb')
                 .setColor('green')
-                .setDescription(inspect(evaled), 'js');
-        } catch (e) {
+                .setDescription(filtrar(evaled), 'js');
+        } catch (e: any) {
             embed
                 .setTitle('Ih deu merda viado')
                 .setColor('red')
-                .setDescription(inspect(e), 'js');
+                .setDescription(filtrar(e), 'js');
             canReturn = true
         } finally {
-            if (canReturn) return ket.send({ context: ctx.env, content: { embeds: [embed.build()] } })
+            if (canReturn) return ket.send({ context: ctx.env, content: { embeds: [embed.build()] } });
         }
     }
 }
