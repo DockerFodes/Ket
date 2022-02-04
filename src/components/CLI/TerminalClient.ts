@@ -1,6 +1,7 @@
 import KetClient from "../../KetClient";
 import prompts from "prompts";
 import gradient from "gradient-string";
+import db from "../../packages/database/db";
 
 export default async function (ket: KetClient) {
     termEval();
@@ -23,8 +24,7 @@ export default async function (ket: KetClient) {
                 return termEval();
             }
         });
-        let evaled,
-            db = global.session.db;
+        let evaled;
         try {
             if (response.code.startsWith('.')) {
                 const args = response.code.trim().split(/ /g);

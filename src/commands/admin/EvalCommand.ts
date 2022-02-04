@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import CommandStructure, { EmbedBuilder, getEmoji, getColor } from "../../components/Commands/CommandStructure";
+import db from "../../packages/database/db";
 const
     axios = require('axios'),
     cld = require('child_process'),
@@ -38,8 +39,7 @@ module.exports = class EvalCommand extends CommandStructure {
     }
     async execute(ctx) {
         const
-            ket = this.ket,
-            db = global.session.db;
+            ket = this.ket;
         let
             message = ctx.env,
             evaled = ctx.args.join(" ")

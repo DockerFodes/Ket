@@ -3,13 +3,11 @@ import { inspect } from "util";
 import axios from "axios";
 import DidYouMean from "didyoumean";
 import { getEmoji, getColor, EmbedBuilder } from './Commands/CommandStructure';
-let db = global.session.db;
+import db from "../packages/database/db";
 const moment = require('moment');
 
 module.exports = class Utils {
-    constructor() {
-        db = global.session.db;
-    }
+    constructor() {}
 
     async checkCache(ctx) {
         if (!ctx.ket.users.has(ctx.uID)) await ctx.ket.getRESTUser(ctx.uID);

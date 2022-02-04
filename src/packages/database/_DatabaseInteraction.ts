@@ -1,4 +1,5 @@
 import { Client } from "pg";
+import db from "./db";
 
 export default class DatabaseInteraction {
     postgres: Client;
@@ -33,7 +34,7 @@ export default class DatabaseInteraction {
             }
             else await this.postgres.query(SQLString);
 
-            if (returnValue) return await global.session.db[this.tableName].find(index)
+            if (returnValue) return await db[this.tableName].find(index)
             return true;
         } catch (e) {
             console.log(`DATABASE/CREATE ON ${this.tableName}`, `SQL: ${SQLString} Erro: ${e}`, 41);
@@ -62,7 +63,7 @@ export default class DatabaseInteraction {
             }
             else await this.postgres.query(SQLString);
 
-            if (returnValue) return await global.session.db[this.tableName].find(index);
+            if (returnValue) return await db[this.tableName].find(index);
             return true;
         } catch (e) {
             console.log(`DATABASE/UPDATE ON ${this.tableName}`, `SQL: ${SQLString} Erro: ${e}`, 41);
@@ -111,7 +112,7 @@ export default class DatabaseInteraction {
             search = false;
         }
         return (!search || (isArray && !search[0])) && createIfNull
-            ? await global.session.db[this.tableName].create(index, null, true)
+            ? await db[this.tableName].create(index, null, true)
             : search;
     }
 

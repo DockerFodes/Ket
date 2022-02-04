@@ -58,7 +58,7 @@ async function main() {
     process
         .on('SIGINT', async () => {
             try {
-                await global.session.db.disconnect();
+                await (await import('./src/packages/database/db')).default.disconnect();
                 console.log('DATABASE', '√ Banco de dados desconectado', 33);
                 ket.editStatus('dnd', { name: 'Encerrando...', type: 0 });
             } catch (e) {

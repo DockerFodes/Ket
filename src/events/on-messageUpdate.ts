@@ -1,7 +1,7 @@
 import { Message } from "eris";
 import KetClient from "../KetClient";
-const KetUtils = new (require('../components/KetUtils'))(),
-    db = global.session.db;
+import db from "../packages/database/db";
+const KetUtils = new (require('../components/KetUtils'))();
 
 module.exports = class MessageUpdateEvent {
     ket: KetClient;

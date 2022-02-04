@@ -1,7 +1,7 @@
 import KetClient from "../KetClient";
 import TerminalClient from "../components/CLI/TerminalClient";
 import gradient from "gradient-string";
-
+import db from "../packages/database/db";
 module.exports = class ReadyEvent {
     ket: KetClient;
     constructor(ket: KetClient) {
@@ -15,8 +15,7 @@ module.exports = class ReadyEvent {
             { name: "mais um gol do vasco", type: 3 },
             { name: "os gemidos da sua mãe", type: 2 },
             { name: 'Vasco x Flamengo', type: 5 }
-        ],
-            db = global.session.db;
+        ];
         setInterval(async () => {
             //@ts-ignore
             this.ket.editStatus("dnd", status[Math.floor(Math.random() * status.length)]);

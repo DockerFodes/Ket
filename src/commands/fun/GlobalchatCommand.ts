@@ -2,6 +2,7 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import KetClient from "../../KetClient";
 import moment from "moment";
 import CommandStructure, { getColor } from "../../components/Commands/CommandStructure";
+import db from "../../packages/database/db";
 
 module.exports = class GlobalChatCommand extends CommandStructure {
     constructor(ket: KetClient) {
@@ -52,7 +53,6 @@ module.exports = class GlobalChatCommand extends CommandStructure {
     }
     async execute(ctx) {
         if (!ctx.args[0]) return await this.ket.send({ context: ctx.env, content: 'kur', emoji: 'negado' });
-        const db = global.session.db;
 
         switch (ctx.args[0].toLowerCase()) {
             case 'start':

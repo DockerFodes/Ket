@@ -3,6 +3,7 @@ import DMexec from "../packages/home/_on-messageDMCreate";
 import homeInteractions from "../packages/home/_homeInteractions";
 import KetClient from "../KetClient";
 import { getContext, getColor } from "../components/Commands/CommandStructure";
+import db from "../packages/database/db";
 const KetUtils = new (require('../components/KetUtils'))();
 
 module.exports = class InteractionCreateEvent {
@@ -16,7 +17,6 @@ module.exports = class InteractionCreateEvent {
         if (!(interaction instanceof CommandInteraction) || interaction.type != 2) return;
         if (!interaction.guildID || interaction.channel.type === 1) DMexec(interaction, this.ket);
 
-        let db = global.session.db;
         let server = await db.servers.find(interaction.guildID, true),
             user = await db.users.find(interaction.member.user.id),
             ctx = getContext({ ket: this.ket, interaction, server, user });

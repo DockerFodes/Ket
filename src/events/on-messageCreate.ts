@@ -2,6 +2,7 @@ import { Message } from "eris";
 import KetClient from "../KetClient";
 import DMexec from "../packages/home/_on-messageDMCreate";
 import { getContext, getColor } from "../components/Commands/CommandStructure";
+import db from "../packages/database/db";
 const KetUtils = new (require('../components/KetUtils'))();
 
 module.exports = class MessageCreateEvent {
@@ -12,7 +13,6 @@ module.exports = class MessageCreateEvent {
     async on(message: Message) {
         if (message.author?.bot && !this.ket.config.TRUSTED_BOTS.includes(message.author?.id) /*|| message.channel.guild.shard.status === 'ready'*/) return;
         if (!message.guildID || message.channel.type === 1) DMexec(message, this.ket);
-        let db = global.session.db;
         let server = await db.servers.find(message.guildID, true),
             user = await db.users.find(message.author.id),
             ctx = getContext({ ket: this.ket, message, server, user });

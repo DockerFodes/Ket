@@ -1,6 +1,7 @@
 import { Client } from "pg";
 import KetClient from "../../KetClient";
 import table from "./_DatabaseInteraction";
+import { receive } from "./db";
 
 module.exports = async (ket: KetClient) => {
     let postgres = global.session.postgres = new Client({
@@ -15,7 +16,7 @@ module.exports = async (ket: KetClient) => {
             ready: false,
             disconnect: () => {
                 postgres.end()
-                global.session.db.ready = false;
+                db.ready = false;
             }
         }
 
@@ -91,26 +92,28 @@ module.exports = async (ket: KetClient) => {
                     warns NUMERIC DEFAULT 1
                   );`)
         })
+    receive(db);
 
     if (!ket.config.PRODUCTION_MODE) return;
     async function backupAndCacheController() {
         //  Backup da database
-        Object.entries(global.session.db).forEach(async ([key, value]) => typeof value === 'object'
-            ? ket.createMessage(ket.config.channels.database, `Backup da table \`${key}\``, { name: `${key}.json`, file: JSON.stringify((await global.session.db[key].getAll())) })
+        Object.entries(db).forEach(async ([key, value]) => typeof value === 'object'
+            ? ket.createMessage(ket.config.channels.database, `Backup da table \`${key}\``,
+                { name: `${key}.json`, file: JSON.stringify(await db[key].getAll()) })
             : null);
 
         //  cache controller
-        let users = (await global.session.db.users.getAll()).map(u => u.id),
+        let users = (await db.users.getAll()).map(u => u.id),
             nonCached = [];
         ket.users.forEach((u) => !users.includes(u.id) && u.id !== ket.user.id ? ket.users.delete(u.id) : null);
         users.forEach(user => !ket.users.has(user) ? nonCached.push(user) : null);
         for (let i in nonCached) new Promise((res, rej) => setTimeout(async () => res(await ket.getRESTUser(nonCached[i])), 5_000));
 
         //  checando banimentos
-        (await global.session.db.blacklist.getAll())
+        (await db.blacklist.getAll())
             .forEach(async user =>
-                !(await global.session.db.users.find(user.id)).banned
-                    ? global.session.db.users.update(user.id, { banned: true })
+                !(await db.users.find(user.id)).banned
+                    ? db.users.update(user.id, { banned: true })
                     : null
             );
     }
