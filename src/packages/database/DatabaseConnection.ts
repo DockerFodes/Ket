@@ -2,35 +2,30 @@ import { Client } from "pg";
 import KetClient from "../../KetClient";
 import table from "./_DatabaseInteraction";
 
-let
-    PgConfig = {
+module.exports = async (ket: KetClient) => {
+    let postgres = global.session.postgres = new Client({
         database: process.env.DATABASE_NAME,
         password: process.env.DATABASE_PASSWORD,
         user: process.env.DATABASE_USER,
         host: process.env.DATABASE_HOST,
         port: Number(process.env.DATABASE_PORT),
         ssl: process.env.SSL_MODE == 'false' ? false : { rejectUnauthorized: false }
-    },
-    postgres = global.session.postgres = new Client(PgConfig);
+    }),
+        db: any = {
+            ready: false,
+            disconnect: () => {
+                postgres.end()
+                global.session.db.ready = false;
+            }
+        }
 
-global.session.db = {
-    ready: false,
-    disconnect: () => {
-        postgres.end()
-        global.session.db.ready = false;
-    }
-}
-
-module.exports = async (ket: KetClient) => {
-
-    if (global.session.db.ready) return;
     await postgres.connect()
         .then(() => {
-            global.session.db = {
+            db = {
                 ready: true,
                 disconnect: () => {
                     postgres.end()
-                    global.session.db.ready = false;
+                    db.ready = false;
                 },
                 users: new table('users', 'id', postgres),
                 servers: new table('servers', 'id', postgres),
@@ -119,7 +114,6 @@ module.exports = async (ket: KetClient) => {
                     : null
             );
     }
-
-    backupAndCacheController();
     setInterval(() => backupAndCacheController(), 60_000 * 30);
+    return backupAndCacheController();
 }

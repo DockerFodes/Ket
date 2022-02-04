@@ -38,14 +38,14 @@ export default class KetClient extends Client {
         this.shardUptime = new Map();
     }
     public async boot() {
-        this.loadLocales(`${__dirname}/locales/`);
+        await this.loadLocales(`${__dirname}/locales/`);
         this.loadCommands(`${__dirname}/commands`);
         this.loadListeners(`${__dirname}/events/`);
         this.loadModules(`${__dirname}/packages/`);
         return super.connect();
     }
 
-    public loadLocales(path) {
+    public async loadLocales(path) {
         let config = global.locale = {
             defaultLang: 'pt',
             defaultJSON: 'commands',
@@ -58,7 +58,7 @@ export default class KetClient extends Client {
             for (let a in config.langs)
                 for (let b in config.files) {
                     if (!config.filesMetadata[config.langs[a]]) config.filesMetadata[config.langs[a]] = {};
-                    config.filesMetadata[config.langs[a]][config.files[b].split('.json')[0]] = require(`${path}/${config.langs[a]}/${config.files[b]}`)
+                    config.filesMetadata[config.langs[a]][config.files[b].split('.json')[0]] = (await import(`${path}/${config.langs[a]}/${config.files[b]}`))
                 }
             console.log('LOCALES', 'Locales carregados', 36)
             return true;
@@ -97,7 +97,7 @@ export default class KetClient extends Client {
                 if (files[a].startsWith('_')) return; i++
                 this.events.add(files[a].split(".")[0].replace('on-', ''), `${__dirname}/events/${files[a]}`);
             }
-            console.log('EVENTS', `${i} Eventos carregados`, 2);
+            console.log('EVENTS', `${i} Listeners adicionados`, 2);
             return true;
         } catch (e) {
             console.log('EVENTS', e, 41);
@@ -282,7 +282,7 @@ export default class KetClient extends Client {
                     comando.config.aliases.forEach((aliase: any) => this.aliases.set(aliase, comando.config.name));
                 }
             }
-            console.log('COMMANDS', `${i} comandos carregados`, 2);
+            console.log('COMMANDS', `${i} Comandos carregados`, 2);
             return true;
         } catch (e) {
             console.log('COMMANDS', e, 41)
