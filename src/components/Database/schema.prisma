@@ -7,7 +7,7 @@ generator client {
     provider = "prisma-client-js"
 }
 
-model users {
+model Users {
     id            String      @id @db.VarChar(20)
     prefix        String?     @db.VarChar(3)
     lang          String?     @db.VarChar(2)
@@ -15,7 +15,7 @@ model users {
     banned        String?
 }
 
-model servers {
+model Servers {
     id          String      @id @db.VarChar(20)
     lang        String?     @db.VarChar(2)
     globalchat  String?     @db.VarChar(20)
@@ -23,13 +23,13 @@ model servers {
     banned      String?
 }
 
-model commands {
+model Commands {
     name        String      @id
     maintenance Boolean?
     reason      String?
 }
 
-model globalchat {
+model Globalchat {
     id          String      @id @db.VarChar(20)
     guild       String      @db.VarChar(20)
     author      String      @db.VarChar(20)
@@ -37,8 +37,8 @@ model globalchat {
     messages    String[]    @db.VarChar(40)
 }
 
-model blacklist {
+model Blacklist {
     id          String      @id @db.VarChar(20)
-    timeout     Int?
+    timeout     Int         @default(0)
     warns       Int         @default(1)
 }

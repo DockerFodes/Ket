@@ -4,8 +4,7 @@
     "description": "",
     "main": "dist/index.js",
     "scripts": {
-        "build": "tsc && npx prisma generate",
-        "postintall": "npx prisma db push",
+        "build": "tsc && npx prisma db push && npx prisma generate",
         "start": "npm run build && npm run noCompile",
         "noCompile": "node --expose-gc --trace-warnings dist/index.js ",
         "ts-mode": "ts-node-dev --ignore-watch ./ index.ts"

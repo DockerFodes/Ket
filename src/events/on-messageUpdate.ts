@@ -14,12 +14,12 @@ module.exports = class MessageUpdateEvent {
     }
     async on(newMessage: any, oldMessage: Message) {
         if ((String(oldMessage?.content).trim() === String(newMessage?.content).trim() && !newMessage.editedTimestamp) || newMessage.author?.bot) return;
-        const guild = await this.prisma.servers.get(newMessage.guildID)
+        const guild = await this.prisma.servers.find(newMessage.guildID)
 
         if (newMessage.channel.id !== guild.globalchat) return this.ket.emit("messageCreate", newMessage);
 
-        const user = await this.prisma.users.get(newMessage.author.id),
-            msgData = await this.prisma.globalchat.get(newMessage.id);
+        const user = await this.prisma.users.find(newMessage.author.id),
+            msgData = await this.prisma.globalchat.find(newMessage.id);
 
         if (user.banned || !msgData) return;
 
@@ -27,7 +27,7 @@ module.exports = class MessageUpdateEvent {
 
         msgData.messages.forEach(async data => {
             let msgID = data.split('|')[0],
-                guildData = await this.prisma.servers.get(data.split('|')[1]),
+                guildData = await this.prisma.servers.find(data.split('|')[1]),
                 channel: any = this.ket.guilds.get(guildData.id).channels.get(guildData.globalchat),
                 webhook = this.ket.webhooks.get(channel.id);
 

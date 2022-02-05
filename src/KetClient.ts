@@ -3,8 +3,9 @@ import { ESMap } from "typescript";
 import EventHandler from "./components/Core/EventHandler";
 import { readdirSync } from "fs";
 import { getEmoji, getColor } from './components/Commands/CommandStructure';
-import { connect } from "./components/Database/PrismaConnection";
-let prisma: any;
+import Prisma, { connect } from "./components/Database/PrismaConnection";
+let prisma: Prisma;
+
 class usuario extends User {
     rateLimit: number;
     tag: string;
@@ -15,6 +16,7 @@ class usuario extends User {
 }
 
 class clientUser extends ExtendedUser {
+    rateLimit: number;
     tag: string;
 }
 
@@ -28,10 +30,10 @@ export default class KetClient extends Client {
     users: Collection<usuario>;
     shardUptime: ESMap<string | number, number>;
 
-    constructor(Prisma: any, token: string, options: ClientOptions) {
+    constructor(PrismaClient: any, token: string, options: ClientOptions) {
         super(token, options);
 
-        prisma = Prisma
+        prisma = PrismaClient
         this.config = require('./json/settings.json');
         this.events = new (EventHandler)(this, prisma);
         this.commands = new Map();

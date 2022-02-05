@@ -18,8 +18,8 @@ module.exports = class MessageCreateEvent {
         if (message.author?.bot && !this.ket.config.TRUSTED_BOTS.includes(message.author?.id) /*|| message.channel.guild.shard.status === 'ready'*/) return;
         if (!message.guildID || message.channel.type === 1) DMexec(message, this.ket);
 
-        let server = await this.prisma.servers.get(message.guildID, true),
-            user = await this.prisma.users.get(message.author.id),
+        let server = await this.prisma.servers.find(message.guildID, true),
+            user = await this.prisma.users.find(message.author.id),
             ctx = getContext({ ket: this.ket, message, server, user });
         global.lang = user.lang;
 

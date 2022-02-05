@@ -17,7 +17,6 @@
     "globalchat": {
         "editLimit": 3,
         "allowedLinks": [
-                // CDNs de imagens/vídeos/gifs
             "https://media.discordapp.net/attachments/",
             "https://cdn.discordapp.com/attachments/",
             "https://tenor.com/view",
@@ -26,7 +25,6 @@
             "https://imgur.com",
             "https://crunchyroll.com",
             
-                // Lojas de jogos grátis
             "https://gog.com",
             "https://epicgames.com",
             "https://ubisoft.com",
@@ -35,7 +33,6 @@
             "https://roblox.com",
             "https://chess.com",
             
-                // Outros Sites
             "https://google.com",
             "https://pt.wikipedia.org",
             "https://dicio.com.br",

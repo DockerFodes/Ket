@@ -95,9 +95,9 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                 if (isNaN(Number(ctx.args[1])) || !ctx.args[1] || !msg)
                     return this.ket.send({ context: ctx.env, emoji: 'negado', content: global.t('globalchat.messageNotFound') });
 
-                let userData = await this.prisma.users.get(msg.author),
+                let userData = await this.prisma.users.find(msg.author),
                     user: any = await this.ket.findUser(ctx.env, userData.id),
-                    server = await this.prisma.servers.get(msg.guild),
+                    server = await this.prisma.servers.find(msg.guild),
                     message: any = await this.ket.getMessage(server.globalchat, msg.id)
                         .catch(() => { });
                 moment.locale(ctx.user.lang);

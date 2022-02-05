@@ -23,8 +23,8 @@ export default class KetUtils {
     }
 
     async checkUserGuildData(ctx: any, globalchat: boolean = false) {
-        await this.prisma.servers.get(ctx.gID, true)
-        let user = await this.prisma.users.get(ctx.uID);
+        await this.prisma.servers.find(ctx.gID, true)
+        let user = await this.prisma.users.find(ctx.uID);
         if (!user) {
             user = await this.prisma.users.create({
                 data: {
@@ -120,7 +120,7 @@ export default class KetUtils {
                 if (!webhook) return;
                 if (message.messageReference && !message.author.bot) {
                     let ref = channel.messages.find(m => m?.author.username === msg?.author.username && this.msgFilter(m?.cleanContent, 1990, true) === this.msgFilter(msg?.cleanContent, 1990, true) && m?.timestamp - msg?.timestamp < 1000 && (msg.attachments[0] ? m.attachments[0].name === msg.attachments[0].name : true)),
-                        refAuthor = await this.prisma.users.get(msg?.author.id),
+                        refAuthor = await this.prisma.users.find(msg?.author.id),
                         refContent = this.msgFilter(msg.cleanContent, 64).length === 0 ? "`⬑ - - Ver mensagem - - ⬏`" : this.msgFilter(msg.cleanContent, 64)
 
                     !msg ? null : msgObj.embeds = [{
@@ -205,7 +205,7 @@ export default class KetUtils {
                 where: { id: ctx.uID },
                 data: { banned: `[ AUTO-MOD ] - Mal comportamento no chat global, timeout: ${Date.now() + user.rateLimit * 1000 * 60}` }
             });
-            let userBl = await this.prisma.blacklist.get(ctx.uID)
+            let userBl = await this.prisma.blacklist.find(ctx.uID)
             if (userBl) userBl.warns < 3 ? await this.prisma.blacklist.update({
                 where: { id: ctx.uID },
                 data: {
@@ -269,7 +269,7 @@ export default class KetUtils {
     }
 
     async sendCommandLog(ctx) {
-        let user = await this.prisma.users.get(ctx.uID),
+        let user = await this.prisma.users.find(ctx.uID),
             embed: any = new EmbedBuilder()
                 .setColor('green')
                 .setTitle(user.prefix + ctx.commandName)

@@ -10,7 +10,7 @@ module.exports = class MessageDeleteEvent {
         this.prisma = prisma;
     }
     async on(message: Message<GuildChannel>) {
-        let guild = await this.prisma.servers.get(message.guildID);
+        let guild = await this.prisma.servers.find(message.guildID);
         if (message.channel.id !== guild.globalchat || Date.now() > message.timestamp + (15 * 1000 * 60) || message.author?.bot) return;
 
         let msgs = await this.prisma.globalchat.findMany(),
@@ -18,7 +18,7 @@ module.exports = class MessageDeleteEvent {
 
         !msgData ? null : msgData.messages.forEach(async data => {
 
-            let guildData = await this.prisma.servers.get(data.split('|')[1]),
+            let guildData = await this.prisma.servers.find(data.split('|')[1]),
                 channel: any = this.ket.guilds.get(guildData.id).channels.get(guildData.globalchat),
                 msg: Message = await channel.getMessage(data.split('|')[0]),
                 webhook = this.ket.webhooks.get(channel.id),

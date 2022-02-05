@@ -4,7 +4,7 @@ import { DEFAULT_PREFIX, PRODUCTION_MODE } from "../../json/settings.json";
 type table = {
     create(data: object);
     update(data: object);
-    get(data: string | object, boolean?);
+    find(data: string | object, boolean?);
     delete(data: object);
 
     findMany(options?: object)
@@ -12,6 +12,7 @@ type table = {
 
 type Prisma = {
     $connect: Function;
+    $disconnect: Function;
     users: table;
     servers: table,
     commands: table;
@@ -37,8 +38,13 @@ export async function connect(ket: KetClient, prisma: Prisma) {
         }
     }
 
+    await prisma.$connect()
+        .then(() => console.log('DATABASE', '√ Banco de dados operante', 32))
+        .catch((error: Error) => console.log('DATABASE', `x Não foi possível realizar conexão ao banco de dados: ${error}`, 41))
+
     Object.keys(prisma).filter(key => !key.startsWith('_')).forEach(key => {
-        prisma[key].get = async (data: string | object, createIfNull: boolean = false) => {
+        console.info(key, prisma[key])
+        prisma[key].find = async (data: string | object, createIfNull: boolean = false) => {
             typeof data === 'string' ? data = { where: { id: data } } : null;
             let res = await prisma[key].findUnique(data);
             return !res
@@ -48,16 +54,12 @@ export async function connect(ket: KetClient, prisma: Prisma) {
                 : res;
         }
     })
-    await prisma.$connect()
-        .then(() => console.log('DATABASE', '√ Banco de dados operante', 32))
-        .catch((error: Error) => console.log('DATABASE', `x Não foi possível realizar conexão ao banco de dados: ${error}`, 41))
-
 
     if (!PRODUCTION_MODE) return;
     async function backupAndCacheController() {
         //  Backup da database
         Object.entries(prisma)
-            .filter(([key]) => !key.startsWith("_"))
+            .filter(([key]) => !key.startsWith("_") && !key.startsWith('$'))
             .forEach(async ([key, value]) => typeof value === 'object'
                 ? ket.createMessage(ket.config.channels.database, `Backup da table \`${key}\``,
                     { name: `${key}.json`, file: await prisma[key].findMany() })
