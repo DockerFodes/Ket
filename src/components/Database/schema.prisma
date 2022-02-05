@@ -1,17 +1,21 @@
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
-model Users {
-  id            String      @id @db.VarChar(20)
-  prefix        String?     @db.VarChar(3)
-  lang          String?     @db.VarChar(2)
-  commands      Int         @default(1) 
-  banned        String?
+generator client {
+    provider = "prisma-client-js"
 }
 
-model Servers {
+model users {
+    id            String      @id @db.VarChar(20)
+    prefix        String?     @db.VarChar(3)
+    lang          String?     @db.VarChar(2)
+    commands      Int         @default(1) 
+    banned        String?
+}
+
+model servers {
     id          String      @id @db.VarChar(20)
     lang        String?     @db.VarChar(2)
     globalchat  String?     @db.VarChar(20)
@@ -19,21 +23,21 @@ model Servers {
     banned      String?
 }
 
-model Commands {
+model commands {
     name        String      @id
     maintenance Boolean?
     reason      String?
 }
 
-model Globalchat {
+model globalchat {
     id          String      @id @db.VarChar(20)
     guild       String      @db.VarChar(20)
     author      String      @db.VarChar(20)
-    editcount   Int         @default(0)
+    editCount   Int         @default(0)
     messages    String[]    @db.VarChar(40)
 }
 
-model Blacklist {
+model blacklist {
     id          String      @id @db.VarChar(20)
     timeout     Int?
     warns       Int         @default(1)

@@ -3,13 +3,17 @@ import DMexec from "../packages/home/_on-messageDMCreate";
 import homeInteractions from "../packages/home/_homeInteractions";
 import KetClient from "../KetClient";
 import { getContext, getColor } from "../components/Commands/CommandStructure";
-import db from "../components/db";
-const KetUtils = new (require('../components/Core/KetUtils'))();
+import Prisma from "../components/Database/PrismaConnection";
+import KetUtils from "../components/Core/KetUtils";
 
 module.exports = class InteractionCreateEvent {
     ket: KetClient;
-    constructor(ket: KetClient) {
+    prisma: Prisma;
+    KetUtils: any;
+    constructor(ket: KetClient, prisma: Prisma) {
         this.ket = ket;
+        this.prisma = prisma;
+        this.KetUtils = new (KetUtils)(this.ket, this.prisma);
     }
     async on(interaction: any) {
         if (this.ket.config.channels.homeInteractions.includes(interaction.channel.id) && (interaction instanceof ComponentInteraction))
@@ -17,34 +21,27 @@ module.exports = class InteractionCreateEvent {
         if (!(interaction instanceof CommandInteraction) || interaction.type != 2) return;
         if (!interaction.guildID || interaction.channel.type === 1) DMexec(interaction, this.ket);
 
-        let server = await db.servers.find(interaction.guildID, true),
-            user = await db.users.find(interaction.member.user.id),
+        let server = await this.prisma.servers.get(interaction.guildID, true),
+            user = await this.prisma.users.get(interaction.member.id),
             ctx = getContext({ ket: this.ket, interaction, server, user });
-        global.lang = user?.lang;
+        global.lang = user.lang;
 
-        if (user?.banned) return;
-        if (server?.banned) return ctx.guild.leave();
+        if (user.banned) return;
+        if (server.banned) return ctx.guild.leave();
 
         let args: string[] = [],
             commandName: string = interaction.data.name,
             command = this.ket.commands.get(commandName) || this.ket.commands.get(this.ket.aliases.get(commandName));
 
-        if (!command && (command = await KetUtils.commandNotFound(ctx, commandName)) === false) return;
-        function getArgs(option) {
-            if (!option.value) args.push(option.name);
-            else args.push(option.value)
-            return option?.options ? option.options.forEach(op => getArgs(op)) : null
-        }
-        interaction.data?.options?.forEach((option: any) => getArgs(option))
+        if (!command && (command = await this.KetUtils.commandNotFound(ctx, commandName)) === false) return;
+        interaction.data?.options?.forEach((option: any) => getArgs(option));
+        ctx = getContext({ ket: this.ket, user, server, interaction, args, command, commandName });
 
+        await this.KetUtils.checkCache(ctx);
+        ctx.user = await this.KetUtils.checkUserGuildData(ctx);
+        global.lang = user.lang;
 
-        ctx = getContext({ ket: this.ket, user, server, interaction, args, command, commandName })
-
-        await KetUtils.checkCache(ctx);
-        ctx.user = await KetUtils.checkUserGuildData(ctx);
-        global.lang = user?.lang;
-
-        if (await KetUtils.checkPermissions({ ctx }) === false) return;
+        if (await this.KetUtils.checkPermissions({ ctx }) === false) return;
         if (ctx.command.permissions.onlyDevs && !this.ket.config.DEVS.includes(ctx.uID)) return this.ket.send({
             context: interaction, emoji: 'negado', content: {
                 embeds: [{
@@ -53,15 +50,27 @@ module.exports = class InteractionCreateEvent {
                 }]
             }
         })
-        await db.users.update(ctx.uID, { commands: 'sql commands + 1' });
+
+        // await this.prisma.users.update({
+        //     where: { id: ctx.gID },
+        //     data: {
+        //         commands: 'sql commands + 1'
+        //     }
+        // });
+
+        function getArgs(option) {
+            if (!option.value) args.push(option.name);
+            else args.push(option.value)
+            return option?.options ? option.options.forEach(op => getArgs(op)) : null
+        }
 
         return new Promise(async (res, rej) => {
             try {
                 await interaction.defer().catch(() => { });
                 await command.execute(ctx);
-                KetUtils.sendCommandLog(ctx)
+                this.KetUtils.sendCommandLog(ctx)
             } catch (error) {
-                return KetUtils.CommandError(ctx, error)
+                return this.KetUtils.CommandError(ctx, error)
             }
         })
     }

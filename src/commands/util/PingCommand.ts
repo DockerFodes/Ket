@@ -1,9 +1,10 @@
 import KetClient from "../../KetClient"
 import CommandStructure from "../../components/Commands/CommandStructure"
+import Prisma from "../../components/Database/PrismaConnection";
 
 module.exports = class PingCommand extends CommandStructure {
-    constructor(ket: KetClient) {
-        super(ket, {
+    constructor(ket: KetClient, prisma: Prisma) {
+        super(ket, prisma, {
             name: 'ping',
             aliases: [],
             cooldown: 3,

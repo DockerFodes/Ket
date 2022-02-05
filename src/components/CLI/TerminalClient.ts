@@ -1,9 +1,9 @@
 import KetClient from "../../KetClient";
 import prompts from "prompts";
 import gradient from "gradient-string";
-import db from "../../components/db";
+import Prisma from "../Database/PrismaConnection";
 
-export default async function (ket: KetClient) {
+export default async function (ket: KetClient, prisma: Prisma) {
     termEval();
     async function termEval() {
         delete require.cache[require.resolve(`./CLI`)];

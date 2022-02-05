@@ -15,7 +15,7 @@
             "title": "Informações",
             "fields": [
                 { "name": "Mensagem Original", "value": "```cs\n{{msg.id}}```", "inline": true },
-                { "name": "Editada", "value": "```cs\n{{msg.editcount}} vezes```", "inline": true },
+                { "name": "Editada", "value": "```cs\n{{msg.editCount}} vezes```", "inline": true },
                 { "name": "Enviada a:", "value": "```cs\n{{messages.length}} servidores```", "inline": true },
                 { "name": "Data de envio:", "value": "```md\n# {{timestamp}}```" },
                 { "name": "Servidor", "value": "```fix\n{{guild.name}} (ID: {{guild.id}})```"},

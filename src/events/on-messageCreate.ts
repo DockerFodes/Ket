@@ -2,40 +2,48 @@ import { Message } from "eris";
 import KetClient from "../KetClient";
 import DMexec from "../packages/home/_on-messageDMCreate";
 import { getContext, getColor } from "../components/Commands/CommandStructure";
-import db from "../components/db";
-const KetUtils = new (require('../components/Core/KetUtils'))();
+import Prisma from "../components/Database/PrismaConnection";
+import KetUtils from "../components/Core/KetUtils";
 
 module.exports = class MessageCreateEvent {
     ket: KetClient;
-    constructor(ket: KetClient) {
+    prisma: Prisma;
+    KetUtils: any;
+    constructor(ket: KetClient, prisma: Prisma) {
         this.ket = ket;
+        this.prisma = prisma;
+        this.KetUtils = new (KetUtils)(this.ket, this.prisma);
     }
     async on(message: Message) {
         if (message.author?.bot && !this.ket.config.TRUSTED_BOTS.includes(message.author?.id) /*|| message.channel.guild.shard.status === 'ready'*/) return;
         if (!message.guildID || message.channel.type === 1) DMexec(message, this.ket);
-        let server = await db.servers.find(message.guildID, true),
-            user = await db.users.find(message.author.id),
+
+        let server = await this.prisma.servers.get(message.guildID, true),
+            user = await this.prisma.users.get(message.author.id),
             ctx = getContext({ ket: this.ket, message, server, user });
-        global.lang = user?.lang;
+        global.lang = user.lang;
 
-        if (user?.banned) return;
-        if (server?.banned) return ctx.guild.leave();
-        if (server?.globalchat && ctx.cID === server.globalchat) KetUtils.sendGlobalChat(ctx);
+        // return console.info(await this.prisma.users.create({
+        //         data: { id: '789123515882012683' }
+        //     }));
+        if (user.banned) return;
+        if (server.banned) return ctx.guild.leave();
+        if (server.globalchat && ctx.cID === server.globalchat) this.KetUtils.sendGlobalChat(ctx);
 
-        const regexp = new RegExp(`^(${((!user || !user.prefix) ? this.ket.config.DEFAULT_PREFIX : user.prefix).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}|<@!?${this.ket.user.id}>)( )*`, 'gi')
+        const regexp = new RegExp(`^(${(user.prefix).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}|<@!?${this.ket.user.id}>)( )*`, 'gi')
         if (!message.content.match(regexp)) return;
         let args: string[] = message.content.replace(regexp, '').trim().split(/ /g),
             commandName: string | null = args.shift().toLowerCase(),
             command = this.ket.commands.get(commandName) || this.ket.commands.get(this.ket.aliases.get(commandName));
 
-        if (!command && (command = await KetUtils.commandNotFound(ctx, commandName)) === false) return;
+        if (!command && (command = await this.KetUtils.commandNotFound(ctx, commandName)) === false) return;
         ctx = getContext({ ket: this.ket, user, server, message, args, command, commandName })
 
-        await KetUtils.checkCache(ctx);
-        global.lang = user?.lang;
-        ctx.user = await KetUtils.checkUserGuildData(ctx);
+        await this.KetUtils.checkCache(ctx);
+        global.lang = user.lang;
+        ctx.user = await this.KetUtils.checkUserGuildData(ctx);
 
-        if (await KetUtils.checkPermissions({ ctx }) === false) return;
+        if (await this.KetUtils.checkPermissions({ ctx }) === false) return;
         if (ctx.command.permissions.onlyDevs && !this.ket.config.DEVS.includes(ctx.uID)) return this.ket.send({
             context: message, emoji: 'negado', content: {
                 embeds: [{
@@ -44,7 +52,12 @@ module.exports = class MessageCreateEvent {
                 }]
             }
         })
-        await db.users.update(ctx.uID, { commands: 'sql commands + 1' });
+        // await this.prisma.users.update({
+        //     where: { id: ctx.gID },
+        //     data: {
+        //         commands: 'sql commands + 1'
+        //     }
+        // });
         // let noargs = {
         //     color: getColor('red'), 
         //     thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/816183379435192330/noargs.thumb.gif' },
@@ -68,9 +81,9 @@ module.exports = class MessageCreateEvent {
             try {
                 ctx.command.dontType ? null : await ctx.channel.sendTyping();
                 await command.execute(ctx);
-                KetUtils.sendCommandLog(ctx)
+                this.KetUtils.sendCommandLog(ctx)
             } catch (error) {
-                return KetUtils.CommandError(ctx, error)
+                return this.KetUtils.CommandError(ctx, error)
             }
         })
     }

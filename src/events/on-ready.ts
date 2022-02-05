@@ -1,11 +1,14 @@
 import KetClient from "../KetClient";
 import TerminalClient from "../components/CLI/TerminalClient";
 import gradient from "gradient-string";
-import db from "../components/db";
+import Prisma from "../components/Database/PrismaConnection";
+
 module.exports = class ReadyEvent {
     ket: KetClient;
-    constructor(ket: KetClient) {
+    prisma: Prisma;
+    constructor(ket: KetClient, prisma: Prisma) {
         this.ket = ket;
+        this.prisma = prisma;
     }
     async on() {
         let status: object[] = [
@@ -20,16 +23,19 @@ module.exports = class ReadyEvent {
             //@ts-ignore
             this.ket.editStatus("dnd", status[Math.floor(Math.random() * status.length)]);
 
-            (await db.blacklist.getAll())?.forEach(async user => {
+            (await this.prisma.blacklist.findMany()).forEach(async user => {
                 if (user.warns < 3 && Date.now() > Number(user.timeout)) {
-                    await db.users.update(user.id, { banned: null })
-                    await db.blacklist.delete(user.id)
+                    await this.prisma.users.update({
+                        where: { id: user.id },
+                        data: { banned: null }
+                    });
+                    await this.prisma.blacklist.delete({ where: { id: user.id } });
                 }
             });
         }, 60_000)
         console.log('GATEWAY', `Sessão iniciada como ${this.ket.user.tag}`, 33);
         console.info(gradient('red', 'yellow')("◆ ▬▬▬▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬▬▬▬ ◆"));
         console.log(`Operante em ${this.ket.guilds.size} templos com ${this.ket.guilds.map(g => g.memberCount).reduce((acc, crt) => acc + crt) - this.ket.guilds.size} subordinados`);
-        return TerminalClient(this.ket);
+        return TerminalClient(this.ket, this.prisma);
     }
 }

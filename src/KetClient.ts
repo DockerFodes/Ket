@@ -3,9 +3,10 @@ import { ESMap } from "typescript";
 import EventHandler from "./components/Core/EventHandler";
 import { readdirSync } from "fs";
 import { getEmoji, getColor } from './components/Commands/CommandStructure';
-import DatabaseConnection from "./components/Database/DatabaseConnection";
-
+import { connect } from "./components/Database/PrismaConnection";
+let prisma: any;
 class usuario extends User {
+    rateLimit: number;
     tag: string;
     lastCommand: {
         botMsg: Message<GuildChannel>,
@@ -27,19 +28,20 @@ export default class KetClient extends Client {
     users: Collection<usuario>;
     shardUptime: ESMap<string | number, number>;
 
-    constructor(token: string, options: ClientOptions) {
+    constructor(Prisma: any, token: string, options: ClientOptions) {
         super(token, options);
 
+        prisma = Prisma
         this.config = require('./json/settings.json');
-        this.events = new (EventHandler)(this);
+        this.events = new (EventHandler)(this, prisma);
         this.commands = new Map();
         this.aliases = new Map();
         this.webhooks = new Map();
         this.shardUptime = new Map();
     }
     public async boot() {
-        await DatabaseConnection(this);
         await this.loadLocales(`${__dirname}/locales/`);
+        await connect(this, prisma)
         this.loadCommands(`${__dirname}/commands`);
         this.loadListeners(`${__dirname}/events/`);
         // await this.loadModules(`${__dirname}/packages/`);
@@ -111,7 +113,9 @@ export default class KetClient extends Client {
             let categories = readdirSync(`${path}/`), i = 0;
             for (let a in categories) {
                 let modules = readdirSync(`${path}/${categories[a]}/`);
-                for (let b in modules) modules[b].startsWith("_") || modules[b].startsWith('db') ? null : (await import(`${path}/${categories[a]}/${i++ ? modules[b] : modules[b]}`)).default(this)
+                for (let b in modules) modules[b].startsWith("_")
+                    ? null
+                    : (await import(`${path}/${categories[a]}/${i++ ? modules[b] : modules[b]}`)).default(this)
             }
             console.log('MODULES', `${i} Módulos inicializados`, 2);
             return true;

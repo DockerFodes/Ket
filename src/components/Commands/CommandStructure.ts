@@ -1,10 +1,12 @@
 import KetClient from "../../KetClient";
+import Prisma from "../Database/PrismaConnection";
 
 export default class CommandStructure {
     ket: KetClient;
+    prisma: Prisma;
     config: object;
 
-    constructor(ket, command) {
+    constructor(ket: KetClient, prisma: Prisma, command) {
         this.config = {
             name: command.name || null,
             aliases: command.aliases || [],
@@ -24,6 +26,7 @@ export default class CommandStructure {
             data: command.data || null
         }
         this.ket = ket;
+        this.prisma = prisma;
     }
 }
 

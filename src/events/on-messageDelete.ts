@@ -1,20 +1,24 @@
 import { GuildChannel, Message } from "eris";
+import Prisma from "../components/Database/PrismaConnection";
 import KetClient from "../KetClient";
-import db from "../components/db";
 
 module.exports = class MessageDeleteEvent {
     ket: KetClient;
-    constructor(ket: KetClient) {
-        this.ket = ket
+    prisma: Prisma;
+    constructor(ket: KetClient, prisma: Prisma) {
+        this.ket = ket;
+        this.prisma = prisma;
     }
     async on(message: Message<GuildChannel>) {
-        let guild = await db.servers.find(message.guildID);
+        let guild = await this.prisma.servers.get(message.guildID);
         if (message.channel.id !== guild.globalchat || Date.now() > message.timestamp + (15 * 1000 * 60) || message.author?.bot) return;
 
-        let msgs = await db.globalchat.getAll(500, { key: 'id', type: 'DESC' }),
+        let msgs = await this.prisma.globalchat.findMany(),
             msgData = msgs.filter(msg => msg.id === message.id || msg.messages.includes(message.id))[0];
+
         !msgData ? null : msgData.messages.forEach(async data => {
-            let guildData = await db.servers.find(data.split('|')[1]),
+
+            let guildData = await this.prisma.servers.get(data.split('|')[1]),
                 channel: any = this.ket.guilds.get(guildData.id).channels.get(guildData.globalchat),
                 msg: Message = await channel.getMessage(data.split('|')[0]),
                 webhook = this.ket.webhooks.get(channel.id),
