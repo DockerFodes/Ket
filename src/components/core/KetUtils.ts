@@ -176,7 +176,7 @@ export default class KetUtils {
             : null;
             
         if (content.match(isUrl)) {
-            let config = require('../json/settings.json');
+            let config = require('../JSON/settings.json');
 
             content.split(' ').forEach(text => {
                 if (!content.match(text)) return;

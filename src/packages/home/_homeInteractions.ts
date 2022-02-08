@@ -1,5 +1,5 @@
-import roles from "../../json/roles.json";
-import { getEmoji, getColor } from "../../components/Commands/CommandStructure";
+import roles from "../../JSON/roles.json";
+import { getEmoji, getColor } from "../../Components/Commands/CommandStructure";
 
 export default async function (interaction: any) {
     if (!['colors', 'notifications'].includes(interaction.data.custom_id) || interaction.data.component_type !== 3 || !roles[interaction.data.values[0]]) return;

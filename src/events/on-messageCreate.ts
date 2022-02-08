@@ -1,9 +1,9 @@
 import { Message } from "eris";
 import KetClient from "../KetClient";
-import DMexec from "../packages/home/_on-messageDMCreate";
-import { getContext, getColor } from "../components/Commands/CommandStructure";
-import Prisma from "../components/Database/PrismaConnection";
-import KetUtils from "../components/Core/KetUtils";
+import DMexec from "../Packages/Home/_on-messageDMCreate";
+import { getContext, getColor } from "../Components/Commands/CommandStructure";
+import Prisma from "../Components/Database/PrismaConnection";
+import KetUtils from "../Components/Core/KetUtils";
 
 module.exports = class MessageCreateEvent {
     ket: KetClient;

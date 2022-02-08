@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import CommandStructure, { EmbedBuilder, getEmoji, getColor } from "../../components/Commands/CommandStructure";
-import Prisma from "../../components/Database/PrismaConnection";
+import CommandStructure, { EmbedBuilder, getEmoji, getColor } from "../../Components/Commands/CommandStructure";
+import Prisma from "../../Components/Database/PrismaConnection";
 import KetClient from "../../KetClient";
 
 const
@@ -53,8 +53,8 @@ module.exports = class EvalCommand extends CommandStructure {
             embed = new EmbedBuilder(),
             mb = (data: number) => Math.floor(data / 1024 / 1024) + "MB";
         function filtrar(content: string) {
-            content = inspect(content)
-                .replace(new RegExp(`${this.ket._token}|${process.env.DATABASE_PASSWORD}|${process.env.WEBHOOK_LOGS}`, 'gi'), 'censored key')
+            return content = inspect(content)
+                .replace(new RegExp(ket._token, 'gi'), 'censored key')
         }
 
         try {

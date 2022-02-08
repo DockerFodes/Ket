@@ -1,7 +1,7 @@
 import KetClient from "../KetClient";
-import TerminalClient from "../components/CLI/TerminalClient";
+import TerminalClient from "../Components/CLI/TerminalClient";
 import gradient from "gradient-string";
-import Prisma from "../components/Database/PrismaConnection";
+import Prisma from "../Components/Database/PrismaConnection";
 
 module.exports = class ReadyEvent {
     ket: KetClient;

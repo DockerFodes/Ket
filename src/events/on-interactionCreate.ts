@@ -1,10 +1,10 @@
 import { CommandInteraction, ComponentInteraction } from "eris";
-import DMexec from "../packages/home/_on-messageDMCreate";
-import homeInteractions from "../packages/home/_homeInteractions";
+import DMexec from "../Packages/Home/_on-messageDMCreate";
+import homeInteractions from "../Packages/Home/_homeInteractions";
 import KetClient from "../KetClient";
-import { getContext, getColor } from "../components/Commands/CommandStructure";
-import Prisma from "../components/Database/PrismaConnection";
-import KetUtils from "../components/Core/KetUtils";
+import { getContext, getColor } from "../Components/Commands/CommandStructure";
+import Prisma from "../Components/Database/PrismaConnection";
+import KetUtils from "../Components/Core/KetUtils";
 
 module.exports = class InteractionCreateEvent {
     ket: KetClient;

@@ -1,9 +1,9 @@
 import { Client, ClientOptions, Collection, CommandInteraction, ExtendedUser, Guild, GuildChannel, Member, Message, User, Webhook } from "eris";
 import { ESMap } from "typescript";
-import EventHandler from "./components/Core/EventHandler";
+import EventHandler from "./Components/Core/EventHandler";
 import { readdirSync } from "fs";
-import { getEmoji, getColor } from './components/Commands/CommandStructure';
-import Prisma, { connect } from "./components/Database/PrismaConnection";
+import { getEmoji, getColor } from './Components/Commands/CommandStructure';
+import Prisma from "./Components/Database/PrismaConnection";
 let prisma: Prisma;
 
 class usuario extends User {
@@ -22,6 +22,7 @@ class clientUser extends ExtendedUser {
 
 export default class KetClient extends Client {
     config: any;
+    _token: string;
     events: EventHandler;
     commands: ESMap<string, any>;
     aliases: ESMap<string, string>;
@@ -34,7 +35,7 @@ export default class KetClient extends Client {
         super(token, options);
 
         prisma = PrismaClient
-        this.config = require('./json/settings.json');
+        this.config = require('./JSON/settings.json');
         this.events = new (EventHandler)(this, prisma);
         this.commands = new Map();
         this.aliases = new Map();
@@ -43,7 +44,7 @@ export default class KetClient extends Client {
     }
     public async boot() {
         await this.loadLocales(`${__dirname}/locales/`);
-        await connect(this, prisma)
+        // await connect(this, prisma)
         this.loadCommands(`${__dirname}/commands`);
         this.loadListeners(`${__dirname}/events/`);
         // await this.loadModules(`${__dirname}/packages/`);
@@ -282,7 +283,7 @@ export default class KetClient extends Client {
             for (let a in categories) {
                 let files = readdirSync(`${path}/${categories[a]}/`);
                 for (let b in files) {
-                    const comando = new (require(`${path}/${categories[a]}/${files[b]}`))(this);
+                    const comando = new (require(`${path}/${categories[a]}/${files[b]}`))(this, prisma);
                     comando.config.dir = `${path}/${categories[a]}/${files[b]}`;
                     this.commands.set(comando.config.name, comando);
                     i++

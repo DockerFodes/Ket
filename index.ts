@@ -1,8 +1,9 @@
 import { ClientOptions } from "eris";
 import KetClient from "./src/KetClient";
-import { CLIENT_OPTIONS } from "./src/json/settings.json";
+import { CLIENT_OPTIONS } from "./src/JSON/settings.json";
 import express, { Response } from "express";
 import { PrismaClient } from '@prisma/client';
+import { connect } from "./src/Components/Database/PrismaConnection";
 const
     moment = require("moment"),
     duration = require("moment-duration-format"),
@@ -14,7 +15,8 @@ main()
 async function main() {
     (await import('dotenv')).config();
     global.PRODUCTION_MODE = process.argv.includes('--dev') ? false : true;
-    const prisma = new PrismaClient();
+    let prisma = new PrismaClient();
+    prisma = await connect(prisma);
     const ket = new KetClient(prisma, `Bot ${global.PRODUCTION_MODE ? - process.env.DISCORD_TOKEN : process.env.BETA_CLIENT_TOKEN}`, CLIENT_OPTIONS as ClientOptions);
 
     type colorChoices = 1 | 2 | 3 | 4 | 7 | 8 | 9 | 21 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 41 | 42 | 43 | 44 | 45 | 46 | 47 | 52 | 90 | 91 | 92 | 93 | 94 | 95 | 96 | 97 | 100 | 101 | 102 | 103 | 104 | 105 | 106 | 107;

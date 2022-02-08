@@ -1,8 +1,8 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import KetClient from "../../KetClient";
 import moment from "moment";
-import CommandStructure, { getColor } from "../../components/Commands/CommandStructure";
-import Prisma from "../../components/Database/PrismaConnection";
+import CommandStructure, { getColor } from "../../Components/Commands/CommandStructure";
+import Prisma from "../../Components/Database/PrismaConnection";
 
 module.exports = class GlobalChatCommand extends CommandStructure {
     constructor(ket: KetClient, prisma: Prisma) {

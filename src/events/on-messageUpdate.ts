@@ -1,7 +1,7 @@
 import { Message } from "eris";
-import Prisma from "../components/Database/PrismaConnection";
+import Prisma from "../Components/Database/PrismaConnection";
 import KetClient from "../KetClient";
-import KetUtils from "../components/Core/KetUtils";
+import KetUtils from "../Components/Core/KetUtils";
 
 module.exports = class MessageUpdateEvent {
     ket: KetClient;

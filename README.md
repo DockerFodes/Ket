@@ -30,7 +30,7 @@ npm install -g typescript pm2
 ### `4 -` 🌿 Preparing the environment 
 - Rename the ".env.example" file to ".env"
 - Replace or fill the settings from the ".env" and "settings.json"
-> ⚠️ settings.json is located in "src/json/settings.json"
+> ⚠️ settings.json is located in "src/JSON/settings.json"
 
 ### 🚀 Starting
 To start just type:
