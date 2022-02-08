@@ -3,7 +3,7 @@ node_modules/
 dist/
 .vscode/
 migrations/
-src/components/Database/migrations
+src/Components/Database/migrations
 
 # Arquivos
 package-lock.json
