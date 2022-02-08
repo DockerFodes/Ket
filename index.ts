@@ -1,6 +1,6 @@
 import { ClientOptions } from "eris";
 import KetClient from "./src/KetClient";
-import { PRODUCTION_MODE, CLIENT_OPTIONS } from "./src/json/settings.json";
+import { CLIENT_OPTIONS } from "./src/json/settings.json";
 import express, { Response } from "express";
 import { PrismaClient } from '@prisma/client';
 const
@@ -13,8 +13,9 @@ main()
 
 async function main() {
     (await import('dotenv')).config();
+    global.PRODUCTION_MODE = process.argv.includes('--dev') ? false : true;
     const prisma = new PrismaClient();
-    const ket = new KetClient(prisma, `Bot ${PRODUCTION_MODE ? process.env.DISCORD_TOKEN : process.env.BETA_CLIENT_TOKEN}`, CLIENT_OPTIONS as ClientOptions);
+    const ket = new KetClient(prisma, `Bot ${global.PRODUCTION_MODE ? - process.env.DISCORD_TOKEN : process.env.BETA_CLIENT_TOKEN}`, CLIENT_OPTIONS as ClientOptions);
 
     type colorChoices = 1 | 2 | 3 | 4 | 7 | 8 | 9 | 21 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 41 | 42 | 43 | 44 | 45 | 46 | 47 | 52 | 90 | 91 | 92 | 93 | 94 | 95 | 96 | 97 | 100 | 101 | 102 | 103 | 104 | 105 | 106 | 107;
     console.log = function () {
@@ -28,7 +29,7 @@ async function main() {
         sendWebhook(str);
 
         if (!setor) return console.info(args[0]);
-        if (PRODUCTION_MODE) return console.info(str);
+        if (global.PRODUCTION_MODE) return console.info(str);
         console.info(`\x1B[${color}m${str}\x1B[0m`);
     }
     console.error = function () {
@@ -51,14 +52,14 @@ async function main() {
     })
 
     function sendWebhook(str: string) {
-        PRODUCTION_MODE ? ket.executeWebhook(process.env.WEBHOOK_LOGS.split(' | ')[0], process.env.WEBHOOK_LOGS.split(' | ')[1], {
+        global.PRODUCTION_MODE ? ket.executeWebhook(process.env.WEBHOOK_LOGS.split(' | ')[0], process.env.WEBHOOK_LOGS.split(' | ')[1], {
             username: "Ket Logs",
             avatarURL: "https://cdn.discordapp.com/attachments/788376558271201290/932605381539139635/797062afbe6a08ae32e443277f14b7e2.jpg",
             content: `\`${str}\``.slice(0, 2000)
         }) : null;
     }
     global.sleep = (timeout: number) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, timeout * 1_000);
-    
+
     process
         .on('SIGINT', async () => {
             try {

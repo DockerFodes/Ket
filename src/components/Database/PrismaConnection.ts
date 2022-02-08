@@ -1,5 +1,5 @@
 import KetClient from "../../KetClient";
-import { DEFAULT_PREFIX, PRODUCTION_MODE } from "../../json/settings.json";
+import { DEFAULT_PREFIX } from "../../json/settings.json";
 
 type table = {
     create(data: object);
@@ -8,11 +8,13 @@ type table = {
     delete(data: object);
 
     findMany(options?: object)
+    findUnique(options: object)
 }
 
 type Prisma = {
     $connect: Function;
     $disconnect: Function;
+    bunda: string,
     users: table;
     servers: table,
     commands: table;
@@ -37,14 +39,22 @@ export async function connect(ket: KetClient, prisma: Prisma) {
             banned: null
         }
     }
-
+    let db: any = {
+        $connect: prisma.$connect,
+        $disconnect: prisma.$disconnect,
+        users: {},
+        servers: {},
+        commands: {},
+        globalchat: {},
+        blacklist: {}
+    }
     await prisma.$connect()
         .then(() => console.log('DATABASE', '√ Banco de dados operante', 32))
         .catch((error: Error) => console.log('DATABASE', `x Não foi possível realizar conexão ao banco de dados: ${error}`, 41))
 
-    Object.keys(prisma).filter(key => !key.startsWith('_')).forEach(key => {
-        console.info(key, prisma[key])
-        prisma[key].find = async (data: string | object, createIfNull: boolean = false) => {
+    Object.keys(prisma).filter(key => !key.startsWith("_") && !key.startsWith('$')).forEach(key => {
+        db[key] = { ...prisma[key] };
+        db[key].find = async (data: string | object, createIfNull: boolean = false) => {
             typeof data === 'string' ? data = { where: { id: data } } : null;
             let res = await prisma[key].findUnique(data);
             return !res
@@ -55,7 +65,7 @@ export async function connect(ket: KetClient, prisma: Prisma) {
         }
     })
 
-    if (!PRODUCTION_MODE) return;
+    if (!global.PRODUCTION_MODE) return db;
     async function backupAndCacheController() {
         //  Backup da database
         Object.entries(prisma)
@@ -81,5 +91,6 @@ export async function connect(ket: KetClient, prisma: Prisma) {
         }
     }
     setInterval(() => backupAndCacheController(), 60_000 * 30);
-    return backupAndCacheController();
+    backupAndCacheController();
+    return db;
 }

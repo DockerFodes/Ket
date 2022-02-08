@@ -1,5 +1,4 @@
 import KetClient from "../../KetClient";
-import { PRODUCTION_MODE } from "../../json/settings.json";
 
 export default class EventHandler {
     ket: KetClient;
@@ -21,7 +20,7 @@ export default class EventHandler {
     execute(name: string, args: any[]) {
         return this.events.filter(e => e.name === name).forEach((event) => {
             try {
-                if (!PRODUCTION_MODE) {
+                if (!global.PRODUCTION_MODE) {
                     delete require.cache[require.resolve(event.dir)];
                     return new (require(event.dir))(this.ket, this.prisma).on(...args);
                 } else return new (event.run)(this.ket, this.prisma).on(...args);

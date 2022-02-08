@@ -6,6 +6,7 @@
     "scripts": {
         "build": "tsc && npx prisma db push && npx prisma generate",
         "start": "npm run build && npm run noCompile",
+        "dev": "node --expose-gc --trace-warnings dist/index.js --dev",
         "noCompile": "node --expose-gc --trace-warnings dist/index.js ",
         "ts-mode": "ts-node-dev --ignore-watch ./ index.ts"
     },
@@ -23,9 +24,9 @@
     },
     "homepage": "https://github.com/KetDiscordBot/Ket#readme",
     "keywords": [
-        "discord",
-        "eris",
-        "typescript"
+        "Discord",
+        "Eris",
+        "Typescript"
     ],
     "dependencies": {
         "@discordjs/builders": "^0.11.0",
