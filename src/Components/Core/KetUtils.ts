@@ -23,8 +23,7 @@ export default class KetUtils {
     }
 
     async checkUserGuildData(ctx: any, globalchat: boolean = false) {
-        await this.prisma.servers.find(ctx.gID, true)
-        let user = await this.prisma.users.find(ctx.uID);
+        let user = await this.prisma.users.findUnique({ where: { id: ctx.uID } });
         if (!user) {
             user = await this.prisma.users.create({
                 data: {
@@ -32,17 +31,13 @@ export default class KetUtils {
                     lang: 'pt'
                 }
             })
-            try {
-                if (globalchat) (await ctx.author.getDMChannel()).createMessage({
-                    embeds: [{
-                        ...global.t('events:globalchat.welcome', { avatar: ctx.author.dynamicAvatarURL('jpg') }),
-                        color: getColor('green'),
-                        image: { url: 'https://goyalankit.com/assets/img/el_gato2.gif' }
-                    }]
-                })
-            } catch (e) {
-
-            }
+            if (globalchat) (await ctx.author.getDMChannel()).createMessage({
+                embeds: [{
+                    ...global.t('events:globalchat.welcome', { avatar: ctx.author.dynamicAvatarURL('jpg') }),
+                    color: getColor('green'),
+                    image: { url: 'https://goyalankit.com/assets/img/el_gato2.gif' }
+                }]
+            }).catch(() => { });
         }
         return user;
     }
@@ -174,7 +169,7 @@ export default class KetUtils {
         content.match(isPishing) ?
             content.match(isPishing).forEach(text => text.startsWith('https://media.discordapp.net/attachments/') || text.startsWith('https://cdn.discordapp.com/attachments/') ? null : content = content.replace(text, ' `possível link de pishing` '))
             : null;
-            
+
         if (content.match(isUrl)) {
             let config = require('../JSON/settings.json');
 

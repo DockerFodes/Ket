@@ -23,13 +23,10 @@ module.exports = class MessageCreateEvent {
             ctx = getContext({ ket: this.ket, message, server, user });
         global.lang = user.lang;
 
-        // return console.info(await this.prisma.users.create({
-        //         data: { id: '789123515882012683' }
-        //     }));
         if (user.banned) return;
         if (server.banned) return ctx.guild.leave();
         if (server.globalchat && ctx.cID === server.globalchat) this.KetUtils.sendGlobalChat(ctx);
-
+        
         const regexp = new RegExp(`^(${(user.prefix).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}|<@!?${this.ket.user.id}>)( )*`, 'gi')
         if (!message.content.match(regexp)) return;
         let args: string[] = message.content.replace(regexp, '').trim().split(/ /g),
@@ -79,11 +76,11 @@ module.exports = class MessageCreateEvent {
 
         return new Promise(async (res, rej) => {
             try {
-                ctx.command.dontType ? null : await ctx.channel.sendTyping();
+                ctx.command.dontType ? null : await ctx.channel.sendTyping().catch(() => { });
                 await command.execute(ctx);
-                this.KetUtils.sendCommandLog(ctx)
+                res(this.KetUtils.sendCommandLog(ctx));
             } catch (error) {
-                return this.KetUtils.CommandError(ctx, error)
+                return this.KetUtils.CommandError(ctx, error);
             }
         })
     }

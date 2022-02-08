@@ -9,7 +9,7 @@ generator client {
 
 model Users {
     id            String      @id @db.VarChar(20)
-    prefix        String?     @db.VarChar(3)
+    prefix        String      @db.VarChar(3) @default(",")
     lang          String?     @db.VarChar(2)
     commands      Int         @default(1) 
     banned        String?

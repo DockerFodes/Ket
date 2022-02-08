@@ -22,7 +22,7 @@ module.exports = class InteractionCreateEvent {
         if (!interaction.guildID || interaction.channel.type === 1) DMexec(interaction, this.ket);
 
         let server = await this.prisma.servers.find(interaction.guildID, true),
-            user = await this.prisma.users.find(interaction.member.id),
+            user = await this.prisma.users.find(interaction.member.id, true),
             ctx = getContext({ ket: this.ket, interaction, server, user });
         global.lang = user.lang;
 
@@ -68,9 +68,9 @@ module.exports = class InteractionCreateEvent {
             try {
                 await interaction.defer().catch(() => { });
                 await command.execute(ctx);
-                this.KetUtils.sendCommandLog(ctx)
+                res(this.KetUtils.sendCommandLog(ctx));
             } catch (error) {
-                return this.KetUtils.CommandError(ctx, error)
+                return this.KetUtils.CommandError(ctx, error);
             }
         })
     }

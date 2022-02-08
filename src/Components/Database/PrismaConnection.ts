@@ -25,12 +25,14 @@ export default Prisma;
 export async function connect(/*ket: KetClient,*/ prisma: any) {
     let template = {
         users: {
+            id: null,
             prefix: DEFAULT_PREFIX,
             lang: DEFAULT_LANG,
             commands: 1,
             banned: null
         },
         servers: {
+            id: null,
             lang: DEFAULT_LANG,
             globalchat: null,
             partner: null,
@@ -52,15 +54,14 @@ export async function connect(/*ket: KetClient,*/ prisma: any) {
 
     Object.keys(prisma).filter(key => !key.startsWith("_") && !key.startsWith('$')).forEach(key => {
         db[key] = { ...prisma[key] };
-        db[key].find = async (queryData: string | object, createIfNull: boolean = false) => {
-            typeof queryData === 'string' ? queryData = { where: { id: queryData } } : queryData = { data: { id: queryData } };
-
+        db[key].find = async (queryData: any, createIfNull: boolean = false) => {
+            typeof queryData === 'string' ? queryData = { where: { id: queryData } } : null;
             let res = await prisma[key].findUnique(queryData);
-            return !res
-                ? (createIfNull
-                    ? await prisma[key].create(queryData)
-                    : template[key])
-                : res;
+            return res
+                ? (template[key] ? Object.assign(template[key], res) : res)
+                : (createIfNull
+                    ? await prisma[key].create(queryData.where ? { data: queryData.where } : queryData)
+                    : template[key]);
         }
     })
 

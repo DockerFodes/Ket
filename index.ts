@@ -42,7 +42,7 @@ async function main() {
     console.log('SHARD MANAGER', 'Iniciando fragmentação', 46);
 
     duration(moment);
-    require('./src/components/Core/ProtoTypes').start();
+    require('./src/Components/Core/ProtoTypes').start();
     const app = express();
     app.get("/", (_req, res: Response) => res.sendStatus(200));
     app.listen(process.env.PORT);
