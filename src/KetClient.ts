@@ -44,10 +44,9 @@ export default class KetClient extends Client {
     }
     public async boot() {
         await this.loadLocales(`${__dirname}/locales/`);
-        // await connect(this, prisma)
         this.loadCommands(`${__dirname}/commands`);
         this.loadListeners(`${__dirname}/events/`);
-        // await this.loadModules(`${__dirname}/packages/`);
+        await this.loadModules(`${__dirname}/packages/`);
         return super.connect();
     }
 
@@ -60,16 +59,16 @@ export default class KetClient extends Client {
             filesMetadata: {}
         }
         try {
-            config.files = readdirSync(`${path}/${config.defaultLang}/`)
+            config.files = readdirSync(`${path}/${config.defaultLang}/`);
             for (let a in config.langs)
                 for (let b in config.files) {
                     if (!config.filesMetadata[config.langs[a]]) config.filesMetadata[config.langs[a]] = {};
-                    config.filesMetadata[config.langs[a]][config.files[b].split('.json')[0]] = (await import(`${path}/${config.langs[a]}/${config.files[b]}`))
+                    config.filesMetadata[config.langs[a]][config.files[b].split('.json')[0]] = (await import(`${path}/${config.langs[a]}/${config.files[b]}`));
                 }
-            console.log('LOCALES', 'Locales carregados', 36)
+            console.log('LOCALES', 'Locales carregados', 36);
             return true;
         } catch (e) {
-            console.log('LOCALES', e, 41)
+            console.log('LOCALES', e, 41);
             return false;
         } finally {
             return global.t = (str: string, placeholders: object, lang: string) => {
@@ -118,7 +117,7 @@ export default class KetClient extends Client {
                 let modules = readdirSync(`${path}/${categories[a]}/`);
                 for (let b in modules) modules[b].startsWith("_")
                     ? null
-                    : (await import(`${path}/${categories[a]}/${i++ ? modules[b] : modules[b]}`)).default(this)
+                    : (await import(`${path}/${categories[a]}/${i++ ? modules[b] : modules[b]}`)).default(this, prisma);
             }
             console.log('MODULES', `${i} Módulos inicializados`, 2);
             return true;

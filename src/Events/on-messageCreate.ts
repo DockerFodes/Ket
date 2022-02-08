@@ -4,6 +4,7 @@ import DMexec from "../Packages/Home/_on-messageDMCreate";
 import { getContext, getColor } from "../Components/Commands/CommandStructure";
 import Prisma from "../Components/Database/PrismaConnection";
 import KetUtils from "../Components/Core/KetUtils";
+import { TRUSTED_BOTS, DEVS } from "../JSON/settings.json";
 
 module.exports = class MessageCreateEvent {
     ket: KetClient;
@@ -15,7 +16,7 @@ module.exports = class MessageCreateEvent {
         this.KetUtils = new (KetUtils)(this.ket, this.prisma);
     }
     async on(message: Message) {
-        if (message.author?.bot && !this.ket.config.TRUSTED_BOTS.includes(message.author?.id) /*|| message.channel.guild.shard.status === 'ready'*/) return;
+        if (message.author?.bot && !TRUSTED_BOTS.includes(message.author?.id) /*|| message.channel.guild.shard.status === 'ready'*/) return;
         if (!message.guildID || message.channel.type === 1) DMexec(message, this.ket);
 
         let server = await this.prisma.servers.find(message.guildID, true),
@@ -26,7 +27,7 @@ module.exports = class MessageCreateEvent {
         if (user.banned) return;
         if (server.banned) return ctx.guild.leave();
         if (server.globalchat && ctx.cID === server.globalchat) this.KetUtils.sendGlobalChat(ctx);
-        
+
         const regexp = new RegExp(`^(${(user.prefix).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}|<@!?${this.ket.user.id}>)( )*`, 'gi')
         if (!message.content.match(regexp)) return;
         let args: string[] = message.content.replace(regexp, '').trim().split(/ /g),
@@ -41,7 +42,7 @@ module.exports = class MessageCreateEvent {
         ctx.user = await this.KetUtils.checkUserGuildData(ctx);
 
         if (await this.KetUtils.checkPermissions({ ctx }) === false) return;
-        if (ctx.command.permissions.onlyDevs && !this.ket.config.DEVS.includes(ctx.uID)) return this.ket.send({
+        if (ctx.command.permissions.onlyDevs && !DEVS.includes(ctx.uID)) return this.ket.send({
             context: message, emoji: 'negado', content: {
                 embeds: [{
                     color: getColor('red'),

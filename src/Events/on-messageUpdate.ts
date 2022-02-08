@@ -2,6 +2,7 @@ import { Message } from "eris";
 import Prisma from "../Components/Database/PrismaConnection";
 import KetClient from "../KetClient";
 import KetUtils from "../Components/Core/KetUtils";
+import { globalchat } from "../JSON/settings.json";
 
 module.exports = class MessageUpdateEvent {
     ket: KetClient;
@@ -23,7 +24,7 @@ module.exports = class MessageUpdateEvent {
 
         if (user.banned || !msgData) return;
 
-        if (Date.now() > newMessage.timestamp + (15 * 1000 * 60) || Number(msgData.editCount) >= this.ket.config.globalchat.editLimit) return;
+        if (Date.now() > newMessage.timestamp + (15 * 1000 * 60) || Number(msgData.editCount) >= globalchat.editLimit) return;
 
         msgData.messages.forEach(async data => {
             let msgID = data.split('|')[0],

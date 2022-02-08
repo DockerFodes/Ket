@@ -5,6 +5,7 @@ import KetClient from "../KetClient";
 import { getContext, getColor } from "../Components/Commands/CommandStructure";
 import Prisma from "../Components/Database/PrismaConnection";
 import KetUtils from "../Components/Core/KetUtils";
+import { channels, DEVS } from "../JSON/settings.json";
 
 module.exports = class InteractionCreateEvent {
     ket: KetClient;
@@ -16,7 +17,7 @@ module.exports = class InteractionCreateEvent {
         this.KetUtils = new (KetUtils)(this.ket, this.prisma);
     }
     async on(interaction: any) {
-        if (this.ket.config.channels.homeInteractions.includes(interaction.channel.id) && (interaction instanceof ComponentInteraction))
+        if (channels.homeInteractions.includes(interaction.channel.id) && (interaction instanceof ComponentInteraction))
             return homeInteractions(interaction);
         if (!(interaction instanceof CommandInteraction) || interaction.type != 2) return;
         if (!interaction.guildID || interaction.channel.type === 1) DMexec(interaction, this.ket);
@@ -42,7 +43,7 @@ module.exports = class InteractionCreateEvent {
         global.lang = user.lang;
 
         if (await this.KetUtils.checkPermissions({ ctx }) === false) return;
-        if (ctx.command.permissions.onlyDevs && !this.ket.config.DEVS.includes(ctx.uID)) return this.ket.send({
+        if (ctx.command.permissions.onlyDevs && !DEVS.includes(ctx.uID)) return this.ket.send({
             context: interaction, emoji: 'negado', content: {
                 embeds: [{
                     color: getColor('red'),

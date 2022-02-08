@@ -4,6 +4,7 @@ import DidYouMean from "didyoumean";
 import { getEmoji, getColor, EmbedBuilder } from '../Commands/CommandStructure';
 import KetClient from "../../KetClient";
 import Prisma from "../Database/PrismaConnection";
+import { DEVS } from "../../JSON/settings.json";
 const moment = require('moment');
 
 export default class KetUtils {
@@ -58,7 +59,7 @@ export default class KetUtils {
             msgObj = {
                 username: message.author.username,
                 avatarURL: message.author.dynamicAvatarURL('jpg'),
-                content: this.ket.config.DEVS.includes(ctx.uID) ? message.cleanContent : this.msgFilter(message.cleanContent),
+                content: DEVS.includes(ctx.uID) ? message.cleanContent : this.msgFilter(message.cleanContent),
                 embeds: null,
                 file: [],
                 stickerIDs: null,
