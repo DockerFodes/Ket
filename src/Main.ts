@@ -7,12 +7,11 @@ import { readdirSync } from "fs";
 import { CLIENT_OPTIONS } from "./JSON/settings.json";
 import { getEmoji, getColor } from './Components/Commands/CommandStructure';
 import EventHandler from "./Components/Core/EventHandler";
-const
-    moment = require("moment"),
-    duration = require("moment-duration-format"),
-    { tz } = require('moment-timezone'),
+import duration from "moment-duration-format";
+import { tz } from "moment-timezone";
+const moment = require('moment'),
     { inspect } = require('util'),
-    prisma: Prisma = connect(new PrismaClient())
+    prisma: Prisma = connect(new PrismaClient());
 
 type msg = {
     id: string,
