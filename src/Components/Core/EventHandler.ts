@@ -1,11 +1,12 @@
-import KetClient from "../../KetClient";
+import KetClient from "../../Main";
+import Prisma from "../Database/PrismaConnection";
 
 export default class EventHandler {
     ket: KetClient;
-    prisma: any
+    prisma: Prisma;
     events: { name: string, dir: string, run: any }[];
 
-    constructor(ket: KetClient, prisma: any) {
+    constructor(ket: KetClient, prisma: Prisma) {
         this.ket = ket;
         this.prisma = prisma;
         this.events = [];
@@ -23,7 +24,7 @@ export default class EventHandler {
                 if (!global.PRODUCTION_MODE) {
                     delete require.cache[require.resolve(event.dir)];
                     return event.run.on(...args);
-                } else return new (event.run)(this.ket, this.prisma).on(...args);
+                } else return event.run.on(...args);
             } catch (error: any) {
                 return console.log(`EVENTS/${event.name}`, 'ERRO GENÉRICO:', String(error.stack).slice(0, 256), 41)
             }

@@ -1,32 +1,29 @@
-import KetClient from "../../KetClient";
-import Prisma from "../Database/PrismaConnection";
+import KetClient from "../../Main";
 
 export default class CommandStructure {
     ket: KetClient;
-    prisma: Prisma;
     config: object;
 
-    constructor(ket: KetClient, prisma: Prisma, command) {
+    constructor(ket: KetClient, config) {
         this.config = {
-            name: command.name || null,
-            aliases: command.aliases || [],
-            category: command.category || "util",
-            cooldown: command.cooldown || 3,
-            permissions: command.permissions || {
+            name: config.name || null,
+            aliases: config.aliases || [],
+            category: config.category || "util",
+            cooldown: config.cooldown || 3,
+            permissions: config.permissions || {
                 user: [],
                 bot: [],
                 onlyDevs: false
             },
-            access: command.access || {
+            access: config.access || {
                 DM: false,
                 Threads: false
             },
-            dontType: command.dontType || false,
-            testCommand: command.testCommand || [],
-            data: command.data || null
+            dontType: config.dontType || false,
+            testCommand: config.testCommand || [],
+            data: config.data || null
         }
         this.ket = ket;
-        this.prisma = prisma;
     }
 }
 
@@ -172,10 +169,10 @@ export function getColor(color: string, toNumber = true) {
     } else return parseInt((color.replace('#', '')), 16)
 }
 
-export function getContext({ ket, message = null, interaction = null, user, server, args = null, command = null, commandName = null }) {
+export function getContext({ ket, prisma, message = null, interaction = null, user, server, args = null, command = null, commandName = null }) {
     let ctx = message ? message : interaction;
     return {
-        ket: ket,
+        prisma: prisma,
         config: ket.config,
         env: message ? message : interaction,
         user: user,

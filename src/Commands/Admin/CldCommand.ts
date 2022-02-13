@@ -1,4 +1,4 @@
-import KetClient from "../../KetClient";
+import KetClient from "../../Main";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { execSync } from "child_process";
 import { inspect } from "util";
@@ -6,8 +6,8 @@ import CommandStructure, { EmbedBuilder } from '../../Components/Commands/Comman
 import Prisma from "../../Components/Database/PrismaConnection";
 
 module.exports = class CldCommand extends CommandStructure {
-    constructor(ket: KetClient, prisma: Prisma) {
-        super(ket, prisma, {
+    constructor(ket: KetClient) {
+        super(ket, {
             name: 'cld',
             aliases: [],
             category: 'admin',

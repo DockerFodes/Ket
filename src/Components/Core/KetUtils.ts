@@ -2,7 +2,7 @@ import { Webhook } from "eris";
 import axios from "axios";
 import DidYouMean from "didyoumean";
 import { getEmoji, getColor, EmbedBuilder } from '../Commands/CommandStructure';
-import KetClient from "../../KetClient";
+import KetClient from "../../Main";
 import Prisma from "../Database/PrismaConnection";
 import { DEVS } from "../../JSON/settings.json";
 const moment = require('moment');

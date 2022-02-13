@@ -1,4 +1,4 @@
-import KetClient from "../KetClient";
+import KetClient from "../Main";
 
 module.exports = class ShardReadyEvent {
     ket: KetClient;

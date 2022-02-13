@@ -1,4 +1,4 @@
-import KetClient from "../../KetClient";
+import KetClient from "../../Main";
 import Eris from "eris";
 import axios from "axios";
 import { CanvasRenderingContext2D, createCanvas } from "canvas";

@@ -1,7 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import CommandStructure, { EmbedBuilder, getEmoji, getColor } from "../../Components/Commands/CommandStructure";
-import Prisma from "../../Components/Database/PrismaConnection";
-import KetClient from "../../KetClient";
+import KetClient from "../../Main";
 
 const
     axios = require('axios'),
@@ -15,8 +14,8 @@ const
     CommandBuilder = SlashCommandBuilder;
 
 module.exports = class EvalCommand extends CommandStructure {
-    constructor(ket: KetClient, prisma: Prisma) {
-        super(ket, prisma, {
+    constructor(ket: KetClient) {
+        super(ket, {
             name: 'eval',
             aliases: ['e'],
             category: 'admin',
@@ -42,7 +41,7 @@ module.exports = class EvalCommand extends CommandStructure {
     async execute(ctx) {
         const
             ket = this.ket,
-            prisma = this.prisma;
+            prisma = ctx.prisma;
         let
             message = ctx.env,
             evaled = ctx.args.join(" ")

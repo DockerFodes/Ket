@@ -1,7 +1,7 @@
 import { CommandInteraction, ComponentInteraction } from "eris";
 import DMexec from "../Packages/Home/_on-messageDMCreate";
 import homeInteractions from "../Packages/Home/_homeInteractions";
-import KetClient from "../KetClient";
+import KetClient from "../Main";
 import { getContext, getColor } from "../Components/Commands/CommandStructure";
 import Prisma from "../Components/Database/PrismaConnection";
 import KetUtils from "../Components/Core/KetUtils";
@@ -24,7 +24,7 @@ module.exports = class InteractionCreateEvent {
 
         let server = await this.prisma.servers.find(interaction.guildID, true),
             user = await this.prisma.users.find(interaction.member.id, true),
-            ctx = getContext({ ket: this.ket, interaction, server, user });
+            ctx = getContext({ ket: this.ket, prisma: this.prisma, interaction, server, user });
         global.lang = user.lang;
 
         if (user.banned) return;
@@ -36,7 +36,7 @@ module.exports = class InteractionCreateEvent {
 
         if (!command && (command = await this.KetUtils.commandNotFound(ctx, commandName)) === false) return;
         interaction.data?.options?.forEach((option: any) => getArgs(option));
-        ctx = getContext({ ket: this.ket, user, server, interaction, args, command, commandName });
+        ctx = getContext({ ket: this.ket, prisma: this.prisma, user, server, interaction, args, command, commandName });
 
         await this.KetUtils.checkCache(ctx);
         ctx.user = await this.KetUtils.checkUserGuildData(ctx);

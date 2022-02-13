@@ -1,4 +1,4 @@
-import KetClient from "../KetClient";
+import KetClient from "../Main";
 import TerminalClient from "../Components/CLI/TerminalClient";
 import gradient from "gradient-string";
 import Prisma from "../Components/Database/PrismaConnection";

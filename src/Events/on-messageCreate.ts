@@ -1,5 +1,5 @@
 import { Message } from "eris";
-import KetClient from "../KetClient";
+import KetClient from "../Main";
 import DMexec from "../Packages/Home/_on-messageDMCreate";
 import { getContext, getColor } from "../Components/Commands/CommandStructure";
 import Prisma from "../Components/Database/PrismaConnection";
@@ -21,7 +21,7 @@ module.exports = class MessageCreateEvent {
 
         let server = await this.prisma.servers.find(message.guildID, true),
             user = await this.prisma.users.find(message.author.id),
-            ctx = getContext({ ket: this.ket, message, server, user });
+            ctx = getContext({ ket: this.ket, prisma: this.prisma, message, server, user });
         global.lang = user.lang;
 
         if (user.banned) return;
@@ -35,7 +35,7 @@ module.exports = class MessageCreateEvent {
             command = this.ket.commands.get(commandName) || this.ket.commands.get(this.ket.aliases.get(commandName));
 
         if (!command && (command = await this.KetUtils.commandNotFound(ctx, commandName)) === false) return;
-        ctx = getContext({ ket: this.ket, user, server, message, args, command, commandName })
+        ctx = getContext({ ket: this.ket, prisma: this.prisma, user, server, message, args, command, commandName })
 
         await this.KetUtils.checkCache(ctx);
         global.lang = user.lang;

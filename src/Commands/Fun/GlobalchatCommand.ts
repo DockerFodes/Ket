@@ -1,12 +1,11 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import KetClient from "../../KetClient";
+import KetClient from "../../Main";
 import moment from "moment";
 import CommandStructure, { getColor } from "../../Components/Commands/CommandStructure";
-import Prisma from "../../Components/Database/PrismaConnection";
 
 module.exports = class GlobalChatCommand extends CommandStructure {
-    constructor(ket: KetClient, prisma: Prisma) {
-        super(ket, prisma, {
+    constructor(ket: KetClient) {
+        super(ket, {
             name: 'globalchat',
             aliases: ['chatglobal', 'global'],
             category: 'fun',
@@ -58,7 +57,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
             case 'start':
                 let channel = await this.ket.findChannel(ctx.env, ctx.args[1]);
                 if (!channel) return await this.ket.send({ context: ctx.env, emoji: 'negado', content: global.t('globalchat.channelNotFound') });
-                await this.prisma.servers.update({
+                await ctx.prisma.servers.update({
                     where: { id: ctx.gID },
                     data: {
                         globalchat: channel.id,
@@ -75,7 +74,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     }
                 });
             case 'stop':
-                await this.prisma.servers.update({
+                await ctx.prisma.servers.update({
                     where: { id: ctx.gID },
                     data: { globalchat: null }
                 });
@@ -89,15 +88,15 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     }
                 });
             case 'getinfo':
-                let data = await this.prisma.globalchat.findMany({ limit: 500 }),
+                let data = await ctx.prisma.globalchat.findMany({ limit: 500 }),
                     msg = data.find(msg => msg.id === ctx.args[1] || msg.messages.find((m) => m.includes(ctx.args[1])));
 
                 if (isNaN(Number(ctx.args[1])) || !ctx.args[1] || !msg)
                     return this.ket.send({ context: ctx.env, emoji: 'negado', content: global.t('globalchat.messageNotFound') });
 
-                let userData = await this.prisma.users.find(msg.author),
+                let userData = await ctx.prisma.users.find(msg.author),
                     user: any = await this.ket.findUser(ctx.env, userData.id),
-                    server = await this.prisma.servers.find(msg.guild),
+                    server = await ctx.prisma.servers.find(msg.guild),
                     message: any = await this.ket.getMessage(server.globalchat, msg.id)
                         .catch(() => { });
                 moment.locale(ctx.user.lang);

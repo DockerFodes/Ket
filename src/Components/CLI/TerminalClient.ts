@@ -1,4 +1,4 @@
-import KetClient from "../../KetClient";
+import KetClient from "../../Main";
 import prompts from "prompts";
 import gradient from "gradient-string";
 import Prisma from "../Database/PrismaConnection";
@@ -7,7 +7,8 @@ export default async function (ket: KetClient, prisma: Prisma) {
     termEval();
     async function termEval() {
         delete require.cache[require.resolve(`./CLI`)];
-        let commands = require(`./CLI`);
+        let commands = require(`./CLI`),
+            ramUsage = Math.floor(process.memoryUsage().rss / 1024 / 1024) + "MB"
 
         const response: any = await prompts({
             name: 'code',
@@ -32,7 +33,7 @@ export default async function (ket: KetClient, prisma: Prisma) {
             }
 
             evaled = await eval(`${response.code}`);
-            console.log(evaled);
+            console.info(evaled);
         } catch (e) {
             console.log('TERMINAL CLIENT', e, 41);
         } finally {

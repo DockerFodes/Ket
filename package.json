@@ -2,13 +2,13 @@
     "name": "ketdiscordbot",
     "version": "0.0.9",
     "description": "",
-    "main": "dist/index.js",
+    "main": "dist/Main.js",
     "scripts": {
         "build": "tsc && npx prisma db push && npx prisma generate",
         "start": "npm run build && npm run noCompile",
-        "dev": "node --expose-gc --trace-warnings dist/index.js --dev",
-        "noCompile": "node --expose-gc --trace-warnings dist/index.js ",
-        "ts-mode": "ts-node-dev --ignore-watch ./ index.ts"
+        "dev": "node --expose-gc --trace-warnings dist/Main.js --dev",
+        "noCompile": "node --expose-gc --trace-warnings dist/Main.js ",
+        "ts-mode": "ts-node-dev --ignore-watch ./ src/Main.ts"
     },
     "prisma": {
         "schema": "src/components/Database/schema.prisma"

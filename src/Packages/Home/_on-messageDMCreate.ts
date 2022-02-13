@@ -1,4 +1,4 @@
-import KetClient from "../../KetClient";
+import KetClient from "../../Main";
 
 export default async (context, ket: KetClient) => {
     // if (message.content.match(/((?:discord\.gg|discordapp\.com\/invite|discord\.com\/invite))/g)) {
