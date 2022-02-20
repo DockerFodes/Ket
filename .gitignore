@@ -4,6 +4,7 @@ dist/
 .vscode/
 migrations/
 src/Components/Database/migrations
+test/
 
 # Arquivos
 package-lock.json

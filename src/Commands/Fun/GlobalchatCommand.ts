@@ -56,7 +56,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
         switch (ctx.args[0].toLowerCase()) {
             case 'start':
                 let channel = await this.ket.findChannel(ctx.env, ctx.args[1]);
-                if (!channel) return await this.ket.send({ context: ctx.env, emoji: 'negado', content: global.t('globalchat.channelNotFound') });
+                if (!channel) return await this.ket.send({ context: ctx.env, emoji: 'negado', content: 'globalchat.channelNotFound'.getTranslation() });
                 await ctx.prisma.servers.update({
                     where: { id: ctx.gID },
                     data: {
@@ -69,7 +69,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     context: ctx.env, emoji: 'autorizado', content: {
                         embeds: [{
                             color: getColor('green'),
-                            ...global.t('globalchat.start', { channel })
+                            ...Object('globalchat.start'.getTranslation({ channel }))
                         }]
                     }
                 });
@@ -83,7 +83,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     context: ctx.env, emoji: 'autorizado', content: {
                         embeds: [{
                             color: getColor('green'),
-                            ...global.t('globalchat.stop', { user: ctx.user })
+                            ...Object('globalchat.stop'.getTranslation({ user: ctx.user }))
                         }]
                     }
                 });
@@ -92,7 +92,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     msg = data.find(msg => msg.id === ctx.args[1] || msg.messages.find((m) => m.includes(ctx.args[1])));
 
                 if (isNaN(Number(ctx.args[1])) || !ctx.args[1] || !msg)
-                    return this.ket.send({ context: ctx.env, emoji: 'negado', content: global.t('globalchat.messageNotFound') });
+                    return this.ket.send({ context: ctx.env, emoji: 'negado', content: 'globalchat.messageNotFound'.getTranslation() });
 
                 let userData = await ctx.prisma.users.find(msg.author),
                     user: any = await this.ket.findUser(ctx.env, userData.id),
@@ -106,12 +106,12 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                         embeds: [{
                             thumbnail: { url: user.dynamicAvatarURL('jpg') },
                             color: getColor('green'),
-                            ...global.t('globalchat.getinfo', {
+                            ...Object('globalchat.getinfo'.getTranslation({
                                 msg, user, guild: this.ket.guilds.get(server.id), messages: msg.messages,
                                 timestamp: moment.utc(message?.timestamp || Date.now()).format('LLLL'),
                                 isBanned: userData.banned ? 'BANNED' : 'not banned',
                                 messagesCount: data.filter(msg => msg.author === user.id).length
-                            })
+                            }))
                         }]
                     }
                 })

@@ -57,6 +57,7 @@
             "guildWebhooks",
             "guildMessages",
             "guildMessageTyping",
+            "guildVoiceStates",
             "guildPresences",
             "directMessages"
         ],

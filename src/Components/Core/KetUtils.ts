@@ -4,7 +4,7 @@ import DidYouMean from "didyoumean";
 import { getEmoji, getColor, EmbedBuilder } from '../Commands/CommandStructure';
 import KetClient from "../../Main";
 import Prisma from "../Database/PrismaConnection";
-import { DEVS } from "../../JSON/settings.json";
+import { DEVS, channels } from "../../JSON/settings.json";
 const moment = require('moment');
 
 export default class KetUtils {
@@ -34,7 +34,7 @@ export default class KetUtils {
             })
             if (globalchat) (await ctx.author.getDMChannel()).createMessage({
                 embeds: [{
-                    ...global.t('events:globalchat.welcome', { avatar: ctx.author.dynamicAvatarURL('jpg') }),
+                    ...Object('events:globalchat.welcome'.getTranslation({ avatar: ctx.author.dynamicAvatarURL('jpg') })),
                     color: getColor('green'),
                     image: { url: 'https://goyalankit.com/assets/img/el_gato2.gif' }
                 }]
@@ -137,7 +137,7 @@ export default class KetUtils {
 
                 let rateLimit = this.ket.requestHandler.ratelimits[`/webhooks/${g.globalchat}/:token?&wait=true`];
                 if (rateLimit) {
-                    global.sleep(Date.now() - rateLimit.reset + this.ket.options.rest.ratelimiterOffset)
+                    sleep(Date.now() - rateLimit.reset + this.ket.options.rest.ratelimiterOffset)
                     return res(send());
                 }
                 return res(send());
@@ -187,7 +187,6 @@ export default class KetUtils {
 
     async checkRateLimit(ctx, user) {
         !user.rateLimit ? user.rateLimit = 1 : user.rateLimit++;
-        !global.rateLimit ? global.rateLimit = setInterval(() => this.ket.users.filter(user => user.rateLimit > 0).forEach(u => u.rateLimit--), 5000) : null;
 
         let messages = await this.prisma.globalchat.findMany({ limit: 10 });
         messages?.filter(m => m.author === ctx.uID)?.forEach(msg => {
@@ -230,8 +229,7 @@ export default class KetUtils {
     }
 
     async checkPermissions({ ctx = null, channel = null, command = null, notReply = null }) {
-        let missingPermissions: string[] = [],
-            t = global.t;
+        let missingPermissions: string[] = [];
         channel ? ctx.channel = channel : null;
         command ? ctx.command = command : null;
 
@@ -241,21 +239,21 @@ export default class KetUtils {
                 context: ctx.env, content: {
                     embeds: [{
                         color: getColor('red'),
-                        title: `${getEmoji('sireneRed').mention} ${t('events:no-threads')}`
+                        title: `${getEmoji('sireneRed').mention} ${'events:no-threads'.getTranslation()}`
                     }]
                 }, emoji: 'negado'
             })
             return false
         }
 
-        missingPermissions = ctx.command.permissions.bot.filter((perm) => !ctx.me.permissions.has(perm)).map(value => t(`permissions:${value}`));
+        missingPermissions = ctx.command.permissions.bot.filter((perm) => !ctx.me.permissions.has(perm)).map(value => `permissions:${value}`.getTranslation());
 
         if (missingPermissions[0]) {
             notReply ? null :
-                this.ket.send({ context: ctx.env, content: t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') }), embed: false, emoji: 'negado' })
+                this.ket.send({ context: ctx.env, content: 'permissions:missingPerms'.getTranslation({ missingPerms: missingPermissions.join(', ') }), embed: false, emoji: 'negado' })
                     .catch(async () => {
                         let dmChannel = await ctx.author.getDMChannel();
-                        dmChannel.createMessage(t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') }))
+                        dmChannel.createMessage('permissions:missingPerms'.getTranslation({ missingPerms: missingPermissions.join(', ') }))
                             .catch(() => {
                                 if (ctx.me.permissions.has('changeNickname')) ctx.me.edit({ nick: "pls give me some permission" }).catch(() => { });
                             });
@@ -272,7 +270,7 @@ export default class KetUtils {
                 .addField('Servidor:', `# ${ctx.guild?.name} (ID: ${ctx.gID})`, false, 'cs')
                 .addField('Autor:', `${ctx.author.tag} (ID: ${ctx.author.id})`, false, 'fix')
                 .addField('Argumentos:', `- ${!ctx.args[0] ? 'Nenhum argumento foi usado neste comando' : ctx.args.join(' ')}`, false, 'diff');
-        this.ket.createMessage(ctx.config.channels.commandLogs, { embeds: [embed.build()] });
+        this.ket.createMessage(channels.commandLogs, { embeds: [embed.build()] });
     }
 
     CommandError(ctx, error: Error) {
@@ -281,13 +279,13 @@ export default class KetUtils {
                 embeds: [{
                     color: getColor('red'),
                     thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/918721199029231716/error.gif' },
-                    description: global.t('events:error.description', { error })
+                    description: 'events:error.description'.getTranslation({ error })
                 }],
                 flags: 64
             }, emoji: 'negado'
         })
 
-        this.ket.createMessage(ctx.config.channels.erros, {
+        this.ket.createMessage(channels.erros, {
             embed: {
                 color: getColor('red'),
                 title: `Erro no ${ctx.commandName}/${ctx.command.name}`,
