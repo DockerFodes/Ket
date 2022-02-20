@@ -4,7 +4,6 @@ import gradient from "gradient-string";
 import Prisma from "../Components/Database/PrismaConnection";
 import DatabaseBackup from "../Packages/Security/DatabaseBackup";
 
-
 module.exports = class ReadyEvent {
     ket: KetClient;
     prisma: Prisma;
@@ -18,7 +17,7 @@ module.exports = class ReadyEvent {
             { name: 'sua mãe da janela', type: 0 },
             { name: 'sua mãe na panela', type: 0 },
             { name: "mais um gol do vasco", type: 3 },
-            { name: "os gemidos da sua mãe", type: 2 },
+            { name: "sua mãe gemendo", type: 2 },
             { name: 'Vasco x Flamengo', type: 5 }
         ],
             makeBackup: number = 0;
@@ -42,7 +41,7 @@ module.exports = class ReadyEvent {
                 makeBackup = 0;
             }
         }, 60_000)
-        setInterval(() => this.ket.users.filter(user => user.rateLimit > 0).forEach(u => u.rateLimit--), 5000)
+        setInterval(() => this.ket.users.filter(user => user.rateLimit > 0).forEach(u => u.rateLimit--), 5000);
 
         console.log('GATEWAY', `Sessão iniciada como ${this.ket.user.tag}`, 33);
         console.info(gradient('red', 'yellow')("◆ ▬▬▬▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬▬▬▬ ◆"));

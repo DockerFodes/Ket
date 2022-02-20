@@ -1,4 +1,4 @@
-import { Client, ClientOptions, Collection, CommandInteraction, EmbedOptions, ExtendedUser, Guild, GuildChannel, Member, Message, User, Webhook } from "eris";
+import { Client, ClientOptions, Collection, CommandInteraction, EmbedOptions, ExtendedUser, Guild, GuildChannel, GuildTextable, Member, Message, TextableChannel, TextChannel, User, Webhook } from "eris";
 import { ESMap } from "typescript";
 import Prisma, { connect } from "./Components/Database/PrismaConnection";
 import { PrismaClient } from '@prisma/client';
@@ -102,7 +102,6 @@ export default class KetClient extends Client {
         } catch (e) {
             console.log('LOCALES', e, 41);
         } finally {
-            //@ts-ignore
             delete String.prototype.getTranslation;
             return Object.defineProperty(String.prototype, 'getTranslation', {
                 value: function (placeholders?: object, language?: string) {
@@ -213,7 +212,7 @@ export default class KetClient extends Client {
                     repliedUser: true
                 }
             },
-            botMsg: any;// void | Message<GuildTextable & TextChannel>;
+            botMsg: Message<any> | void;
         if (typeof content === 'object') {
             msgObj = Object.assign(msgObj, content);
             content = content.embeds[0].description;
@@ -225,16 +224,21 @@ export default class KetClient extends Client {
         }
 
         if (message) {
-            if ((message.editedTimestamp && user?.lastCommand && user.lastCommand.botMsg.channel.id === message.channel.id && message.timestamp < user.lastCommand.botMsg.timestamp) || type === 'edit') botMsg = await message.channel.editMessage(user.lastCommand.botMsg.id, msgObj)
-                .catch(async () => { botMsg = await message.channel.createMessage(msgObj).catch(() => { }) });
+            let rateLimit = this.requestHandler.ratelimits[`/channels/${content.channel.id}/messages`];
+            if (rateLimit)
+                sleep(Date.now() - rateLimit.reset + this.options.rest.ratelimiterOffset);
+
+            if ((message.editedTimestamp && user?.lastCommand && user.lastCommand.botMsg.channel.id === message.channel.id && message.timestamp < user.lastCommand.botMsg.timestamp) || type === 'edit')
+                botMsg = await message.channel.editMessage(user.lastCommand.botMsg.id, msgObj)
+                    .catch(async () => { botMsg = await message.channel.createMessage(msgObj).catch(() => { }) });
             else botMsg = await message.channel.createMessage(msgObj).catch(() => { });
             user.lastCommand = {
-                botMsg: {
+                botMsg: botMsg ? {
                     id: botMsg.id,
                     timestamp: botMsg.timestamp,
                     editedTimestamp: botMsg.editedTimestamp,
                     channel: { id: botMsg.channel.id }
-                },
+                } : null,
                 message: {
                     id: message.id,
                     timestamp: message.timestamp,
@@ -257,8 +261,9 @@ export default class KetClient extends Client {
             user: User | Member,
             isInteraction = (context instanceof CommandInteraction ? true : false);
 
-        if (isNaN(Number(text))) search = text.toLowerCase().replace('@', '');
+        if (isNaN(Number(text))) search = text.toLowerCase().replace('@', '').split('#')[0];
         else search = String(text).toLowerCase();
+
         try {
             if (isNaN(Number(text))) user = context?.mentions[0] || context.channel.guild.members.find((m: Member) => m.user.username.toLowerCase() === search || String(m.nick).toLowerCase() === search || m.user.username.toLowerCase().startsWith(search) || String(m.nick).toLowerCase().startsWith(search) || m.user.username.toLowerCase().includes(search) || String(m.nick).toLowerCase().includes(search));
             else {
@@ -267,7 +272,7 @@ export default class KetClient extends Client {
             }
         } catch (e) {
             if (returnMember) user = context.member;
-            else user = (isInteraction ? context.member.user : context.author)
+            else user = (isInteraction ? context.member.user : context.author);
         }
         if (user instanceof User && returnMember) user = context.channel.guild.members.get(user.id);
         if (user instanceof Member && !returnMember) user = this.users.get(user.user.id);
@@ -275,51 +280,55 @@ export default class KetClient extends Client {
         return user;
     }
 
-    public async findChannel(context?: any, id?: string) {
+    public async findChannel(context: Message<GuildChannel> | CommandInteraction<GuildChannel>, id?: string): Promise<GuildChannel> {
         let channel: GuildChannel,
             guild: Guild = context.channel.guild,
             client = this;
 
         try {
-            if (context?.channelMentions) return await get(context.channelMentions[0]);
+            if (context instanceof Message && context.channelMentions) return await get(context.channelMentions[0]);
 
             if (isNaN(Number(id))) channel = guild.channels.find((c: GuildChannel) => c.name.toLowerCase() === id || c.name.toLowerCase().startsWith(id) || c.name.toLowerCase().includes(id));
-            else return await get(id)
-        } catch (e) {
-            channel = null;
+            else return await get(id);
+
+        } catch (_e: unknown) {
+            channel = context.channel;
         }
 
         async function get(id: string) {
-            if (guild.channels.has(id)) return guild.channels.get(id);
-            else return await client.getRESTChannel(id);
+            return guild.channels.has(id) ? guild.channels.get(id) : guild.channels.get((await client.getRESTChannel(id)).id)
         }
+
         return channel;
     }
 
-    public async findMessage(context?: any, id?: string, onlyIfHasFile: boolean = false) {
+    public async findMessage(context?: Message<TextableChannel & GuildChannel> | CommandInteraction, id?: string, onlyIfHasFile: boolean = false): Promise<Message | null> {
         let messages = context.channel.messages,
-            ref = context.messageReference;
+            ref: any = context instanceof Message ? context.messageReference : null;
 
-        if (onlyIfHasFile) {
-            if (context.attachments[0]) return context;
+        try {
+            if (onlyIfHasFile) {
+                if (context instanceof Message && context.attachments) return context;
 
-            if (ref) {
-                ref = await get(ref.messageID);
-                if (ref?.attachments[0]) return ref;
+                if (ref) {
+                    ref = await get(ref.messageID);
+                    if (ref?.attachments[0]) return ref;
+                }
+
+                return messages.find((msg) => msg.attachments ? msg : null);
+            } else {
+                if (!isNaN(Number(id))) return await get(id);
+                if (ref) return await get(ref.messageID);
             }
 
-            return messages.find((msg: Message) => msg?.attachments[0] || msg?.embeds[0]?.image);
-
-        } else {
-            if (!isNaN(Number(id))) return await get(id);
-            else if (ref) return await get(ref.messageID);
-            else return null;
+        } catch (_e: unknown) {
+            return null;
         }
 
-        async function get(id: string) {
-            if (messages.has(id)) return messages.get(id);
-            else return await context.channel.getMessage(id);
+        async function get(id: string): Promise<Message<TextableChannel>> {
+            return messages.has(id) ? messages.get(id) : await context.channel.getMessage(id);
         }
+
     }
 }
 

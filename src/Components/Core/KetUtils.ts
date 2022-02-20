@@ -57,7 +57,7 @@ export default class KetUtils {
             guildsData = await this.prisma.servers.findMany({ limit: 35 }),
             guilds = guildsData.filter(guild => guild.globalchat && guild.globalchat != message.channel.id),
             msgObj = {
-                username: message.author.username,
+                username: message.member.nick ? `${message.author.username} (${message.member.nick})` : message.author.username,
                 avatarURL: message.author.dynamicAvatarURL('jpg'),
                 content: DEVS.includes(ctx.uID) ? message.cleanContent : this.msgFilter(message.cleanContent),
                 embeds: null,
@@ -75,9 +75,9 @@ export default class KetUtils {
 
         if (await this.checkRateLimit(ctx, user) === false) return;
 
-        if (message.messageReference) message.channel.messages.has(message.messageReference.messageID)
-            ? msg = message.channel.messages.get(message.messageReference.messageID)
-            : msg = await this.ket.findMessage(message, message.messageReference.messageID);
+        if (message.messageReference) msg = await message.channel.messages.has(message.messageReference.messageID)
+            ? message.channel.messages.get(message.messageReference.messageID)
+            : this.ket.findMessage(message, message.messageReference.messageID);
 
         if (message.stickerItems) for (let i in message.stickerItems) {
             let buffer = await axios({
@@ -136,10 +136,8 @@ export default class KetUtils {
                     .then((msg: any) => msgs.push(`${msg.id}|${msg.guildID}`)).catch(() => { });
 
                 let rateLimit = this.ket.requestHandler.ratelimits[`/webhooks/${g.globalchat}/:token?&wait=true`];
-                if (rateLimit) {
-                    sleep(Date.now() - rateLimit.reset + this.ket.options.rest.ratelimiterOffset)
-                    return res(send());
-                }
+                if (rateLimit)
+                    sleep(Date.now() - rateLimit.reset + this.ket.options.rest.ratelimiterOffset);
                 return res(send());
             })
         })
