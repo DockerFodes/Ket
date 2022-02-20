@@ -49,7 +49,7 @@ module.exports = class MessageUpdateEvent {
 
         await this.prisma.globalchat.update({
             where: { id: msgData.id },
-            data: { editCount: 'sql editCount + 1' }
+            data: { editCount: '$editCount + 1' }
         })
 
     }

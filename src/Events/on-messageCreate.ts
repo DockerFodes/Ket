@@ -19,6 +19,11 @@ module.exports = class MessageCreateEvent {
         if (message.author?.bot && !TRUSTED_BOTS.includes(message.author?.id) /*|| message.channel.guild.shard.status === 'ready'*/) return;
         if (!message.guildID || message.channel.type === 1) DMexec(message, this.ket);
 
+        // return;
+        // return console.info(await this.prisma.users.update({
+        //     where: { id: message.author.id },
+        //     data: { commands: 'commands + 1' }
+        // }))
         let server = await this.prisma.servers.find(message.guildID, true),
             user = await this.prisma.users.find(message.author.id),
             ctx = getContext({ ket: this.ket, prisma: this.prisma, message, server, user });
@@ -46,7 +51,7 @@ module.exports = class MessageCreateEvent {
             context: message, emoji: 'negado', content: {
                 embeds: [{
                     color: getColor('red'),
-                    description: 'events:isDev'.getTranslation()
+                    description: 'events:isDev'.getT()
                 }]
             }
         })

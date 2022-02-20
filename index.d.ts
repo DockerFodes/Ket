@@ -5,7 +5,7 @@ declare interface global {
 }
 
 declare interface String {
-    getTranslation(placeholders?: object, lang?: string): string;
+    getT(placeholders?: object, lang?: string): string;
 }
 
 declare function sleep(timeout: number): void;

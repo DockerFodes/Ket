@@ -47,7 +47,7 @@ module.exports = class InteractionCreateEvent {
             context: interaction, emoji: 'negado', content: {
                 embeds: [{
                     color: getColor('red'),
-                    description: 'events:isDev'.getTranslation()
+                    description: 'events:isDev'.getT()
                 }]
             }
         })

@@ -102,8 +102,8 @@ export default class KetClient extends Client {
         } catch (e) {
             console.log('LOCALES', e, 41);
         } finally {
-            delete String.prototype.getTranslation;
-            return Object.defineProperty(String.prototype, 'getTranslation', {
+            delete String.prototype.getT;
+            return Object.defineProperty(String.prototype, 'getT', {
                 value: function (placeholders?: object, language?: string) {
                     const str = String(this);
                     try {
@@ -194,7 +194,7 @@ export default class KetClient extends Client {
                 content: '',
                 embeds: embed ? [{
                     color: getColor('red'),
-                    title: `${getEmoji('sireneRed').mention} ${'events:error.title'.getTranslation()} ${getEmoji('sireneBlue').mention}`,
+                    title: `${getEmoji('sireneRed').mention} ${'events:error.title'.getT()} ${getEmoji('sireneBlue').mention}`,
                     description: ''
                 }] : [],
                 components: [],

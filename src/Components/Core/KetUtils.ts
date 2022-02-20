@@ -34,7 +34,7 @@ export default class KetUtils {
             })
             if (globalchat) (await ctx.author.getDMChannel()).createMessage({
                 embeds: [{
-                    ...Object('events:globalchat.welcome'.getTranslation({ avatar: ctx.author.dynamicAvatarURL('jpg') })),
+                    ...Object('events:globalchat.welcome'.getT({ avatar: ctx.author.dynamicAvatarURL('jpg') })),
                     color: getColor('green'),
                     image: { url: 'https://goyalankit.com/assets/img/el_gato2.gif' }
                 }]
@@ -148,7 +148,7 @@ export default class KetUtils {
                 id: message.id,
                 author: message.author.id,
                 guild: message.guildID,
-                editCount: 'sql 0',
+                editCount: 0,
                 messages: `{${msgs.join(',')}}`
             }
         })
@@ -203,7 +203,7 @@ export default class KetUtils {
                 where: { id: ctx.uID },
                 data: {
                     timeout: Date.now() + user.rateLimit * 1000 * 60,
-                    warns: 'sql warns + 1'
+                    // warns: 'sql warns + 1'
                 }
             }) : null;
             else await this.prisma.blacklist.create({
@@ -237,21 +237,21 @@ export default class KetUtils {
                 context: ctx.env, content: {
                     embeds: [{
                         color: getColor('red'),
-                        title: `${getEmoji('sireneRed').mention} ${'events:no-threads'.getTranslation()}`
+                        title: `${getEmoji('sireneRed').mention} ${'events:no-threads'.getT()}`
                     }]
                 }, emoji: 'negado'
             })
             return false
         }
 
-        missingPermissions = ctx.command.permissions.bot.filter((perm) => !ctx.me.permissions.has(perm)).map(value => `permissions:${value}`.getTranslation());
+        missingPermissions = ctx.command.permissions.bot.filter((perm) => !ctx.me.permissions.has(perm)).map(value => `permissions:${value}`.getT());
 
         if (missingPermissions[0]) {
             notReply ? null :
-                this.ket.send({ context: ctx.env, content: 'permissions:missingPerms'.getTranslation({ missingPerms: missingPermissions.join(', ') }), embed: false, emoji: 'negado' })
+                this.ket.send({ context: ctx.env, content: 'permissions:missingPerms'.getT({ missingPerms: missingPermissions.join(', ') }), embed: false, emoji: 'negado' })
                     .catch(async () => {
                         let dmChannel = await ctx.author.getDMChannel();
-                        dmChannel.createMessage('permissions:missingPerms'.getTranslation({ missingPerms: missingPermissions.join(', ') }))
+                        dmChannel.createMessage('permissions:missingPerms'.getT({ missingPerms: missingPermissions.join(', ') }))
                             .catch(() => {
                                 if (ctx.me.permissions.has('changeNickname')) ctx.me.edit({ nick: "pls give me some permission" }).catch(() => { });
                             });
@@ -277,7 +277,7 @@ export default class KetUtils {
                 embeds: [{
                     color: getColor('red'),
                     thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/918721199029231716/error.gif' },
-                    description: 'events:error.description'.getTranslation({ error })
+                    description: 'events:error.description'.getT({ error })
                 }],
                 flags: 64
             }, emoji: 'negado'

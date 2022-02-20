@@ -22,7 +22,7 @@ module.exports = {
             let c = command.config;
             commands.push({
                 name: c.name,
-                description: `[${c.category}] - ${`${c.name}.description`.getTranslation()}`,
+                description: `[${c.category}] - ${`${c.name}.description`.getT()}`,
                 options: c.data?.options ? [...c.data.options] : []
             })
         });
