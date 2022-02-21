@@ -1,5 +1,5 @@
 import KetClient from "../../Main"
-import CommandStructure from "../../Components/Commands/CommandStructure"
+import CommandStructure, { CommandContext } from "../../Components/Commands/CommandStructure"
 
 module.exports = class PingCommand extends CommandStructure {
     constructor(ket: KetClient) {
@@ -21,10 +21,10 @@ module.exports = class PingCommand extends CommandStructure {
             data: null
         })
     }
-    async execute(ctx) {
+    async execute(ctx: CommandContext) {
         let time = Date.now();
-        await this.ket.send({ context: ctx.env, content: 'calculando o ping...', embed: false });
+        await ctx.send({ content: 'calculando o ping...', embed: false });
         let totalTime = Date.now() - time;
-        this.ket.send({ context: ctx.env, content: `tempo de resposta: ${totalTime}ms`, type: 'edit' })
+        ctx.send({ content: `tempo de resposta: ${totalTime}ms`, type: 1 })
     }
 }

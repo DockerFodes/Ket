@@ -1,18 +1,17 @@
-import { Client, ClientOptions, Collection, CommandInteraction, EmbedOptions, ExtendedUser, Guild, GuildChannel, GuildTextable, Member, Message, TextableChannel, TextChannel, User, Webhook } from "eris";
+import { Client, ClientOptions, Collection, CommandInteraction, EmbedOptions, ExtendedUser, Guild, GuildChannel, Member, Message, TextableChannel, User, Webhook } from "eris";
 import { ESMap } from "typescript";
 import Prisma, { connect } from "./Components/Database/PrismaConnection";
-import { PrismaClient } from '@prisma/client';
 import { readdirSync } from "fs";
 import { CLIENT_OPTIONS } from "./JSON/settings.json";
-import { getEmoji, getColor } from './Components/Commands/CommandStructure';
+import { getEmoji, getColor, CommandContext } from './Components/Commands/CommandStructure';
 import { DEFAULT_LANG } from "./JSON/settings.json";
 import EventHandler from "./Components/Core/EventHandler";
 import duration from "moment-duration-format";
 import { tz } from "moment-timezone";
 
 const moment = require('moment'),
-    { inspect } = require('util'),
-    prisma: Prisma = connect(new PrismaClient());
+    { inspect } = require('util');
+let db: Prisma;
 
 interface msg {
     id: string,
@@ -25,9 +24,17 @@ interface usuario extends User {
     rateLimit: number;
     tag: string;
     lastCommand: {
-        botMsg: msg,
-        message: msg
+        botMsg: string;
+        userMsg: string;
     }
+}
+
+interface sendFunction {
+    ctx: Message<any> | CommandInteraction<any> | CommandContext | string;
+    content: { embeds: EmbedOptions[], flags?: number } | string | any;
+    emoji?: string;
+    embed?: boolean;
+    target?: 0 | 1 | 2;
 }
 
 interface clientUser extends ExtendedUser {
@@ -45,10 +52,11 @@ export default class KetClient extends Client {
     users: Collection<usuario>;
     shardUptime: ESMap<string | number, number>;
 
-    constructor(token: string, options: ClientOptions) {
+    constructor(prisma: Prisma, token: string, options: ClientOptions) {
         super(token, options);
 
-        this.events = new (EventHandler)(this, prisma);
+        db = prisma;
+        this.events = new (EventHandler)(this, db);
         this.commands = new Map();
         this.aliases = new Map();
         this.webhooks = new Map();
@@ -155,7 +163,7 @@ export default class KetClient extends Client {
                 let modules = readdirSync(`${path}/${categories[a]}/`);
                 for (let b in modules) modules[b].startsWith("_")
                     ? null
-                    : (await import(`${path}/${categories[a]}/${i++ ? modules[b] : modules[b]}`)).default(this, prisma);
+                    : (await import(`${path}/${categories[a]}/${i++ ? modules[b] : modules[b]}`)).default(this, db);
             }
             console.log('MODULES', `${i} Módulos inicializados`, 2);
             return true;
@@ -183,76 +191,74 @@ export default class KetClient extends Client {
 
     }
 
-    public async send({ context, emoji, content, embed = true, type = 'reply', message, interaction }:
-        { context: any, emoji?: string, content: { embeds: EmbedOptions[], flags?: number } | string | any, embed?: boolean, type?: string, message?: Message, interaction?: CommandInteraction }) {
-        if (!content) return null;
-        if (context instanceof CommandInteraction) interaction = context;
-        else message = context;
+    public async send({ ctx, content, embed = true, emoji, target = 0 }: sendFunction) {
+        if (!ctx || !content) return null;
+        if (!(ctx instanceof CommandInteraction) && !(ctx instanceof Message) && typeof ctx === 'object') ctx = ctx.env;
 
-        let user = this.users.get(message ? context.author.id : context.member.id),
-            msgObj: any = {
-                content: '',
-                embeds: embed ? [{
-                    color: getColor('red'),
-                    title: `${getEmoji('sireneRed').mention} ${'events:error.title'.getT()} ${getEmoji('sireneBlue').mention}`,
-                    description: ''
-                }] : [],
-                components: [],
-                flags: 0,
-                messageReference: message && type === 'reply' ? {
-                    channelID: context.channel.id,
-                    guildID: context.guildID,
-                    messageID: context.id,
-                    failIfNotExists: false
-                } : null,
-                allowedMentions: {
-                    everyone: false,
-                    roles: false,
-                    users: true,
-                    repliedUser: true
-                }
-            },
+        const user: usuario | null = typeof ctx === 'string' ? null : this.users.get(ctx instanceof Message ? ctx.author.id : ctx.member.user.id);
+        let msgObj: any = {
+            content: '',
+            embeds: embed ? [{
+                color: getColor('red'),
+                title: `${getEmoji('sireneRed').mention} ${'events:error.title'.getT()} ${getEmoji('sireneBlue').mention}`,
+                description: ''
+            }] : [],
+            components: [],
+            flags: 0,
+            messageReference: ctx instanceof Message && target < 2 ? {
+                channelID: ctx.channel.id,
+                guildID: ctx.guildID,
+                messageID: ctx.id,
+                failIfNotExists: false
+            } : null,
+            allowedMentions: {
+                everyone: false,
+                roles: false,
+                users: true,
+                repliedUser: true
+            }
+        },
             botMsg: Message<any> | void;
+
         if (typeof content === 'object') {
             msgObj = Object.assign(msgObj, content);
             content = content.embeds[0].description;
         } else (embed ? msgObj.embeds[0].description = content : msgObj.content = content);
 
         if (emoji) {
-            content = (getEmoji(emoji).mention ? `${getEmoji(emoji).mention} **| ${content}**` : content);
+            content = (getEmoji(emoji) ? `${getEmoji(emoji).mention} **| ${content}**` : content);
             embed ? msgObj.embeds[0].description = content : msgObj.content = content;
         }
 
-        if (message) {
-            let rateLimit = this.requestHandler.ratelimits[`/channels/${content.channel.id}/messages`];
-            if (rateLimit)
-                sleep(Date.now() - rateLimit.reset + this.options.rest.ratelimiterOffset);
+        if (typeof ctx === 'string') {
+            if (this.users.get(ctx)) return (await this.users.get(ctx).getDMChannel()).createMessage(msgObj);
+            else return await this.createMessage(ctx, msgObj);
+        }
 
-            if ((message.editedTimestamp && user?.lastCommand && user.lastCommand.botMsg.channel.id === message.channel.id && message.timestamp < user.lastCommand.botMsg.timestamp) || type === 'edit')
-                botMsg = await message.channel.editMessage(user.lastCommand.botMsg.id, msgObj)
-                    .catch(async () => { botMsg = await message.channel.createMessage(msgObj).catch(() => { }) });
-            else botMsg = await message.channel.createMessage(msgObj).catch(() => { });
+        if (ctx instanceof Message) {
+            let rateLimit = this.requestHandler.ratelimits[`/channels/${ctx.channel.id}/messages`];
+            if (rateLimit?.remaining === 0)
+                await sleep(Date.now() - rateLimit.reset + this.requestHandler.options.ratelimiterOffset);
+
+            if (user && (user.lastCommand && user.lastCommand.userMsg === ctx.id) || target === 1)
+                botMsg = await ctx.channel.editMessage(user.lastCommand.botMsg, msgObj)
+                    .catch(async () => botMsg = ctx instanceof Message ? await ctx.channel.createMessage(msgObj).catch(() => { }) : null);
+            else botMsg = await ctx.channel.createMessage(msgObj).catch(() => { });
+
             user.lastCommand = {
-                botMsg: botMsg ? {
-                    id: botMsg.id,
-                    timestamp: botMsg.timestamp,
-                    editedTimestamp: botMsg.editedTimestamp,
-                    channel: { id: botMsg.channel.id }
-                } : null,
-                message: {
-                    id: message.id,
-                    timestamp: message.timestamp,
-                    editedTimestamp: message.editedTimestamp,
-                    channel: { id: message.channel.id }
-                }
+                botMsg: botMsg ? botMsg.id : null,
+                userMsg: ctx.id
             }
             return botMsg;
-        } else {
-            switch (type) {
-                case 'reply': return interaction.createMessage(msgObj).catch(() => { });
-                case 'edit': return interaction.editOriginalMessage(msgObj).catch(() => { });
+        }
+
+        if (ctx instanceof CommandInteraction) {
+            switch (target) {
+                case 0: return ctx.createMessage(msgObj).catch(() => { });
+                case 1: return ctx.editOriginalMessage(msgObj).catch(() => { });
             }
         }
+
         return true;
     }
 
@@ -280,23 +286,30 @@ export default class KetClient extends Client {
         return user;
     }
 
-    public async findChannel(context: Message<GuildChannel> | CommandInteraction<GuildChannel>, id?: string): Promise<GuildChannel> {
-        let channel: GuildChannel,
-            guild: Guild = context.channel.guild,
-            client = this;
+    public async findChannel(ctx: Message<any> | CommandInteraction<GuildChannel> | string): Promise<TextableChannel | GuildChannel> {
+        let channel: TextableChannel | GuildChannel,
+            guild: Guild = typeof ctx !== 'string' ? ctx.channel.guild : null;
 
         try {
-            if (context instanceof Message && context.channelMentions) return await get(context.channelMentions[0]);
+            if (guild) {
+                if (ctx instanceof Message && ctx.channelMentions) channel = this.getChannel(ctx.channelMentions[0])
+                if (typeof ctx === 'string' && isNaN(Number(ctx)))
+                    channel = guild.channels.find((c: GuildChannel) => c.name.toLowerCase() === ctx || c.name.toLowerCase().startsWith(ctx) || c.name.toLowerCase().includes(ctx));
 
-            if (isNaN(Number(id))) channel = guild.channels.find((c: GuildChannel) => c.name.toLowerCase() === id || c.name.toLowerCase().startsWith(id) || c.name.toLowerCase().includes(id));
-            else return await get(id);
+            } else {
+                if (typeof ctx === 'string') {
+                    if (this.users.get(ctx)) channel = await this.users.get(ctx).getDMChannel();
+                    else channel = this.getChannel(ctx);
+                }
+
+            }
 
         } catch (_e: unknown) {
-            channel = context.channel;
+            channel = typeof ctx !== 'string' ? ctx.channel : null;
         }
 
         async function get(id: string) {
-            return guild.channels.has(id) ? guild.channels.get(id) : guild.channels.get((await client.getRESTChannel(id)).id)
+            // return guild.channels.has(id) ? guild.channels.get(id) : guild.channels.get((client.getChannel(id)).id)
         }
 
         return channel;
@@ -337,7 +350,9 @@ main()
 async function main() {
     (await import('dotenv')).config();
     global.PRODUCTION_MODE = process.argv.includes('--dev') ? false : true;
-    const ket = new KetClient(`Bot ${global.PRODUCTION_MODE ? process.env.DISCORD_TOKEN : process.env.BETA_CLIENT_TOKEN}`, CLIENT_OPTIONS as ClientOptions);
+
+    const prisma: Prisma = await connect();
+    const ket = new KetClient(prisma, `Bot ${global.PRODUCTION_MODE ? process.env.DISCORD_TOKEN : process.env.BETA_CLIENT_TOKEN}`, CLIENT_OPTIONS as ClientOptions);
 
     console.log = function () {
         moment.locale("pt-BR");
@@ -379,20 +394,14 @@ async function main() {
         }) : null;
     }
     Object.defineProperty(global, 'sleep', {
-        value: (timeout: number) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, timeout * 1_000)
+        value: async (timeout: number) => timeout <= 0 ? false : await (new Promise((res) => setTimeout(() => res(true), timeout))) //Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, timeout)
     })
 
     process
         .on('SIGINT', async () => {
-            try {
-                ket.editStatus('dnd', { name: 'Encerrando...', type: 0 });
-                prisma.$disconnect()
-                console.log('DATABASE', '√ Banco de dados desconectado', 33);
-            } catch (e) {
-                console.log('DATABASE', 'x Houve um erro ao encerrar a conexão com o banco de dados:', e, 41)
-            } finally {
-                process.exit();
-            }
+            console.log('CLIENT', 'Encerrando...', 33);
+            ket.editStatus('dnd', { name: 'Encerrando...', type: 0 });
+            process.exit();
         })
         .on('unhandledRejection', (error: Error) => console.log('SCRIPT REJEITADO: ', String(error.stack.slice(0, 256)), 41))
         .on("uncaughtException", (error: Error) => console.log('ERRO CAPTURADO: ', String(error.stack.slice(0, 256)), 41))

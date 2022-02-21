@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import KetClient from "../../Main";
 import moment from "moment";
-import CommandStructure, { getColor } from "../../Components/Commands/CommandStructure";
+import CommandStructure, { CommandContext, getColor } from "../../Components/Commands/CommandStructure";
 
 module.exports = class GlobalChatCommand extends CommandStructure {
     constructor(ket: KetClient) {
@@ -50,13 +50,13 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                 )
         })
     }
-    async execute(ctx) {
-        if (!ctx.args[0]) return await this.ket.send({ context: ctx.env, content: 'kur', emoji: 'negado' });
+    async execute(ctx: CommandContext) {
+        if (!ctx.args[0]) return await ctx.send({ content: 'no-args', emoji: 'negado' });
 
         switch (ctx.args[0].toLowerCase()) {
             case 'start':
-                let channel = await this.ket.findChannel(ctx.env, ctx.args[1]);
-                if (!channel) return await this.ket.send({ context: ctx.env, emoji: 'negado', content: 'globalchat.channelNotFound'.getT() });
+                let channel = await this.ket.findChannel(ctx.args[1]);
+                if (!channel) return await ctx.send({ emoji: 'negado', content: 'globalchat.channelNotFound'.getT() });
                 await ctx.prisma.servers.update({
                     where: { id: ctx.gID },
                     data: {
@@ -65,8 +65,8 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     }
                 });
 
-                return this.ket.send({
-                    context: ctx.env, emoji: 'autorizado', content: {
+                return ctx.send({
+                    emoji: 'autorizado', content: {
                         embeds: [{
                             color: getColor('green'),
                             ...Object('globalchat.start'.getT({ channel }))
@@ -79,8 +79,8 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     data: { globalchat: null }
                 });
 
-                return this.ket.send({
-                    context: ctx.env, emoji: 'autorizado', content: {
+                return ctx.send({
+                    emoji: 'autorizado', content: {
                         embeds: [{
                             color: getColor('green'),
                             ...Object('globalchat.stop'.getT({ user: ctx.user }))
@@ -92,7 +92,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     msg = data.find(msg => msg.id === ctx.args[1] || msg.messages.find((m) => m.includes(ctx.args[1])));
 
                 if (isNaN(Number(ctx.args[1])) || !ctx.args[1] || !msg)
-                    return this.ket.send({ context: ctx.env, emoji: 'negado', content: 'globalchat.messageNotFound'.getT() });
+                    return ctx.send({ emoji: 'negado', content: 'globalchat.messageNotFound'.getT() });
 
                 let userData = await ctx.prisma.users.find(msg.author),
                     user: any = await this.ket.findUser(ctx.env, userData.id),
@@ -101,8 +101,8 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                         .catch(() => { });
                 moment.locale(ctx.user.lang);
 
-                return this.ket.send({
-                    context: ctx.env, content: {
+                return ctx.send({
+                    content: {
                         embeds: [{
                             thumbnail: { url: user.dynamicAvatarURL('jpg') },
                             color: getColor('green'),

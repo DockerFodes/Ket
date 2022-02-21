@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import CommandStructure, { EmbedBuilder, getEmoji, getColor } from "../../Components/Commands/CommandStructure";
+import CommandStructure, { EmbedBuilder, getEmoji, getColor, CommandContext } from "../../Components/Commands/CommandStructure";
 import KetClient from "../../Main";
 
 const
@@ -30,7 +30,7 @@ module.exports = class EvalCommand extends CommandStructure {
                 Threads: true
             },
             dontType: true,
-            testCommand: ['message.channel.createMessage("alow")'],
+            testCommand: ['ctx.channel.createMessage("alow")'],
             data: new SlashCommandBuilder().addStringOption(option =>
                 option.setName("code")
                     .setDescription("Some code.")
@@ -38,7 +38,7 @@ module.exports = class EvalCommand extends CommandStructure {
             )
         })
     }
-    async execute(ctx) {
+    async execute(ctx: CommandContext) {
         const
             ket = this.ket,
             prisma = ctx.prisma;
@@ -70,7 +70,7 @@ module.exports = class EvalCommand extends CommandStructure {
                 .setDescription(filtrar(e), 'js');
             canReturn = true
         } finally {
-            if (canReturn) return ket.send({ context: ctx.env, content: { embeds: [embed.build()] } });
+            if (canReturn) return this.ket.send({ ctx, content: { embeds: [embed.build()] } });
         }
     }
 }

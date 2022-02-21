@@ -1,4 +1,4 @@
-import { CommandInteraction, ComponentInteraction } from "eris";
+import { CommandInteraction, ComponentInteraction, Interaction } from "eris";
 import DMexec from "../Packages/Home/_on-messageDMCreate";
 import homeInteractions from "../Packages/Home/_homeInteractions";
 import KetClient from "../Main";
@@ -16,7 +16,7 @@ module.exports = class InteractionCreateEvent {
         this.prisma = prisma;
         this.KetUtils = new (KetUtils)(this.ket, this.prisma);
     }
-    async on(interaction: any) {
+    async on(interaction) {
         if (channels.homeInteractions.includes(interaction.channel.id) && (interaction instanceof ComponentInteraction))
             return homeInteractions(interaction);
         if (!(interaction instanceof CommandInteraction) || interaction.type != 2) return;
@@ -43,8 +43,8 @@ module.exports = class InteractionCreateEvent {
         global.lang = user.lang;
 
         if (await this.KetUtils.checkPermissions({ ctx }) === false) return;
-        if (ctx.command.permissions.onlyDevs && !DEVS.includes(ctx.uID)) return this.ket.send({
-            context: interaction, emoji: 'negado', content: {
+        if (ctx.command.permissions.onlyDevs && !DEVS.includes(ctx.uID)) return ctx.send({
+            emoji: 'negado', content: {
                 embeds: [{
                     color: getColor('red'),
                     description: 'events:isDev'.getT()
@@ -52,12 +52,10 @@ module.exports = class InteractionCreateEvent {
             }
         })
 
-        // await this.prisma.users.update({
-        //     where: { id: ctx.gID },
-        //     data: {
-        //         commands: 'sql commands + 1'
-        //     }
-        // });
+        await this.prisma.users.update({
+            where: { id: ctx.uID },
+            data: { commands: ctx.user.commands + 1 }
+        });
 
         function getArgs(option) {
             if (!option.value) args.push(option.name);

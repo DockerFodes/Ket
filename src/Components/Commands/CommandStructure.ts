@@ -1,4 +1,7 @@
 import KetClient from "../../Main";
+import settings from "../../JSON/settings.json";
+import Prisma from "../Database/PrismaConnection";
+import { CommandInteraction, Guild, GuildTextableChannel, Member, Message, Shard, TextableChannel, User } from "eris";
 
 export default class CommandStructure {
     ket: KetClient;
@@ -169,17 +172,52 @@ export function getColor(color: string, toNumber = true) {
     } else return parseInt((color.replace('#', '')), 16)
 }
 
-export function getContext({ ket, prisma, message = null, interaction = null, user, server, args = null, command = null, commandName = null }) {
+interface CommandContextFunc {
+    ket: KetClient;
+    prisma: Prisma;
+    message?: Message<any>;
+    interaction?: CommandInteraction<any>;
+    user: any;
+    server: any;
+    args?: string[];
+    command?: any;
+    commandName?: string
+}
+
+export class CommandContext {
+    prisma: Prisma;
+    config: any;
+    env: Message<any> | CommandInteraction<any>;
+    send: Function;
+    user: any;
+    server: any;
+    args: any[];
+    author: User;
+    uID: string;
+    member: Member;
+    guild: Guild;
+    gID: string;
+    me: Member;
+    shard: Shard;
+    channel: TextableChannel | GuildTextableChannel;
+    cID: string;
+    command: any;
+    commandName: string;
+}
+
+export function getContext({ ket, prisma, message, interaction, user, server, args, command, commandName }: CommandContextFunc) {
     let ctx = message ? message : interaction;
     return {
         prisma: prisma,
-        config: ket.config,
+        config: settings,
         env: message ? message : interaction,
+        //@ts-ignore
+        send: (args) => (args.ctx = ctx) && ket.send(args),
         user: user,
         server: server,
         args: args,
-        author: (message ? ctx.author : ctx.member.user),
-        uID: (message ? ctx.author : ctx.member.user).id,
+        author: (message ? message.author : ctx.member.user),
+        uID: (message ? message.author : ctx.member.user).id,
         member: ctx.member,
         guild: ctx.channel.guild,
         gID: ctx.guildID,
@@ -189,5 +227,5 @@ export function getContext({ ket, prisma, message = null, interaction = null, us
         cID: ctx.channel.id,
         command: command?.config,
         commandName: commandName,
-    }
+    } as CommandContext;
 }

@@ -15,15 +15,10 @@ module.exports = class MessageCreateEvent {
         this.prisma = prisma;
         this.KetUtils = new (KetUtils)(this.ket, this.prisma);
     }
-    async on(message: Message) {
+    async on(message: Message<any>) {
         if (message.author?.bot && !TRUSTED_BOTS.includes(message.author?.id) /*|| message.channel.guild.shard.status === 'ready'*/) return;
         if (!message.guildID || message.channel.type === 1) DMexec(message, this.ket);
 
-        // return;
-        // return console.info(await this.prisma.users.update({
-        //     where: { id: message.author.id },
-        //     data: { commands: 'commands + 1' }
-        // }))
         let server = await this.prisma.servers.find(message.guildID, true),
             user = await this.prisma.users.find(message.author.id),
             ctx = getContext({ ket: this.ket, prisma: this.prisma, message, server, user });
@@ -33,8 +28,9 @@ module.exports = class MessageCreateEvent {
         if (server.banned) return ctx.guild.leave();
         if (server.globalchat && ctx.cID === server.globalchat) this.KetUtils.sendGlobalChat(ctx);
 
-        const regexp = new RegExp(`^(${(user.prefix).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}|<@!?${this.ket.user.id}>)( )*`, 'gi')
+        const regexp = new RegExp(`^(${user.prefix.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}|<@!?${this.ket.user.id}>)( )*`, 'gi')
         if (!message.content.match(regexp)) return;
+
         let args: string[] = message.content.replace(regexp, '').trim().split(/ /g),
             commandName: string | null = args.shift().toLowerCase(),
             command = this.ket.commands.get(commandName) || this.ket.commands.get(this.ket.aliases.get(commandName));
@@ -47,20 +43,19 @@ module.exports = class MessageCreateEvent {
         ctx.user = await this.KetUtils.checkUserGuildData(ctx);
 
         if (await this.KetUtils.checkPermissions({ ctx }) === false) return;
-        if (ctx.command.permissions.onlyDevs && !DEVS.includes(ctx.uID)) return this.ket.send({
-            context: message, emoji: 'negado', content: {
+        if (ctx.command.permissions.onlyDevs && !DEVS.includes(ctx.uID)) return ctx.send({
+            emoji: 'negado', content: {
                 embeds: [{
                     color: getColor('red'),
                     description: 'events:isDev'.getT()
                 }]
             }
         })
-        // await this.prisma.users.update({
-        //     where: { id: ctx.gID },
-        //     data: {
-        //         commands: 'sql commands + 1'
-        //     }
-        // });
+
+        await this.prisma.users.update({
+            where: { id: ctx.uID },
+            data: { commands: ctx.user.commands + 1 }
+        });
         // let noargs = {
         //     color: getColor('red'), 
         //     thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/816183379435192330/noargs.thumb.gif' },

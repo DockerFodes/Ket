@@ -2,8 +2,7 @@ import KetClient from "../../Main";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { execSync } from "child_process";
 import { inspect } from "util";
-import CommandStructure, { EmbedBuilder } from '../../Components/Commands/CommandStructure';
-import Prisma from "../../Components/Database/PrismaConnection";
+import CommandStructure, { CommandContext, EmbedBuilder } from '../../Components/Commands/CommandStructure';
 
 module.exports = class CldCommand extends CommandStructure {
     constructor(ket: KetClient) {
@@ -31,7 +30,7 @@ module.exports = class CldCommand extends CommandStructure {
                 )
         })
     }
-    async execute(ctx) {
+    async execute(ctx: CommandContext) {
         let embed = new EmbedBuilder();
 
         try {
@@ -46,6 +45,7 @@ module.exports = class CldCommand extends CommandStructure {
                 .setColor('red')
                 .setDescription(inspect(e), 'bash');
         }
-        return this.ket.send({ context: ctx.env, content: { embeds: [embed.build()] } })
+
+        return ctx.send({ content: { embeds: [embed.build()] } });
     }
 }

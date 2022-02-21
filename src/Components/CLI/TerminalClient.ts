@@ -32,7 +32,7 @@ export default async function (ket: KetClient, prisma: Prisma) {
                 return await eval(`commands${args.shift()}({ ket, args })`);
             }
 
-            evaled = await eval(`${response.code}`);
+            evaled = await eval(response.code);
             console.info(evaled);
         } catch (e) {
             console.log('TERMINAL CLIENT', e, 41);

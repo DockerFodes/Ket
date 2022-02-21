@@ -32,12 +32,14 @@ export default class KetUtils {
                     lang: 'pt'
                 }
             })
-            if (globalchat) (await ctx.author.getDMChannel()).createMessage({
-                embeds: [{
-                    ...Object('events:globalchat.welcome'.getT({ avatar: ctx.author.dynamicAvatarURL('jpg') })),
-                    color: getColor('green'),
-                    image: { url: 'https://goyalankit.com/assets/img/el_gato2.gif' }
-                }]
+            if (globalchat) this.ket.send({
+                ctx: ctx.uID, content: {
+                    embeds: [{
+                        ...Object('events:globalchat.welcome'.getT({ avatar: ctx.author.dynamicAvatarURL('jpg') })),
+                        color: getColor('green'),
+                        image: { url: 'https://goyalankit.com/assets/img/el_gato2.gif' }
+                    }]
+                }
             }).catch(() => { });
         }
         return user;
@@ -136,8 +138,9 @@ export default class KetUtils {
                     .then((msg: any) => msgs.push(`${msg.id}|${msg.guildID}`)).catch(() => { });
 
                 let rateLimit = this.ket.requestHandler.ratelimits[`/webhooks/${g.globalchat}/:token?&wait=true`];
-                if (rateLimit)
-                    sleep(Date.now() - rateLimit.reset + this.ket.options.rest.ratelimiterOffset);
+                if (rateLimit.remaining === 0)
+                    await sleep(Date.now() - rateLimit.reset + this.ket.requestHandler.options.ratelimiterOffset);
+                    
                 return res(send());
             })
         })
@@ -149,7 +152,7 @@ export default class KetUtils {
                 author: message.author.id,
                 guild: message.guildID,
                 editCount: 0,
-                messages: `{${msgs.join(',')}}`
+                messages: msgs
             }
         })
     }
@@ -203,7 +206,7 @@ export default class KetUtils {
                 where: { id: ctx.uID },
                 data: {
                     timeout: Date.now() + user.rateLimit * 1000 * 60,
-                    // warns: 'sql warns + 1'
+                    warns: userBl.warns + 1
                 }
             }) : null;
             else await this.prisma.blacklist.create({
@@ -213,8 +216,8 @@ export default class KetUtils {
                 }
             })
 
-            this.ket.send({
-                context: ctx.env, emoji: 'sireneRed', content: {
+            ctx.send({
+                emoji: 'sireneRed', content: {
                     embeds: [{
                         color: getColor('red'),
                         title: `Auto-mod - Globalchat`,
@@ -233,13 +236,14 @@ export default class KetUtils {
 
         if (!ctx.channel) return false;
         if ([10, 11, 12].includes(ctx.channel.type) && !ctx.command.access.Threads) {
-            this.ket.send({
-                context: ctx.env, content: {
+            ctx.send({
+                emoji: 'negado',
+                content: {
                     embeds: [{
                         color: getColor('red'),
                         title: `${getEmoji('sireneRed').mention} ${'events:no-threads'.getT()}`
                     }]
-                }, emoji: 'negado'
+                }
             })
             return false
         }
@@ -248,10 +252,9 @@ export default class KetUtils {
 
         if (missingPermissions[0]) {
             notReply ? null :
-                this.ket.send({ context: ctx.env, content: 'permissions:missingPerms'.getT({ missingPerms: missingPermissions.join(', ') }), embed: false, emoji: 'negado' })
+                ctx.send({ content: 'permissions:missingPerms'.getT({ missingPerms: missingPermissions.join(', ') }), embed: false, emoji: 'negado' })
                     .catch(async () => {
-                        let dmChannel = await ctx.author.getDMChannel();
-                        dmChannel.createMessage('permissions:missingPerms'.getT({ missingPerms: missingPermissions.join(', ') }))
+                        this.ket.send({ ctx: ctx.uID, content: 'permissions:missingPerms'.getT({ missingPerms: missingPermissions.join(', ') }) })
                             .catch(() => {
                                 if (ctx.me.permissions.has('changeNickname')) ctx.me.edit({ nick: "pls give me some permission" }).catch(() => { });
                             });
@@ -262,36 +265,40 @@ export default class KetUtils {
 
     async sendCommandLog(ctx) {
         let user = await this.prisma.users.find(ctx.uID),
-            embed: any = new EmbedBuilder()
+            embed = new EmbedBuilder()
                 .setColor('green')
                 .setTitle(user.prefix + ctx.commandName)
                 .addField('Servidor:', `# ${ctx.guild?.name} (ID: ${ctx.gID})`, false, 'cs')
                 .addField('Autor:', `${ctx.author.tag} (ID: ${ctx.author.id})`, false, 'fix')
                 .addField('Argumentos:', `- ${!ctx.args[0] ? 'Nenhum argumento foi usado neste comando' : ctx.args.join(' ')}`, false, 'diff');
-        this.ket.createMessage(channels.commandLogs, { embeds: [embed.build()] });
+        this.ket.send({ ctx: channels.commandLogs, content: { embeds: [embed.build()] } });
     }
 
     CommandError(ctx, error: Error) {
-        this.ket.send({
-            context: ctx.env, content: {
+        ctx.send({
+            emoji: 'negado',
+            content: {
                 embeds: [{
                     color: getColor('red'),
                     thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/918721199029231716/error.gif' },
                     description: 'events:error.description'.getT({ error })
                 }],
                 flags: 64
-            }, emoji: 'negado'
+            }
         })
 
-        this.ket.createMessage(channels.erros, {
-            embed: {
-                color: getColor('red'),
-                title: `Erro no ${ctx.commandName}/${ctx.command.name}`,
-                description: `Author: \`${ctx.author.tag}\` (ID: ${ctx.uID})\nGuild: \`${ctx.guild?.name}\` (ID: ${ctx.gID})\nChannel: \`${ctx.channel?.name}\` (ID: ${ctx.cID}, Tipo: ${ctx.channel?.type}, NSFW: ${ctx.channel?.nsfw})\nEu: Nick: \`${ctx.me?.nick}\`, Permissions: ${ctx.me?.permissions}`,
-                fields: [
-                    { name: 'Argumentos:', value: '```diff\n- ' + (!ctx.args[0] ? 'Nenhum argumento' : ctx.args.join(' ')).slice(0, 1000) + "\n```" },
-                    { name: 'Erro:', value: '```js\n' + String(error.stack).slice(0, 500) + "\n```" }
-                ]
+        this.ket.send({
+            ctx: channels.erros,
+            content: {
+                embeds: [{
+                    color: getColor('red'),
+                    title: `Erro no ${ctx.commandName}/${ctx.command.name}`,
+                    description: `Author: \`${ctx.author.tag}\` (ID: ${ctx.uID})\nGuild: \`${ctx.guild?.name}\` (ID: ${ctx.gID})\nChannel: \`${ctx.channel?.name}\` (ID: ${ctx.cID}, Tipo: ${ctx.channel?.type}, NSFW: ${ctx.channel?.nsfw})\nEu: Nick: \`${ctx.me?.nick}\`, Permissions: ${ctx.me?.permissions}`,
+                    fields: [
+                        { name: 'Argumentos:', value: '```diff\n- ' + (!ctx.args[0] ? 'Nenhum argumento' : ctx.args.join(' ')).slice(0, 1000) + "\n```" },
+                        { name: 'Erro:', value: '```js\n' + String(error.stack).slice(0, 500) + "\n```" }
+                    ]
+                }]
             }
         })
     }
