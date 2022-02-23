@@ -33,8 +33,7 @@ module.exports = class MessageUpdateEvent {
                 webhook = this.ket.webhooks.get(channel.id);
 
             if (!webhook) {
-                webhook = await channel.getWebhooks();
-                webhook = Array(webhook).find(w => w.name === globalchat.webhookName && w.user.id === this.ket.user.id);
+                webhook = (await this.ket.getChannelWebhooks(guildData.globalchat)).find(w => w.name === 'Ket' && w.user.id === this.ket.user.id);
                 if (!webhook) return;
             }
             this.ket.editWebhookMessage(webhook.id, webhook.token, msgID, {

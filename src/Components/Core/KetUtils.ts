@@ -106,14 +106,12 @@ export default class KetUtils {
             return new Promise(async (res, rej) => {
                 let
                     channel: any = this.ket.guilds.get(g.id)?.channels.get(g.globalchat),
-                    webhook = this.ket.webhooks.get(channel?.id);
+                    webhook: any = this.ket.webhooks.get(channel?.id);
 
                 if (!channel || channel?.nsfw || await this.checkPermissions({ ctx, command, channel, notReply: true }) === false) return;
                 if (!webhook) {
-                    webhook = await channel.getWebhooks()
-                        .catch(() => { });
-                    webhook = Array(webhook).find((w: Webhook) => w.name === globalchat.webhookName && w.user.id === this.ket.user.id);
-                    if (!webhook) webhook = await channel.createWebhook({ name: globalchat.webhookName, options: { type: 1 } }).catch(() => { });
+                    webhook = (await this.ket.getChannelWebhooks(g.globalchat)).find((w) => w.name === 'Ket' && w.user.id === this.ket.user.id);
+                    if (!webhook) webhook = await channel.createWebhook({ name: 'Ket', options: { type: 1 } }).catch(() => { });
                     this.ket.webhooks.set(channel.id, webhook);
                 }
                 if (!webhook) return;

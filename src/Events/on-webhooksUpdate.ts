@@ -1,8 +1,6 @@
 import KetClient from "../Main";
 import Prisma from "../Components/Database/PrismaConnection";
-import { ESMap } from "typescript";
-import { globalchat } from "../JSON/settings.json";
-import { GuildChannel, GuildTextableChannel, Webhook, WebhookData } from "eris";
+import { Webhook, WebhookData } from "eris";
 
 module.exports = class Event {
     ket: KetClient;
@@ -18,19 +16,21 @@ module.exports = class Event {
                 channel: any = guild?.channels?.get(wData.channelID);
 
             if (!guild || !channel || !channel.permissionsOf(this.ket.user.id).has('manageWebhooks')) return;
-            let webhooks = (await channel.getWebhooks()).filter((w: Webhook) => w.name === globalchat.webhookName && w.user.id === this.ket.user.id);
-            let webhook = webhooks[0]
+            let webhooks: Webhook[] = (await this.ket.getChannelWebhooks(wData.channelID)).filter((w: Webhook) => w.name === 'Ket' && w.user.id === this.ket.user.id);
+            let webhook: any = webhooks[0];
 
-            if (!webhook)
-                return webhook = await this.ket.createChannelWebhook(wData.channelID, { name: globalchat.webhookName })
+            if (!webhooks[0])
+                return webhook = await this.ket.createChannelWebhook(wData.channelID, { name: 'Ket' })
                     .then((w) => this.ket.webhooks.set(wData.channelID, w))
                     .catch(() => { })
 
-            if (data && (webhook.name !== globalchat.webhookName || webhook?.channel_id !== data.channel_id))
-                return this.ket.editWebhook(webhook.id, {
-                    name: globalchat.webhookName,
+            if (data && (webhook.name !== 'Ket' || webhook?.channel_id !== data.channel_id)) {
+                console.log('editei um webhook pq fds, guild: ', guild.name)
+                this.ket.editWebhook(webhook.id, {
+                    name: 'Ket Global Chat',
                     channelID: wData.channelID
                 }, webhook.token)
+            }
         }
     }
 }

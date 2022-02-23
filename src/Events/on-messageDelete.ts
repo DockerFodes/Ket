@@ -27,8 +27,7 @@ module.exports = class MessageDeleteEvent {
 
             if (!msg) return;
             if (!webhook) {
-                webhook = await channel.getWebhooks();
-                webhook = Array(webhook).find(w => w.name === globalchat.webhookName && w.user.id === this.ket.user.id);
+                webhook = (await this.ket.getChannelWebhooks(guildData.globalchat)).find(w => w.name === 'Ket' && w.user.id === this.ket.user.id);
                 if (!webhook) return;
             }
             if (msg.attachments[0]) await this.ket.deleteWebhookMessage(webhook.id, webhook.token, msg.id)

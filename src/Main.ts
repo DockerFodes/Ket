@@ -99,6 +99,7 @@ export default class KetClient extends Client {
             files: [],
             filesMetadata: {}
         }
+
         try {
             config.files = readdirSync(`${path}/${config.defaultLang}/`);
             for (let a in config.langs)
@@ -308,10 +309,6 @@ export default class KetClient extends Client {
             channel = typeof ctx !== 'string' ? ctx.channel : null;
         }
 
-        async function get(id: string) {
-            // return guild.channels.has(id) ? guild.channels.get(id) : guild.channels.get((client.getChannel(id)).id)
-        }
-
         return channel;
     }
 
@@ -368,8 +365,8 @@ async function main() {
                 : null,
             str: string = `[ ${setor} | ${tz(Date.now(), "America/Bahia").format("LT")}/${Math.floor(process.memoryUsage().rss / 1024 / 1024)}MB ] - ${args.join(' ')}`;
 
-        sendWebhook(!setor ? args[0] : str);
-        if (!setor) return console.info(inspect(String(args)));
+        sendWebhook(!setor ? inspect(args) : str);
+        if (!setor) return console.info(inspect(args));
         console.info(`\x1B[${color}m${str}\x1B[0m`);
     }
     console.error = function () {
@@ -382,7 +379,7 @@ async function main() {
         process.env.BETA_DISCORD_TOKEN = null;
     })
 
-    function sendWebhook(str: string) {
+    function sendWebhook(str: string | string[]) {
         global.PRODUCTION_MODE ? ket.executeWebhook(process.env.WEBHOOK_LOGS.split(' | ')[0], process.env.WEBHOOK_LOGS.split(' | ')[1], {
             username: "Ket Logs",
             avatarURL: "https://cdn.discordapp.com/attachments/788376558271201290/932605381539139635/797062afbe6a08ae32e443277f14b7e2.jpg",
