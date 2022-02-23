@@ -13,22 +13,6 @@ const moment = require('moment'),
     { inspect } = require('util');
 let db: Prisma;
 
-interface msg {
-    id: string,
-    timestamp: number,
-    editedTimestamp: null | number,
-    channel: { id: string }
-}
-
-interface usuario extends User {
-    rateLimit: number;
-    tag: string;
-    lastCommand: {
-        botMsg: string;
-        userMsg: string;
-    }
-}
-
 interface sendFunction {
     ctx: Message<any> | CommandInteraction<any> | CommandContext | string;
     content: { embeds: EmbedOptions[], flags?: number } | string | any;
@@ -42,6 +26,20 @@ interface clientUser extends ExtendedUser {
     tag: string;
 }
 
+// interface guild extends Guild {
+//     me: Member;
+// }
+
+
+class usuario extends User {
+    rateLimit: number;
+    tag: string;
+    lastCommand: {
+        botMsg: string;
+        userMsg: string;
+    }
+}
+
 export default class KetClient extends Client {
     _token: string;
     events: EventHandler;
@@ -50,12 +48,14 @@ export default class KetClient extends Client {
     webhooks: ESMap<string, Webhook>;
     user: clientUser;
     users: Collection<usuario>;
+    // guilds: Collection<guild>;
     shardUptime: ESMap<string | number, number>;
 
     constructor(prisma: Prisma, token: string, options: ClientOptions) {
         super(token, options);
 
         db = prisma;
+        this.users = new Collection(usuario, CLIENT_OPTIONS.cacheLimit.users);
         this.events = new (EventHandler)(this, db);
         this.commands = new Map();
         this.aliases = new Map();
@@ -348,9 +348,14 @@ export default class KetClient extends Client {
 main()
 
 async function main() {
-    (await import('dotenv')).config();
+    console.clear();
     global.PRODUCTION_MODE = process.argv.includes('--dev') ? false : true;
-
+    (await import('./Components/Core/ProtoTypes')).default();
+    (await import('dotenv')).config();
+    duration(moment);
+    // const app = express();
+    // app.get("/", (_req, res: Response) => res.sendStatus(200));
+    // app.listen(process.env.PORT);
     const prisma: Prisma = await connect();
     const ket = new KetClient(prisma, `Bot ${global.PRODUCTION_MODE ? process.env.DISCORD_TOKEN : process.env.BETA_CLIENT_TOKEN}`, CLIENT_OPTIONS as ClientOptions);
 
@@ -363,24 +368,15 @@ async function main() {
                 : null,
             str: string = `[ ${setor} | ${tz(Date.now(), "America/Bahia").format("LT")}/${Math.floor(process.memoryUsage().rss / 1024 / 1024)}MB ] - ${args.join(' ')}`;
 
-
         sendWebhook(!setor ? args[0] : str);
-        if (!setor) return console.info(args[0]);
+        if (!setor) return console.info(inspect(args));
         console.info(`\x1B[${color}m${str}\x1B[0m`);
     }
     console.error = function () {
         console.log('ANTI-CRASH', 'ERRO GENÉRICO:', String(arguments['0'].stack).slice(0, 256), 41);
     }
 
-    console.clear();
     console.log('SHARD MANAGER', 'Iniciando fragmentação', 46);
-
-    duration(moment);
-    (await import('./Components/Core/ProtoTypes')).default();
-    // const app = express();
-    // app.get("/", (_req, res: Response) => res.sendStatus(200));
-    // app.listen(process.env.PORT);
-
     ket.boot().then(() => {
         process.env.DISCORD_TOKEN = null;
         process.env.BETA_DISCORD_TOKEN = null;
@@ -393,6 +389,7 @@ async function main() {
             content: `\`${str}\``.slice(0, 1998)
         }) : null;
     }
+
     Object.defineProperty(global, 'sleep', {
         value: async (timeout: number) => timeout <= 0 ? false : await (new Promise((res) => setTimeout(() => res(true), timeout))) //Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, timeout)
     })

@@ -1,4 +1,4 @@
-import { Member, Message, User } from "eris";
+import { Guild, Member, Message, User } from "eris";
 import axios from "axios";
 import { CanvasRenderingContext2D, createCanvas } from "canvas";
 const moment = require('moment');
@@ -9,8 +9,8 @@ export default function start() {
 	//@ts-ignore
 	delete Message.prototype.deleteAfter;
 	Object.defineProperty(Message.prototype, 'deleteAfter', {
-		value: function (time: number) {
-			sleep(time);
+		value: async function (time: number) {
+			await sleep(time);
 			this.delete().catch(() => { });
 		}
 	})
@@ -78,6 +78,14 @@ export default function start() {
 			else return true;
 		}
 	})
+
+	//@ts-ignore
+	// delete Guild.prototype.me;
+	// Object.defineProperty(Guild.prototype, 'me', {
+	// 	get() {
+	// 		return this.members.get(this._client.user.id);
+	// 	}
+	// })
 
 	/* user.tag */
 	//@ts-ignore

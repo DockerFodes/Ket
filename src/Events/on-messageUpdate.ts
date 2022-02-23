@@ -1,7 +1,7 @@
-import { Message } from "eris";
-import Prisma from "../Components/Database/PrismaConnection";
 import KetClient from "../Main";
 import KetUtils from "../Components/Core/KetUtils";
+import Prisma from "../Components/Database/PrismaConnection";
+import { Message } from "eris";
 import { globalchat } from "../JSON/settings.json";
 
 module.exports = class MessageUpdateEvent {
@@ -34,7 +34,7 @@ module.exports = class MessageUpdateEvent {
 
             if (!webhook) {
                 webhook = await channel.getWebhooks();
-                webhook = Array(webhook).filter(w => w.name === 'Ket Global Chat' && w.user.id === this.ket.user.id)[0];
+                webhook = Array(webhook).find(w => w.name === globalchat.webhookName && w.user.id === this.ket.user.id);
                 if (!webhook) return;
             }
             this.ket.editWebhookMessage(webhook.id, webhook.token, msgID, {

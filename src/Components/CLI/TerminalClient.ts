@@ -1,6 +1,5 @@
 import KetClient from "../../Main";
 import prompts from "prompts";
-import gradient from "gradient-string";
 import Prisma from "../Database/PrismaConnection";
 
 export default async function (ket: KetClient, prisma: Prisma) {
@@ -21,7 +20,7 @@ export default async function (ket: KetClient, prisma: Prisma) {
             }
         }, {
             onCancel: function () {
-                console.log(gradient('red', 'purple')('Para encerrar o processo digite .exit (para mais informações use .help)'));
+                console.log('TERMINAL CLIENT', 'Para encerrar o processo digite .exit (para mais informações use .help)', 41);
                 return termEval();
             }
         });
@@ -33,7 +32,7 @@ export default async function (ket: KetClient, prisma: Prisma) {
             }
 
             evaled = await eval(response.code);
-            console.info(evaled);
+            console.log(evaled);
         } catch (e) {
             console.log('TERMINAL CLIENT', e, 41);
         } finally {

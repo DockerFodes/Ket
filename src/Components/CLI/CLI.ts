@@ -1,8 +1,6 @@
-import gradient from "gradient-string";
-import { usagePercent } from "cpu-stat";
-import { free } from "mem-stat";
+import os from "os";
 import { exec } from "child_process";
-const { duration } = require('moment');
+import { duration } from "moment";
 
 module.exports = {
     cls() { this.clear(); },
@@ -43,7 +41,7 @@ module.exports = {
 
     h() { this.help(); },
     help() {
-        return console.info(gradient.mind(`Comandos do terminal:
+        return console.log('TERMINAL CLIENT', `Comandos do terminal:
     Você também pode digitar códigos aqui para serem executados como um comando de eval\n\
     Lista de comandos
     .clear            | limpa o console
@@ -53,19 +51,17 @@ module.exports = {
     .help             | exibe esta mensagem ;3
     .info             | exibe uso de recursos e uptime
     .reload <comando> | recarrega um comando
-    .restart          | reinicia as shards`))
+    .restart          | reinicia as shards`, 33);
     },
 
     i({ ket }) { this.info({ ket }); },
     info({ ket }) {
-        return usagePercent((e, percent) => {
-            console.info(gradient('red', 'yellow')(`
+        console.log('INFO', `
     Consumo:   RAM   |   CPU   
-            ${Math.round(process.memoryUsage().rss / 1024 / 1024).toString()}MB/${process.platform.startsWith('win') ? '-1' : free('GiB')} |  ${percent.toFixed(2)}%\n
+            ${(process.memoryUsage().rss / 1024 / 1024).toFixed()}MB/${(os.totalmem() / 1024 / 1024 / 1024).toFixed(1)}GB\n
     ---------------------------\n
     Bot:     Uptime  |  Shards    
-            ${duration(ket.uptime).format(" dd[d] hh[h] mm[m] ss[s]")} |   ${ket.shards.filter(s => s.status === 'ready').length}/${ket.shards.size}`))
-        });
+            ${duration(ket.uptime).format(" dd[d] hh[h] mm[m] ss[s]")} |   ${ket.shards.filter(s => s.status === 'ready').length}/${ket.shards.size} conectadas`)
     },
 
     r({ ket, args }) { this.reload({ ket, args }); },
@@ -79,7 +75,7 @@ module.exports = {
     },
 
     async restart({ ket }) {
-        new Promise(async (res, rej) => res(await this.compile()));
+        await (new Promise(async (res, rej) => res(await this.compile())));
         let i = 0;
         let interval = setInterval(async () => {
             if (i++ > ket.options.maxShards - 1) return clearInterval(interval);

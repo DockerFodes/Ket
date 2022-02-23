@@ -1,0 +1,27 @@
+{
+    "clg": {
+        "scope": "typescript",
+        "prefix": "clg",
+        "body": "console.log($1)"
+    },
+    "Event": {
+        "scope": "typescript",
+        "prefix": "newKetEvent",
+        "body": [
+            "import KetClient from \"../Main\";",
+            "import Prisma from \"../Components/Database/PrismaConnection\";",
+            "",
+            "module.exports = class $1Event {",
+            "    ket: KetClient;",
+            "    prisma: Prisma;",
+            "    constructor(ket: KetClient, prisma: Prisma) {",
+            "        this.ket = ket;",
+            "        this.prisma = prisma;",
+            "    }",
+            "    async on($2) {",
+            "        $3",
+            "    }",
+            "}"
+        ]
+    }
+}

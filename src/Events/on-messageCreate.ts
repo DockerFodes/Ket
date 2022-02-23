@@ -1,9 +1,9 @@
-import { Message } from "eris";
 import KetClient from "../Main";
-import DMexec from "../Packages/Home/_on-messageDMCreate";
-import { getContext, getColor } from "../Components/Commands/CommandStructure";
-import Prisma from "../Components/Database/PrismaConnection";
 import KetUtils from "../Components/Core/KetUtils";
+import Prisma from "../Components/Database/PrismaConnection";
+import DMexec from "../Packages/Home/_on-messageDMCreate";
+import { Message } from "eris";
+import { getContext, getColor } from "../Components/Commands/CommandStructure";
 import { TRUSTED_BOTS, DEVS } from "../JSON/settings.json";
 
 module.exports = class MessageCreateEvent {
@@ -16,7 +16,7 @@ module.exports = class MessageCreateEvent {
         this.KetUtils = new (KetUtils)(this.ket, this.prisma);
     }
     async on(message: Message<any>) {
-        if (message.author?.bot && !TRUSTED_BOTS.includes(message.author?.id) /*|| message.channel.guild.shard.status === 'ready'*/) return;
+        if (message.author?.bot && !TRUSTED_BOTS.includes(message.author.id)) return;
         if (!message.guildID || message.channel.type === 1) DMexec(message, this.ket);
 
         let server = await this.prisma.servers.find(message.guildID, true),
@@ -28,10 +28,9 @@ module.exports = class MessageCreateEvent {
         if (server.banned) return ctx.guild.leave();
         if (server.globalchat && ctx.cID === server.globalchat) this.KetUtils.sendGlobalChat(ctx);
 
-        const regexp = new RegExp(`^(${user.prefix.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}|<@!?${this.ket.user.id}>)( )*`, 'gi')
-        if (!message.content.match(regexp)) return;
-
-        let args: string[] = message.content.replace(regexp, '').trim().split(/ /g),
+        const prefixRegex = new RegExp(`^(${user.prefix.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}|<@!?${this.ket.user.id}>)( )*`, 'gi')
+        if (!message.content.match(prefixRegex)) return;
+        let args: string[] = message.content.replace(prefixRegex, '').trim().split(/ /g),
             commandName: string | null = args.shift().toLowerCase(),
             command = this.ket.commands.get(commandName) || this.ket.commands.get(this.ket.aliases.get(commandName));
 
@@ -56,6 +55,7 @@ module.exports = class MessageCreateEvent {
             where: { id: ctx.uID },
             data: { commands: ctx.user.commands + 1 }
         });
+
         // let noargs = {
         //     color: getColor('red'), 
         //     thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/816183379435192330/noargs.thumb.gif' },
@@ -79,9 +79,9 @@ module.exports = class MessageCreateEvent {
             try {
                 ctx.command.dontType ? null : await ctx.channel.sendTyping().catch(() => { });
                 await command.execute(ctx);
-                res(this.KetUtils.sendCommandLog(ctx));
-            } catch (error) {
-                return this.KetUtils.CommandError(ctx, error);
+                return res(this.KetUtils.sendCommandLog(ctx));
+            } catch (error: any) {
+                return res(this.KetUtils.CommandError(ctx, error));
             }
         })
     }

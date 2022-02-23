@@ -88,7 +88,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     }
                 });
             case 'getinfo':
-                let data = await ctx.prisma.globalchat.findMany({ limit: 500 }),
+                let data = await ctx.prisma.globalchat.findMany(),
                     msg = data.find(msg => msg.id === ctx.args[1] || msg.messages.find((m) => m.includes(ctx.args[1])));
 
                 if (isNaN(Number(ctx.args[1])) || !ctx.args[1] || !msg)

@@ -1,7 +1,6 @@
 # Pastas
 node_modules/
 dist/
-.vscode/
 migrations/
 src/Components/Database/migrations
 test/

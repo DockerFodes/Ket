@@ -1,6 +1,7 @@
-import { GuildChannel, Message } from "eris";
-import Prisma from "../Components/Database/PrismaConnection";
 import KetClient from "../Main";
+import Prisma from "../Components/Database/PrismaConnection";
+import { GuildChannel, Message } from "eris";
+import { globalchat } from "../JSON/settings.json";
 
 module.exports = class MessageDeleteEvent {
     ket: KetClient;
@@ -27,10 +28,12 @@ module.exports = class MessageDeleteEvent {
             if (!msg) return;
             if (!webhook) {
                 webhook = await channel.getWebhooks();
-                webhook = Array(webhook).filter(w => w.name === 'Ket Global Chat' && w.user.id === this.ket.user.id)[0];
+                webhook = Array(webhook).find(w => w.name === globalchat.webhookName && w.user.id === this.ket.user.id);
                 if (!webhook) return;
             }
-            if (msg.attachments[0]) await msg.delete().then(() => hasDeleted = true).catch(() => hasDeleted = false)
+            if (msg.attachments[0]) await this.ket.deleteWebhookMessage(webhook.id, webhook.token, msg.id)
+                .then(() => hasDeleted = true)
+                .catch(() => hasDeleted = false)
 
             if (!hasDeleted) this.ket.editWebhookMessage(webhook.id, webhook.token, msg.id, {
                 content: "```diff\n- [mensagem original apagada]```",
@@ -41,7 +44,7 @@ module.exports = class MessageDeleteEvent {
                     roles: false,
                     users: false
                 }
-            }).catch(() => !msg.attachments[0] ? msg.delete().catch(() => { }) : null)
+            }).catch(() => !msg.attachments[0] ? this.ket.deleteWebhookMessage(webhook.id, webhook.token, msg.id).catch(() => { }) : null)
         })
     }
 }

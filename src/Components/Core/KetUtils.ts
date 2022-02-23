@@ -4,7 +4,7 @@ import DidYouMean from "didyoumean";
 import { getEmoji, getColor, EmbedBuilder } from '../Commands/CommandStructure';
 import KetClient from "../../Main";
 import Prisma from "../Database/PrismaConnection";
-import { DEVS, channels } from "../../JSON/settings.json";
+import { DEVS, channels, globalchat } from "../../JSON/settings.json";
 const moment = require('moment');
 
 export default class KetUtils {
@@ -25,6 +25,7 @@ export default class KetUtils {
 
     async checkUserGuildData(ctx: any, globalchat: boolean = false) {
         let user = await this.prisma.users.findUnique({ where: { id: ctx.uID } });
+
         if (!user) {
             user = await this.prisma.users.create({
                 data: {
@@ -56,7 +57,7 @@ export default class KetUtils {
         let
             message = ctx.env,
             user = this.ket.users.get(ctx.uID),
-            guildsData = await this.prisma.servers.findMany({ limit: 35 }),
+            guildsData = await this.prisma.servers.findMany(),
             guilds = guildsData.filter(guild => guild.globalchat && guild.globalchat != message.channel.id),
             msgObj = {
                 username: message.member.nick ? `${message.author.username} (${message.member.nick})` : message.author.username,
@@ -99,7 +100,7 @@ export default class KetUtils {
             !buffer ? {} : msgObj.file.push({ file: buffer.data, name: message.attachments[i].filename });
         }
 
-        if (message.author.bot && message.embeds[0]) msgObj.embeds = [message.embeds[0]]
+        if (message.author.bot && message?.embeds) msgObj.embeds = [message.embeds[0]]
 
         const sendAllChats = guilds.map(g => {
             return new Promise(async (res, rej) => {
@@ -111,8 +112,8 @@ export default class KetUtils {
                 if (!webhook) {
                     webhook = await channel.getWebhooks()
                         .catch(() => { });
-                    webhook = Array(webhook).filter((w: Webhook) => w.name === 'Ket Global Chat' && w.user.id === this.ket.user.id)[0];
-                    if (!webhook) webhook = await channel.createWebhook({ name: 'Ket Global Chat', options: { type: 1 } }).catch(() => { });
+                    webhook = Array(webhook).find((w: Webhook) => w.name === globalchat.webhookName && w.user.id === this.ket.user.id);
+                    if (!webhook) webhook = await channel.createWebhook({ name: globalchat.webhookName, options: { type: 1 } }).catch(() => { });
                     this.ket.webhooks.set(channel.id, webhook);
                 }
                 if (!webhook) return;
@@ -138,9 +139,9 @@ export default class KetUtils {
                     .then((msg: any) => msgs.push(`${msg.id}|${msg.guildID}`)).catch(() => { });
 
                 let rateLimit = this.ket.requestHandler.ratelimits[`/webhooks/${g.globalchat}/:token?&wait=true`];
-                if (rateLimit.remaining === 0)
+                if (rateLimit?.remaining === 0)
                     await sleep(Date.now() - rateLimit.reset + this.ket.requestHandler.options.ratelimiterOffset);
-                    
+
                 return res(send());
             })
         })
@@ -189,7 +190,7 @@ export default class KetUtils {
     async checkRateLimit(ctx, user) {
         !user.rateLimit ? user.rateLimit = 1 : user.rateLimit++;
 
-        let messages = await this.prisma.globalchat.findMany({ limit: 10 });
+        let messages = (await this.prisma.globalchat.findMany()).slice(0, 9);
         messages?.filter(m => m.author === ctx.uID)?.forEach(msg => {
             let content = String(ctx.channel.messages.get(msg.id)?.content);
             content.length > 998 ? user.rateLimit++ : null;

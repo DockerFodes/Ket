@@ -13,7 +13,7 @@ export default async function (interaction: any) {
         }]
     })
     try {
-        interaction.channel.guild.roles.filter(r => r.name.includes('🌈') && interaction.member.roles.has(r.id))?.forEach(r => interaction.member.removeRole(r.id));
+        interaction.channel.guild.roles.filter(r => r.name.includes('🌈') && interaction.member.roles.includes(r.id))?.forEach(r => interaction.member.removeRole(r.id));
         await interaction.member.addRole(role.id);
         return interaction.createMessage({
             embeds: [{
@@ -22,6 +22,7 @@ export default async function (interaction: any) {
             }]
         });
     } catch (e) {
+        console.log(e)
     }
     let colorMsgObj = {
         embeds: [{

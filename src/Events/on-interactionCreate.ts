@@ -1,10 +1,10 @@
-import { CommandInteraction, ComponentInteraction, Interaction } from "eris";
-import DMexec from "../Packages/Home/_on-messageDMCreate";
-import homeInteractions from "../Packages/Home/_homeInteractions";
 import KetClient from "../Main";
-import { getContext, getColor } from "../Components/Commands/CommandStructure";
-import Prisma from "../Components/Database/PrismaConnection";
 import KetUtils from "../Components/Core/KetUtils";
+import homeInteractions from "../Packages/Home/_homeInteractions";
+import Prisma from "../Components/Database/PrismaConnection";
+import DMexec from "../Packages/Home/_on-messageDMCreate";
+import { CommandClientOptions, CommandInteraction, ComponentInteraction } from "eris";
+import { getContext, getColor } from "../Components/Commands/CommandStructure";
 import { channels, DEVS } from "../JSON/settings.json";
 
 module.exports = class InteractionCreateEvent {
@@ -23,7 +23,7 @@ module.exports = class InteractionCreateEvent {
         if (!interaction.guildID || interaction.channel.type === 1) DMexec(interaction, this.ket);
 
         let server = await this.prisma.servers.find(interaction.guildID, true),
-            user = await this.prisma.users.find(interaction.member.id, true),
+            user = await this.prisma.users.find(interaction.member.user.id),
             ctx = getContext({ ket: this.ket, prisma: this.prisma, interaction, server, user });
         global.lang = user.lang;
 
@@ -31,16 +31,16 @@ module.exports = class InteractionCreateEvent {
         if (server.banned) return ctx.guild.leave();
 
         let args: string[] = [],
-            commandName: string = interaction.data.name,
+            commandName: string = interaction.data.name.toLowerCase(),
             command = this.ket.commands.get(commandName) || this.ket.commands.get(this.ket.aliases.get(commandName));
 
         if (!command && (command = await this.KetUtils.commandNotFound(ctx, commandName)) === false) return;
-        interaction.data?.options?.forEach((option: any) => getArgs(option));
-        ctx = getContext({ ket: this.ket, prisma: this.prisma, user, server, interaction, args, command, commandName });
+        interaction.data?.options?.forEach((option: CommandClientOptions) => getArgs(option));
+        ctx = getContext({ ket: this.ket, prisma: this.prisma, user, server, interaction, args, command, commandName })
 
         await this.KetUtils.checkCache(ctx);
-        ctx.user = await this.KetUtils.checkUserGuildData(ctx);
         global.lang = user.lang;
+        ctx.user = await this.KetUtils.checkUserGuildData(ctx);
 
         if (await this.KetUtils.checkPermissions({ ctx }) === false) return;
         if (ctx.command.permissions.onlyDevs && !DEVS.includes(ctx.uID)) return ctx.send({
@@ -65,11 +65,11 @@ module.exports = class InteractionCreateEvent {
 
         return new Promise(async (res, rej) => {
             try {
-                await interaction.defer().catch(() => { });
+                ctx.command.dontType ? null : await interaction.defer().catch(() => { });
                 await command.execute(ctx);
-                res(this.KetUtils.sendCommandLog(ctx));
-            } catch (error) {
-                return this.KetUtils.CommandError(ctx, error);
+                return res(this.KetUtils.sendCommandLog(ctx));
+            } catch (error: any) {
+                return res(this.KetUtils.CommandError(ctx, error));
             }
         })
     }

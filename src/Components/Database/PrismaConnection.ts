@@ -3,14 +3,12 @@ import { DEFAULT_PREFIX, DEFAULT_LANG } from "../../JSON/settings.json";
 
 let template = {
     users: {
-        id: null,
         prefix: DEFAULT_PREFIX,
         lang: DEFAULT_LANG,
         commands: 0,
         banned: false
     },
     servers: {
-        id: null,
         lang: DEFAULT_LANG,
         globalchat: null,
         partner: null,
@@ -54,7 +52,7 @@ export async function connect(): Promise<Prisma> {
         globalchat: {},
         blacklist: {}
     }
-    console.log('conectando ao banco de dados')
+
     await prisma.$connect()
         .then(() => {
             db.ready = true;
@@ -62,15 +60,25 @@ export async function connect(): Promise<Prisma> {
         })
         .catch((error: Error) => console.log('DATABASE', `x Não foi possível realizar conexão ao banco de dados: ${error}`, 41));
 
-    console.log('banco de dados conectador')
-
     Object.keys(prisma).filter(key => !key.startsWith("_") && !key.startsWith('$')).forEach(key => {
         db[key] = { ...prisma[key] };
         db[key].find = async (queryData: any, createIfNull: boolean = false) => {
             typeof queryData === 'string' ? queryData = { where: { id: queryData } } : null;
             let res = await prisma[key].findUnique(queryData);
+
+            function compareProperties() {
+                Object.entries(res).forEach(([property, value]) =>
+                    !value && template[key][property]
+                        ? res[property] = template[key][property]
+                        : true
+                )
+                return res;
+            }
+
             return res
-                ? (template[key] ? Object.assign(template[key], res) : res)
+                ? (template[key]
+                    ? compareProperties()
+                    : res)
                 : (createIfNull
                     ? await prisma[key].create(queryData.where ? { data: queryData.where } : queryData)
                     : template[key]);

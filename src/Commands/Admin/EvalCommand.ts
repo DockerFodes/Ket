@@ -7,7 +7,6 @@ const
     cld = require('child_process'),
     Eris = require('eris'),
     fs = require('fs'),
-    gradient = require("gradient-string"),
     { inspect } = require('util'),
     moment = require("moment"),
     path = require('path'),

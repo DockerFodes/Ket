@@ -1,7 +1,6 @@
 import KetClient from "../Main";
-import TerminalClient from "../Components/CLI/TerminalClient";
-import gradient from "gradient-string";
 import Prisma from "../Components/Database/PrismaConnection";
+import TerminalClient from "../Components/CLI/TerminalClient";
 import DatabaseBackup from "../Packages/Security/DatabaseBackup";
 
 module.exports = class ReadyEvent {
@@ -43,9 +42,10 @@ module.exports = class ReadyEvent {
         }, 60_000)
         setInterval(() => this.ket.users.filter(user => user.rateLimit > 0).forEach(u => u.rateLimit--), 5000);
 
-        console.log('GATEWAY', `Sessão iniciada como ${this.ket.user.tag}`, 33);
-        console.info(gradient('red', 'yellow')("◆ ▬▬▬▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬▬▬▬ ◆"));
-        console.log(`Operante em ${this.ket.guilds.size} templos com ${this.ket.guilds.map(g => g.memberCount).reduce((acc, crt) => acc + crt) - this.ket.guilds.size} subordinados`);
+        console.log('GATEWAY', `
+  - Sessão iniciada como ${this.ket.user.tag}
+  - ◆ ▬▬▬▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬▬▬▬ ◆
+  - Operante em ${this.ket.guilds.size} servidores com ${this.ket.guilds.map(g => g.memberCount).reduce((acc, crt) => acc + crt) - this.ket.guilds.size} membros.`, 33);
         return TerminalClient(this.ket, this.prisma);
     }
 }
