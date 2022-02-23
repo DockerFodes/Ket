@@ -2,7 +2,7 @@
         "BOT SETTINGS": "",
     "DEFAULT_PREFIX": ",",
     "DEFAULT_LANG": "pt",
-    "DEVS": ["340626138076282900", "568493382884917258", "883461315769819208"],
+    "DEVS": ["340626138076282900", "568493382884917258"],
     "TRUSTED_BOTS": ["777938917117919255", "789123515882012683", "737044809650274325", "297153970613387264"],
     "SUPPORT_SERVER": "https://discord.gg/zzrctuz9Sa",
     "BOT_INVITE": "https://discord.com/oauth2/authorize?client_id=777938917117919255&scope=bot+applications.commands&permissions=872423560",

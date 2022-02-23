@@ -11,25 +11,25 @@ module.exports = class Event {
         this.ket = ket;
         this.prisma = prisma;
     }
-    async on(_webhookData: WebhookData, channelID: string, guildID: string) {
-        if (await this.prisma.servers.find({ where: { globalchat: channelID } })) {
-            let data = this.ket.webhooks.get(channelID),
-                guild = this.ket.guilds.get(guildID),
-                channel: any = guild?.channels?.get(channelID);
+    async on(wData: WebhookData) {
+        if ((await this.prisma.servers.findMany({ where: { globalchat: wData.channelID } }))[0]) {
+            let data = this.ket.webhooks.get(wData.channelID),
+                guild = this.ket.guilds.get(wData.guildID),
+                channel: any = guild?.channels?.get(wData.channelID);
 
             if (!guild || !channel || !channel.permissionsOf(this.ket.user.id).has('manageWebhooks')) return;
             let webhooks = (await channel.getWebhooks()).filter((w: Webhook) => w.name === globalchat.webhookName && w.user.id === this.ket.user.id);
             let webhook = webhooks[0]
 
             if (!webhook)
-                return webhook = await this.ket.createChannelWebhook(channelID, { name: globalchat.webhookName })
-                    .then((w) => this.ket.webhooks.set(channelID, w))
+                return webhook = await this.ket.createChannelWebhook(wData.channelID, { name: globalchat.webhookName })
+                    .then((w) => this.ket.webhooks.set(wData.channelID, w))
                     .catch(() => { })
 
-            if (webhook.name !== globalchat.webhookName || webhook.channel_id !== data.channel_id)
+            if (data && (webhook.name !== globalchat.webhookName || webhook?.channel_id !== data.channel_id))
                 return this.ket.editWebhook(webhook.id, {
                     name: globalchat.webhookName,
-                    channelID: channelID
+                    channelID: wData.channelID
                 }, webhook.token)
         }
     }

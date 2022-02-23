@@ -369,11 +369,11 @@ async function main() {
             str: string = `[ ${setor} | ${tz(Date.now(), "America/Bahia").format("LT")}/${Math.floor(process.memoryUsage().rss / 1024 / 1024)}MB ] - ${args.join(' ')}`;
 
         sendWebhook(!setor ? args[0] : str);
-        if (!setor) return console.info(inspect(args));
+        if (!setor) return console.info(inspect(String(args)));
         console.info(`\x1B[${color}m${str}\x1B[0m`);
     }
     console.error = function () {
-        console.log('ANTI-CRASH', 'ERRO GENÉRICO:', String(arguments['0'].stack).slice(0, 256), 41);
+        console.log('ANTI-CRASH', 'ERRO GENÉRICO:', String(arguments['0'].stack).slice(0, 512), 41);
     }
 
     console.log('SHARD MANAGER', 'Iniciando fragmentação', 46);
@@ -400,9 +400,9 @@ async function main() {
             ket.editStatus('dnd', { name: 'Encerrando...', type: 0 });
             process.exit();
         })
-        .on('unhandledRejection', (error: Error) => console.log('SCRIPT REJEITADO: ', String(error.stack.slice(0, 256)), 41))
-        .on("uncaughtException", (error: Error) => console.log('ERRO CAPTURADO: ', String(error.stack.slice(0, 256)), 41))
-        .on('uncaughtExceptionMonitor', (error: Error) => console.log('BLOQUEADO: ', String(error.stack.slice(0, 256)), 41));
+        .on('unhandledRejection', (error: Error) => console.log('SCRIPT REJEITADO: ', String(error.stack.slice(0, 512)), 41))
+        .on("uncaughtException", (error: Error) => console.log('ERRO CAPTURADO: ', String(error.stack.slice(0, 512)), 41))
+        .on('uncaughtExceptionMonitor', (error: Error) => console.log('BLOQUEADO: ', String(error.stack.slice(0, 512)), 41));
     // .on('multipleResolves', (type, promise, reason) => reject('MULTIPLOS ERROS: ', reason));
 }
     /**
