@@ -95,7 +95,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     return ctx.send({ emoji: 'negado', content: 'globalchat.messageNotFound'.getT() });
 
                 let userData = await ctx.prisma.users.find(msg.author),
-                    user: any = await this.ket.findUser(ctx.env, userData.id),
+                    user: any = await this.ket.findUser(userData.id),
                     server = await ctx.prisma.servers.find(msg.guild),
                     message: any = await this.ket.getMessage(server.globalchat, msg.id)
                         .catch(() => { });

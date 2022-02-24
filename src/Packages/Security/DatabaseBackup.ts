@@ -1,25 +1,28 @@
 import Prisma from "../../Components/Database/PrismaConnection";
 import KetClient from "../../Main";
 import { channels } from "../../JSON/settings.json";
+import { getColor } from "../../Components/Commands/CommandStructure";
 
 export default async function run(ket: KetClient, prisma: Prisma) {
     if (!global.PRODUCTION_MODE) return;
-    if (!prisma.ready) {
-        await sleep(5000);
-        return run(ket, prisma);
-    }
+    await sleep(30_000);
+
     return backupAndCacheController();
     async function backupAndCacheController() {
         //  Backup da database
         Object.entries(prisma)
             .filter(([key, value]) => !key.startsWith("_") && !key.startsWith('$'))
-            .forEach(async ([key, value]) => {
+            .forEach(async ([key, value], index) => {
                 if (typeof value !== 'object') return;
-                await sleep(2_000);
+                await sleep((index + 1) * 3000);
                 await ket.send({
                     ctx: channels.database, emoji: 'autorizado', content: {
-                        embeds: [{ description: `Backup da table \`${key}\`` }],
-                        file: [{ name: `${key}.json`, file: (await prisma[key].findMany()) || 'nada' }]
+                        embeds: [{
+                            color: getColor('red'),
+                            title: key,
+                            description: `Documentos: ${(await prisma[key].count()).valueOf()}`
+                        }],
+                        file: [{ name: `${key}.json`, file: JSON.stringify(await prisma[key].findMany()) || 'nada' }]
                     }
                 })
             });
@@ -36,7 +39,7 @@ export default async function run(ket: KetClient, prisma: Prisma) {
 
         dbUsers.forEach((user: string) => !ket.users.has(user) ? nonCached.push(user) : null);
         for (let i in nonCached) {
-            await sleep(3000);
+            await sleep(3_000);
             await ket.getRESTUser(nonCached[i]);
         }
     }

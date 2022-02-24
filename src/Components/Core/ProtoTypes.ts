@@ -51,7 +51,7 @@ export default function start() {
 	//@ts-ignore
 	delete Member.prototype.mute;
 	Object.defineProperty(Member.prototype, 'mute', {
-		value: async function mutar(args, reason) {
+		value: async function mutar(args, reason: string | null) {
 			let regex: RegExp = /([0-9]+)( |)(h|m|s)/gi,
 				time: number = Date.now();
 			args.match(regex).forEach(t => {

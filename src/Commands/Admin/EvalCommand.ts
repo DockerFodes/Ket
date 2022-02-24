@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import CommandStructure, { EmbedBuilder, getEmoji, getColor, CommandContext } from "../../Components/Commands/CommandStructure";
+import KetUtils from "../../Components/Core/KetUtils";
 import KetClient from "../../Main";
 
 const
@@ -13,6 +14,7 @@ const
     CommandBuilder = SlashCommandBuilder;
 
 module.exports = class EvalCommand extends CommandStructure {
+    utils: any;
     constructor(ket: KetClient) {
         super(ket, {
             name: 'eval',
@@ -36,11 +38,13 @@ module.exports = class EvalCommand extends CommandStructure {
                     .setRequired(true)
             )
         })
+        this.utils = new (KetUtils)(this.ket);
     }
     async execute(ctx: CommandContext) {
         const
             ket = this.ket,
-            prisma = ctx.prisma;
+            prisma = ctx.prisma,
+            utils = this.utils;
         let
             message = ctx.env,
             evaled = ctx.args.join(" ")

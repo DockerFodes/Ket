@@ -44,8 +44,8 @@ module.exports = class ReadyEvent {
 
         console.log('GATEWAY', `
   - Sessão iniciada como ${this.ket.user.tag}
-  - ◆ ▬▬▬▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬▬▬▬ ◆
-  - Operante em ${this.ket.guilds.size} servidores com ${this.ket.guilds.map(g => g.memberCount).reduce((acc, crt) => acc + crt) - this.ket.guilds.size} membros.`, 33);
+ ◆ ▬▬▬▬▬▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬▬▬▬▬▬ ◆
+  - Operante em ${this.ket.guilds.size} servidores com ${this.ket.allUsersCount} membros.`, 33);
         return TerminalClient(this.ket, this.prisma);
     }
 }
