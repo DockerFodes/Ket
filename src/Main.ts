@@ -32,6 +32,7 @@ interface clientUser extends ExtendedUser {
 
 
 class usuario extends User {
+    _client: KetClient;
     rateLimit: number;
     tag: string;
     lastCommand: {
@@ -61,6 +62,10 @@ export default class KetClient extends Client {
         this.aliases = new Map();
         this.webhooks = new Map();
         this.shardUptime = new Map();
+    }
+
+    public get allUsersCount() {
+        return Number(this.guilds.map(g => g.memberCount).reduce((acc, crt) => acc + crt) - this.guilds.size).toLocaleString('pt')
     }
 
     public async boot() {
@@ -193,96 +198,120 @@ export default class KetClient extends Client {
     }
 
     public async send({ ctx, content, embed = true, emoji, target = 0 }: sendFunction) {
-        if (!ctx || !content) return null;
-        if (!(ctx instanceof CommandInteraction) && !(ctx instanceof Message) && typeof ctx === 'object') ctx = ctx.env;
+        try {
+            if (!ctx || !content) return null;
+            if (!(ctx instanceof CommandInteraction) && !(ctx instanceof Message) && typeof ctx === 'object') ctx = ctx.env;
 
-        const user: usuario | null = typeof ctx === 'string' ? null : this.users.get(ctx instanceof Message ? ctx.author.id : ctx.member.user.id);
-        let msgObj: any = {
-            content: '',
-            embeds: embed ? [{
-                color: getColor('red'),
-                title: `${getEmoji('sireneRed').mention} ${'events:error.title'.getT()} ${getEmoji('sireneBlue').mention}`,
-                description: ''
-            }] : [],
-            components: [],
-            flags: 0,
-            messageReference: ctx instanceof Message && target < 2 ? {
-                channelID: ctx.channel.id,
-                guildID: ctx.guildID,
-                messageID: ctx.id,
-                failIfNotExists: false
-            } : null,
-            allowedMentions: {
-                everyone: false,
-                roles: false,
-                users: true,
-                repliedUser: true
+            const user: usuario | null = typeof ctx === 'string' ? null : this.users.get(ctx instanceof Message ? ctx.author.id : ctx.member.user.id);
+            let msgObj: any = {
+                content: '',
+                embeds: embed ? [{
+                    color: getColor('red'),
+                    description: ''
+                }] : [],
+                components: [],
+                flags: 0,
+                messageReference: ctx instanceof Message && target < 2 ? {
+                    channelID: ctx.channel.id,
+                    guildID: ctx.guildID,
+                    messageID: ctx.id,
+                    failIfNotExists: false
+                } : null,
+                allowedMentions: {
+                    everyone: false,
+                    roles: false,
+                    users: true,
+                    repliedUser: true
+                }
+            },
+                attachments = typeof content === 'object' && content.file ? content.file : null,
+                botMsg: Message<any> | void;
+
+            if (typeof content === 'object') {
+                msgObj = Object.assign(msgObj, content);
+                content = content.embeds ? content.embeds[0].description : content;
+            } else (embed ? msgObj.embeds[0].description = content : msgObj.content = content);
+
+            if (emoji) {
+                content = (getEmoji(emoji) ? `${getEmoji(emoji).mention} **| ${content}**` : content);
+                embed ? msgObj.embeds[0].description = content : msgObj.content = content;
             }
-        },
-            botMsg: Message<any> | void;
 
-        if (typeof content === 'object') {
-            msgObj = Object.assign(msgObj, content);
-            content = content.embeds[0].description;
-        } else (embed ? msgObj.embeds[0].description = content : msgObj.content = content);
+            if (typeof ctx === 'string') {
+                if (this.users.get(ctx)) return (await this.users.get(ctx).getDMChannel()).createMessage(msgObj, attachments);
+                else return await this.createMessage(ctx, msgObj, attachments);
+            }
 
-        if (emoji) {
-            content = (getEmoji(emoji) ? `${getEmoji(emoji).mention} **| ${content}**` : content);
-            embed ? msgObj.embeds[0].description = content : msgObj.content = content;
+            if (ctx instanceof Message) {
+                let rateLimit = this.requestHandler.ratelimits[`/channels/${ctx.channel.id}/messages`];
+                if (rateLimit?.remaining === 0)
+                    await sleep(Date.now() - rateLimit.reset + this.requestHandler.options.ratelimiterOffset);
+
+                if (user && (user.lastCommand && user.lastCommand.userMsg === ctx.id) || target === 1)
+                    botMsg = await ctx.channel.editMessage(user.lastCommand.botMsg, msgObj)
+                        .catch(async () => botMsg = ctx instanceof Message ? await ctx.channel.createMessage(msgObj, attachments) : null);
+                else botMsg = await ctx.channel.createMessage(msgObj, attachments)
+
+                user.lastCommand = {
+                    botMsg: botMsg ? botMsg.id : null,
+                    userMsg: ctx.id
+                }
+                return botMsg;
+            }
+
+            if (ctx instanceof CommandInteraction) {
+                switch (target) {
+                    case 0: return ctx.createMessage(msgObj, attachments)
+                    case 1: return ctx.editOriginalMessage(msgObj, attachments)
+                }
+            }
+
+            return true;
+        } catch (e: any) {
+            throw new Error(e);
         }
+    }
 
-        if (typeof ctx === 'string') {
-            if (this.users.get(ctx)) return (await this.users.get(ctx).getDMChannel()).createMessage(msgObj);
-            else return await this.createMessage(ctx, msgObj);
-        }
+    public async findUser(ctx?: Message<any> | CommandInteraction<any> | string, returnMember: boolean = false, argsPosition: number = 0) {
+        let user: User | Member;
 
         if (ctx instanceof Message) {
-            let rateLimit = this.requestHandler.ratelimits[`/channels/${ctx.channel.id}/messages`];
-            if (rateLimit?.remaining === 0)
-                await sleep(Date.now() - rateLimit.reset + this.requestHandler.options.ratelimiterOffset);
+            let args = ctx.content.split(' ')[argsPosition];
+            if (!args && ctx.mentions) return checkType(ctx.author);
 
-            if (user && (user.lastCommand && user.lastCommand.userMsg === ctx.id) || target === 1)
-                botMsg = await ctx.channel.editMessage(user.lastCommand.botMsg, msgObj)
-                    .catch(async () => botMsg = ctx instanceof Message ? await ctx.channel.createMessage(msgObj).catch(() => { }) : null);
-            else botMsg = await ctx.channel.createMessage(msgObj).catch(() => { });
+            if (ctx.mentions) user = ctx.mentions[0];
+            else if (!isNaN(Number(args))) user = await this.getRESTUser(args);
+            else if (ctx.guildID && ctx.content) {
+                function filtrar(text: string) {
+                    return String(text.includes('@') || text.includes('#') ? text.replace('@', '').split('#')[0] : text).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+                }
+                let cleanMsg = filtrar(args);
 
-            user.lastCommand = {
-                botMsg: botMsg ? botMsg.id : null,
-                userMsg: ctx.id
+                user = ctx.channel.guild.members.find((m: Member) =>
+                    filtrar(m.username) === cleanMsg ||
+                    filtrar(m.nick) === cleanMsg ||
+                    filtrar(m.username).startsWith(cleanMsg) ||
+                    filtrar(m.nick).startsWith(cleanMsg) ||
+                    filtrar(m.username).includes(cleanMsg) ||
+                    filtrar(m.nick).includes(cleanMsg)
+                );
+                if (!user) user = (await this.searchGuildMembers(ctx.guildID, cleanMsg, 1))[0]
+                if (!user) return checkType(ctx.author);
             }
-            return botMsg;
         }
 
         if (ctx instanceof CommandInteraction) {
-            switch (target) {
-                case 0: return ctx.createMessage(msgObj).catch(() => { });
-                case 1: return ctx.editOriginalMessage(msgObj).catch(() => { });
-            }
+
         }
 
-        return true;
-    }
+        if (typeof ctx === 'string')
+            user = this.users.has(ctx) ? this.users.get(ctx) : user = await this.getRESTUser(ctx);
 
-    public async findUser(context?: any, text?: string, returnMember: boolean = false) {
-        let search: string,
-            user: User | Member,
-            isInteraction = (context instanceof CommandInteraction ? true : false);
-
-        if (isNaN(Number(text))) search = text.toLowerCase().replace('@', '').split('#')[0];
-        else search = String(text).toLowerCase();
-
-        try {
-            if (isNaN(Number(text))) user = context?.mentions[0] || context.channel.guild.members.find((m: Member) => m.user.username.toLowerCase() === search || String(m.nick).toLowerCase() === search || m.user.username.toLowerCase().startsWith(search) || String(m.nick).toLowerCase().startsWith(search) || m.user.username.toLowerCase().includes(search) || String(m.nick).toLowerCase().includes(search));
-            else {
-                if (this.users.has(search)) user = this.users.get(search);
-                else user = await this.getRESTUser(search);
-            }
-        } catch (e) {
-            if (returnMember) user = context.member;
-            else user = (isInteraction ? context.member.user : context.author);
+        function checkType(user: User | Member) {
+            if (typeof ctx !== 'string' && user instanceof User && returnMember) user = ctx.channel.guild.members.get(user.id);
+            //@ts-ignore
+            if (user instanceof Member && !returnMember) user = user.user._client.users.get(user.user.id);
         }
-        if (user instanceof User && returnMember) user = context.channel.guild.members.get(user.id);
-        if (user instanceof Member && !returnMember) user = this.users.get(user.user.id);
 
         return user;
     }
@@ -346,10 +375,12 @@ main()
 
 async function main() {
     console.clear();
+    global.sleep = async (timeout: number) => timeout <= 0 ? false : await (new Promise((res) => setTimeout(() => res(true), timeout))) //Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, timeout)
     global.PRODUCTION_MODE = process.argv.includes('--dev') ? false : true;
     (await import('./Components/Core/ProtoTypes')).default();
     (await import('dotenv')).config();
     duration(moment);
+
     // const app = express();
     // app.get("/", (_req, res: Response) => res.sendStatus(200));
     // app.listen(process.env.PORT);
@@ -386,10 +417,6 @@ async function main() {
             content: `\`${str}\``.slice(0, 1998)
         }) : null;
     }
-
-    Object.defineProperty(global, 'sleep', {
-        value: async (timeout: number) => timeout <= 0 ? false : await (new Promise((res) => setTimeout(() => res(true), timeout))) //Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, timeout)
-    })
 
     process
         .on('SIGINT', async () => {
