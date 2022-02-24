@@ -4,7 +4,7 @@ import Prisma from "../Components/Database/PrismaConnection";
 import DMexec from "../Packages/Home/_on-messageDMCreate";
 import { Message } from "eris";
 import { getContext, getColor } from "../Components/Commands/CommandStructure";
-import { TRUSTED_BOTS, DEVS } from "../JSON/settings.json";
+import { TRUSTED_BOTS, DEVS, guilds } from "../JSON/settings.json";
 
 module.exports = class MessageCreateEvent {
     ket: KetClient;
@@ -17,7 +17,7 @@ module.exports = class MessageCreateEvent {
     }
     async on(message: Message<any>) {
         if (message.author?.bot && !TRUSTED_BOTS.includes(message.author.id)) return;
-        if (!message.guildID || message.channel.type === 1) DMexec(message, this.ket);
+        if (!message.guildID || message.channel.type === 1 || message.channel.parentID === guilds.dmCategory) return DMexec(message, this.ket, message.channel.parentID === guilds.dmCategory);
 
         let server = await this.prisma.servers.find(message.guildID, true),
             user = await this.prisma.users.find(message.author.id),

@@ -1,16 +1,16 @@
-import { Webhook } from "eris";
+import { Attachment, Message, StickerItems, Webhook } from "eris";
 import axios from "axios";
 import DidYouMean from "didyoumean";
 import { getEmoji, getColor, EmbedBuilder } from '../Commands/CommandStructure';
 import KetClient from "../../Main";
 import Prisma from "../Database/PrismaConnection";
-import { DEVS, channels, globalchat } from "../../JSON/settings.json";
+import { DEVS, channels } from "../../JSON/settings.json";
 const moment = require('moment');
 
 export default class KetUtils {
     ket: KetClient;
     prisma: Prisma;
-    constructor(ket: KetClient, prisma: Prisma) {
+    constructor(ket: KetClient, prisma?: Prisma) {
         this.ket = ket;
         this.prisma = prisma;
     }
@@ -64,8 +64,7 @@ export default class KetUtils {
                 avatarURL: message.author.dynamicAvatarURL('jpg'),
                 content: DEVS.includes(ctx.uID) ? message.cleanContent : this.msgFilter(message.cleanContent),
                 embeds: null,
-                file: [],
-                stickerIDs: null,
+                file: [...(await this.getMediaBuffer(message, 0)), ...(await this.getMediaBuffer(message, 1))],
                 wait: true,
                 allowedMentions: {
                     everyone: false,
@@ -81,24 +80,6 @@ export default class KetUtils {
         if (message.messageReference) msg = await message.channel.messages.has(message.messageReference.messageID)
             ? message.channel.messages.get(message.messageReference.messageID)
             : this.ket.findMessage(message, message.messageReference.messageID);
-
-        if (message.stickerItems) for (let i in message.stickerItems) {
-            let buffer = await axios({
-                url: `https://media.discordapp.net/stickers/${message.stickerItems[i].id}.png?size=240`,
-                method: 'get',
-                responseType: 'arraybuffer'
-            })
-            !buffer ? {} : msgObj.file.push({ file: buffer.data, name: `${message.stickerItems[i].name}.${message.stickerItems[i].format_type === 1 ? 'png' : 'gif'}` });
-        }
-
-        if (message?.attachments[0]) for (let i in message.attachments) {
-            let buffer = await axios({
-                url: message.attachments[i].url,
-                method: 'get',
-                responseType: 'arraybuffer'
-            })
-            !buffer ? {} : msgObj.file.push({ file: buffer.data, name: message.attachments[i].filename });
-        }
 
         if (message.author.bot && message?.embeds) msgObj.embeds = [message.embeds[0]]
 
@@ -226,6 +207,21 @@ export default class KetUtils {
             });
             return false;
         } else return true;
+    }
+
+    async getMediaBuffer(message: Message<any>, type: 0 | 1 = 0) {
+        let media: any = type === 0 ? message.attachments : message.stickerItems,
+            files = [];
+
+        for (let i in media) {
+            let buffer = await axios({
+                url: type === 0 ? media[i].url : `https://media.discordapp.net/stickers/${media[i].id}.png?size=240`,
+                method: 'get',
+                responseType: 'arraybuffer'
+            })
+            !buffer ? {} : files.push({ file: buffer.data, name: type === 0 ? media[i].filename : `${media[i].name}.${media[i].format_type === 1 ? 'png' : 'gif'}` });
+        }
+        return files;
     }
 
     async checkPermissions({ ctx = null, channel = null, command = null, notReply = null }) {
