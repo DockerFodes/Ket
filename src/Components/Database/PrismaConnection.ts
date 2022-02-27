@@ -64,7 +64,7 @@ export async function connect(): Promise<Prisma> {
         db[key] = { ...prisma[key] };
         db[key].find = async (queryData: any, createIfNull: boolean = false) => {
             typeof queryData === 'string' ? queryData = { where: { id: queryData } } : null;
-            let res = await prisma[key].findUnique(queryData);
+            let res = (await prisma[key].findMany(queryData))[0];
 
             function compareProperties() {
                 Object.entries(res).forEach(([property, value]) =>

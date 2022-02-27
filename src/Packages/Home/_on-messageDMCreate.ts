@@ -1,4 +1,4 @@
-import { GroupChannel, Message, GuildTextableChannel, CommandInteraction } from "eris";
+import { Message, GuildTextableChannel, CommandInteraction, PrivateChannel } from "eris";
 import KetClient from "../../Main";
 import { DEVS, guilds } from "../../JSON/settings.json";
 import KetUtils from "../../Components/Core/KetUtils";
@@ -23,7 +23,7 @@ export default async (ctx: Message<any> | CommandInteraction<any>, ket: KetClien
     // return;
 }
 
-async function DM(ctx: Message<GroupChannel>, ket: KetClient) {
+async function DM(ctx: Message<PrivateChannel>, ket: KetClient) {
     let guild = ket.guilds.get(guilds.devs),
         //@ts-ignore
         channel: GuildTextableChannel = guild?.channels.find(c => c.type === 0 && c.topic === ctx.author.id && c.parentID === guilds.dmCategory),

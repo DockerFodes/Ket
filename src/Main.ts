@@ -1,4 +1,4 @@
-import { Client, ClientOptions, Collection, CommandInteraction, EmbedOptions, ExtendedUser, Guild, GuildChannel, Member, Message, TextableChannel, User, Webhook } from "eris";
+import { Channel, Client, ClientOptions, Collection, CommandInteraction, EmbedOptions, ExtendedUser, Guild, GuildChannel, Member, Message, TextableChannel, User, Webhook } from "eris";
 import { ESMap } from "typescript";
 import Prisma, { connect } from "./Components/Database/PrismaConnection";
 import { readdirSync } from "fs";
@@ -272,8 +272,13 @@ export default class KetClient extends Client {
         }
     }
 
-    public async findUser(ctx?: Message<any> | CommandInteraction<any> | string, returnMember: boolean = false, argsPosition: number = 0) {
+    public async findUser(ctx?: Message<any> | CommandInteraction<any> | string, returnMember: boolean = false, argsPosition: number = 0): Promise<User | Member> {
         let user: User | Member;
+        let checkType = (user: User | Member) => {
+            if (typeof ctx !== 'string' && user instanceof User && returnMember) user = ctx.channel.guild.members.get(user.id);
+            if (user instanceof Member && !returnMember) user = this.users.get(user.id);
+            return user;
+        }
 
         if (ctx instanceof Message) {
             let args = ctx.content.split(' ')[argsPosition];
@@ -307,12 +312,6 @@ export default class KetClient extends Client {
         if (typeof ctx === 'string')
             user = this.users.has(ctx) ? this.users.get(ctx) : user = await this.getRESTUser(ctx);
 
-        function checkType(user: User | Member) {
-            if (typeof ctx !== 'string' && user instanceof User && returnMember) user = ctx.channel.guild.members.get(user.id);
-            //@ts-ignore
-            if (user instanceof Member && !returnMember) user = user.user._client.users.get(user.user.id);
-        }
-
         return user;
     }
 
@@ -341,33 +340,26 @@ export default class KetClient extends Client {
         return channel;
     }
 
-    public async findMessage(context?: Message<TextableChannel & GuildChannel> | CommandInteraction, id?: string, onlyIfHasFile: boolean = false): Promise<Message | null> {
-        let messages = context.channel.messages,
-            ref: any = context instanceof Message ? context.messageReference : null;
-
+    public async findMessage(ctx: Message<any> | CommandInteraction<any> | TextableChannel, options: { id?: string, onlyIfHasFile?: boolean, content?: string, limit?: number }): Promise<Message | null> {
         try {
-            if (onlyIfHasFile) {
-                if (context instanceof Message && context.attachments) return context;
+            let channel = ctx instanceof Channel ? ctx : ctx.channel,
+                messages = channel.messages.map(m => m).reverse(),
+                ref = ctx instanceof Message && ctx.messageReference ? await this.getMessage(channel.id, ctx.messageReference.messageID) : null,
+                get = async (msgID: string) => messages.has(msgID) ? messages.get(msgID) : await this.getMessage(channel.id, msgID);
 
-                if (ref) {
-                    ref = await get(ref.messageID);
-                    if (ref?.attachments[0]) return ref;
-                }
+            if (options.id && !isNaN(Number(options.id))) return await get(options.id);
+            if (messages.length < options.limit) messages = (await channel.getMessages({ limit: options.limit })).map(m => m).reverse();
 
-                return messages.find((msg) => msg.attachments ? msg : null);
-            } else {
-                if (!isNaN(Number(id))) return await get(id);
-                if (ref) return await get(ref.messageID);
+            if (options.onlyIfHasFile) {
+                if (ctx instanceof Message && ctx.attachments) return ctx;
+                if (ref && ref.attachments[0]) return ref;
+
+                return messages.find((msg) => msg.attachments && (options.content ? options.content === String(msg.content) : true) ? msg : false);
             }
-
+            if (options.content) return messages.find(msg => String(msg.content) === options.content);
         } catch (_e: unknown) {
             return null;
         }
-
-        async function get(id: string): Promise<Message<TextableChannel>> {
-            return messages.has(id) ? messages.get(id) : await context.channel.getMessage(id);
-        }
-
     }
 }
 
@@ -388,22 +380,22 @@ async function main() {
     const ket = new KetClient(prisma, `Bot ${global.PRODUCTION_MODE ? process.env.DISCORD_TOKEN : process.env.BETA_CLIENT_TOKEN}`, CLIENT_OPTIONS as ClientOptions);
 
     console.log = function () {
-        moment.locale("pt-BR");
-        let args: any[] = Object.entries(arguments).map(([_key, value]) => value),
-            color: number = isNaN(args[args.length - 1]) ? 1 : args.pop(),
-            setor: null | string = String(args[0]).split('/')[0].toUpperCase() === String(args[0]).split('/')[0]
-                ? args.shift()
-                : null,
-            str: string = `[ ${setor} | ${tz(Date.now(), "America/Bahia").format("LT")}/${Math.floor(process.memoryUsage().rss / 1024 / 1024)}MB ] - ${args.join(' ')}`;
+        let args: any[] = [...arguments];
 
-        sendWebhook(!setor ? inspect(args) : str);
-        if (!setor) return console.info(inspect(args));
-        console.info(`\x1B[${color}m${str}\x1B[0m`);
+        if (isNaN(args[args.length - 1])) {
+            console.info(args.join(' '));
+            return sendWebhook(args.join(' '));
+        }
+
+        moment.locale("pt-BR");
+        let color = args.pop(),
+            str: string = `[ ${args.shift()} | ${tz(Date.now(), "America/Bahia").format("LT")}/${Math.floor(process.memoryUsage().rss / 1024 / 1024)}MB ] - ${args.join(' ')}`;
+        sendWebhook(str);
+        return console.info(`\x1B[${color}m${str}\x1B[0m`);
     }
     console.error = function () {
-        console.log('ANTI-CRASH', 'ERRO GENÉRICO:', String(arguments['0'].stack).slice(0, 512), 41);
+        return console.log('ANTI-CRASH', 'ERRO GENÉRICO:', String(arguments['0'].stack).slice(0, 512), 41);
     }
-
     console.log('SHARD MANAGER', 'Iniciando fragmentação', 46);
     ket.boot().then(() => {
         process.env.DISCORD_TOKEN = null;

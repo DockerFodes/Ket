@@ -1,7 +1,7 @@
 import KetClient from "../Main";
 import Prisma from "../Components/Database/PrismaConnection";
-import { GuildChannel, Message } from "eris";
-import { globalchat } from "../JSON/settings.json";
+import { Message } from "eris";
+import { DEVS, guilds } from "../JSON/settings.json";
 
 module.exports = class MessageDeleteEvent {
     ket: KetClient;
@@ -10,9 +10,22 @@ module.exports = class MessageDeleteEvent {
         this.ket = ket;
         this.prisma = prisma;
     }
-    async on(message: Message<GuildChannel>) {
+    async on(message: Message<any>) {
+        if (message.author?.bot) return;
+        if (message.channel?.type === 0) {
+            let channel = this.ket.guilds.get(guilds.devs).channels.find(c => c.type === 0 && c.topic === message.author.id)
+
+        }
+
+        if (message.channel?.parentID === guilds.dmCategory) {
+            //@ts-ignore
+            let DMChannel = (await (await this.ket.findUser(message.channel.topic, false)).getDMChannel());
+            return (await this.ket.findMessage(DMChannel, { content: message.content, limit: 25 })).delete()
+                .catch((e) => this.ket.send({ ctx: message.channel, content: `Não foi possível \`apagar\` a mensagem\n\n\`\`\`js\n${e}\`\`\`` }))
+        }
+
         let guild = await this.prisma.servers.find(message.guildID);
-        if (message.channel.id !== guild.globalchat || Date.now() > message.timestamp + (15 * 1000 * 60) || message.author?.bot) return;
+        if (message.channel.id !== guild.globalchat || Date.now() > message.timestamp + (15 * 1000 * 60)) return;
 
         let msgs = await this.prisma.globalchat.findMany(),
             msgData = msgs.filter(msg => msg.id === message.id || msg.messages.includes(message.id))[0];

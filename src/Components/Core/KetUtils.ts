@@ -77,9 +77,9 @@ export default class KetUtils {
 
         if (await this.checkRateLimit(ctx, user) === false) return;
 
-        if (message.messageReference) msg = await message.channel.messages.has(message.messageReference.messageID)
+        if (message?.messageReference.messageID) msg = await message.channel.messages.has(message.messageReference.messageID)
             ? message.channel.messages.get(message.messageReference.messageID)
-            : this.ket.findMessage(message, message.messageReference.messageID);
+            : this.ket.findMessage(message.channel, { id: message.messageReference.messageID});
 
         if (message.author.bot && message?.embeds) msgObj.embeds = [message.embeds[0]]
 
