@@ -1,3 +1,26 @@
 {
-    
+    "globalchat": {
+        "channelNotFound": "Channel not found! Try mentioning some chat or copying ID.",
+        "messageNotFound": "I couldn't find this message :(**\n\nMaybe it's not from global chat or is too old, only the last 500 messages are findable.** ",
+
+        "start": {
+            "title": "Global chat started successfully",
+            "description": "Global chat was started on {{channel.mention}}"
+        },
+        "stop": {
+            "title": "Global chat was successfully stopped",
+            "description": "To activate again use {{user.prefix}}chatglobal start"
+        },
+        "getinfo": {
+            "title": "Information",
+            "fields": [
+                { "name": "Original Message", "value": "```cs\n{{msg.id}}```", "inline": true },
+                { "name": "Edited", "value": "```cs\n{{msg.editCount}} times```", "inline": true },
+                { "name": "Sent to:", "value": "```cs\n{{messages.length}} servers```", "inline": true },
+                { "name": "Shipped date:", "value": "```md\n# {{timestamp}}```" },
+                { "name": "Server", "value": "```fix\n{{guild.name}} (ID: {{guild.id}})```"},
+                { "name": "Author Information", "value": "```diff\n- {{user.tag}} (ID: {{user.id}})```\nMessages sent in global chat : `{{messagesCount}} messages`\nBanned status: `{{isBanned}}`" }
+            ]
+        }
+    }
 }

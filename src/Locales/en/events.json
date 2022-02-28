@@ -1,3 +1,32 @@
 {
-    
+    "no-threads": "Oops, this command cannot be executed in threads, try it in a normal chat :)",
+    "isDev": "Oops, it's too dangerous to make this command available to anyone, only my team can use it :)",
+    "embedTemplate": {
+        "author": {
+            "name": "{{user.tag}}",
+            "icon_url": "{{user.dynamicAvatarURL('jpg')}}"
+        },
+        "footer": {
+            "text": "📌 Use {{prefix}}help to see more information",
+            "icon_url": "{{user.dynamicAvatarURL('jpg')}}"
+        }
+    },
+    "error": {
+        "title": "System crash",
+        "description": "Something is preventing this command from working, my team has been alerted to the error, sorry for the inconvenience.\n```js\n{{error}}```"
+    },
+    "globalchat": {
+        "welcome": {
+            "title": "Welcome to the global chat!",
+            "description": "If you don't know how this works, messages sent here will be sent to other servers and vice versa.",
+            "fields": [
+                { "name": "ㅤㅤㅤ➯ㅤㅤㅤㅤ 「 Rules 」", "value": "◈ Just use common sense and don't violate Discord Terms\n◈ Be disrespectful, float, send **explicit sexual content **/**too suggestive** may cause banishment" },
+                { "name": "ㅤ➯ㅤ 「What you ✨ can/cannot ✨ do」", "value": "**You can:**\n◈ Send/Edit/Delete messages with photos/videos/gifs , emojis, stickers and website links allowed\n\n**But can't:**\n◈ Send server invites\n◈ Edit/delete messages longer than 15 minutes\n◈ Mention everyone/here or users/ roles\n◈ Set this chat as an adult content channel" }
+            ],
+            "footer": {
+                "icon_url": "{{avatar}}",
+                "text": "Have fun ;)"
+            }
+        }
+    }
 }

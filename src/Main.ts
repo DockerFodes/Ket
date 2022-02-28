@@ -69,10 +69,10 @@ export default class KetClient extends Client {
     }
 
     public async boot() {
-        await this.loadLocales(`${__dirname}/locales/`);
-        this.loadCommands(`${__dirname}/commands`);
-        this.loadListeners(`${__dirname}/events/`);
-        await this.loadModules(`${__dirname}/packages/`);
+        await this.loadLocales(`${__dirname}/Locales/`);
+        this.loadCommands(`${__dirname}/Commands`);
+        this.loadListeners(`${__dirname}/Events/`);
+        await this.loadModules(`${__dirname}/Packages/`);
         return super.connect();
     }
 
@@ -97,7 +97,7 @@ export default class KetClient extends Client {
     }
 
     public async loadLocales(path: string) {
-        let config: any = {
+        let config: any = global.locales = {
             defaultLang: DEFAULT_LANG,
             defaultJSON: 'commands',
             langs: readdirSync(path),

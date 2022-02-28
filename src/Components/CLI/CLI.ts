@@ -4,6 +4,8 @@ import { duration } from "moment";
 import translate from "@iamtraction/google-translate";
 import KetClient from "../../Main";
 import Prisma from "../Database/PrismaConnection";
+import { readdirSync, readFileSync, writeFileSync } from "fs";
+import { resolve } from "path";
 
 module.exports = class CLI {
     commands: { name: string, aliase: string | string[] }[]
@@ -21,7 +23,8 @@ module.exports = class CLI {
             { name: 'help', aliase: 'h' },
             { name: 'info', aliase: 'i' },
             { name: 'reload', aliase: 'r' },
-            { name: 'restart', aliase: 'restart' }
+            { name: 'restart', aliase: 'restart' },
+            { name: 'translateLocales', aliase: 't' }
         ]
     }
     public checkCommand(cmd: string) {
@@ -112,5 +115,36 @@ module.exports = class CLI {
         }, 5000);
         return;
 
+    }
+
+    async translateLocales() {
+        let c = global.locales
+        let dir = resolve(`${String(__dirname).replace('dist', 'src')}/../../Locales`);
+
+        for (let a in c.langs) {
+            if (c.langs[a] === c.defaultLang) continue;
+            for (let b in c.files) {
+                if (!c.files.includes(c.files[b])) continue;
+
+                let filePath = resolve(`${dir}/${c.langs[a]}/${c.files[b]}`);
+                let defaultLocale = readFileSync(resolve(`${dir}/${c.defaultLang}/${c.files[b]}`));
+                let data = await translate(String(defaultLocale), { from: c.defaultLang, to: c.langs[a] });
+
+                writeFileSync(filePath, this.filtrarLocales(data.text));
+                console.log('LOCALES', `Arquivo ${c.files[b]} foi traduzido`, 2)
+            }
+            console.log('LOCALES', `Idioma ${c.langs[a]} traduzido com sucesso`, 32);
+        }
+
+        //     let dir = path.resolve(`../../Locales/${c.langs[a]}`)
+        //     for (let b in c.files) {
+        //         let rawLocales = readFileSync(`${dir}/${c.files[b]}`);
+
+        //     }
+    }
+
+    filtrarLocales(text: string) {
+        text = text.replace(new RegExp('": verdadero }', 'g'), '": true }')
+        return text;
     }
 }

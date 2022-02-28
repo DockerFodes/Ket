@@ -1,3 +1,32 @@
 {
-    
+    "no-threads": "Vaya, este comando no se puede ejecutar en hilos, pruébalo en un chat normal :)",
+    "isDev": "Vaya, es demasiado peligroso hacer que este comando esté disponible para cualquiera, solo mi equipo puede usarlo :)",
+    "plantilla incrustada": {
+        "autor": {
+            "nombre": "{{usuario.etiqueta}}",
+            "icon_url": "{{usuario.dynamicAvatarURL('jpg')}}"
+        },
+        "pie de página": {
+            "text": "📌 Usa {{prefix}}ayuda para ver más información",
+            "icon_url": "{{usuario.dynamicAvatarURL('jpg')}}"
+        }
+    },
+    "error": {
+        "título": "Caída del sistema",
+        "description": "Algo impide que este comando funcione, mi equipo ha sido alertado del error, disculpe las molestias.\n```js\n{{error}}```"
+    },
+    "chatglobal": {
+        "bienvenidos": {
+            "title": "¡Bienvenido al chat global!",
+            "description": "Si no sabes cómo funciona esto, los mensajes enviados aquí se enviarán a otros servidores y viceversa.",
+            "campos": [
+                { "name": "ㅤㅤㅤ➯ㅤㅤㅤㅤ 「 Reglas 」", "value": "◈ Solo usa el sentido común y no violes los Términos de Discord\n◈ Sé irrespetuoso, flota, envía **contenido sexual explícito **/**demasiado sugerente** puede provocar el destierro" },
+                { "name": "ㅤ➯ㅤ 「Lo que ✨ puedes/no puedes ✨ hacer」", "value": "**Puedes:**\n◈ Enviar/Editar/Eliminar mensajes con fotos/videos/gifs, emojis , pegatinas y enlaces a sitios web permitidos\n\n**Pero no pueden:**\n◈ Enviar invitaciones al servidor\n◈ Editar/eliminar mensajes de más de 15 minutos\n◈ Mencionar a todos/aquí o usuarios/roles\n◈ Establecer este chat como un canal de contenido para adultos" }
+            ],
+            "pie de página": {
+                "icon_url": "{{avatar}}",
+                "texto": "Diviértete ;)"
+            }
+        }
+    }
 }
