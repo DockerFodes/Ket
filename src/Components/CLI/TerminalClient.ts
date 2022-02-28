@@ -6,7 +6,7 @@ export default async function (ket: KetClient, prisma: Prisma) {
     termEval();
     async function termEval() {
         delete require.cache[require.resolve(`./CLI`)];
-        let commands = require(`./CLI`),
+        let commands = new (require(`./CLI`))(ket, prisma),
             ramUsage = Math.floor(process.memoryUsage().rss / 1024 / 1024) + "MB"
 
         const response: any = await prompts({
@@ -15,7 +15,7 @@ export default async function (ket: KetClient, prisma: Prisma) {
             type: 'text',
             validate: async (code) => {
                 if (!code.startsWith('.')) return true;
-                if (!eval(`commands${code.trim().split(/ /g).shift()}`)) return 'Comando não encontrado, digite .help para ver a lista de comandos.';
+                if (!commands.checkCommand(code)) return 'Comando não encontrado, digite .help para ver a lista de comandos.';
                 else return true;
             }
         }, {
@@ -28,7 +28,7 @@ export default async function (ket: KetClient, prisma: Prisma) {
         try {
             if (response.code.startsWith('.')) {
                 const args = response.code.trim().split(/ /g);
-                return await eval(`commands${args.shift()}({ ket, args })`);
+                return await commands.exec(args.shift(), args)
             }
 
             evaled = await eval(response.code);
