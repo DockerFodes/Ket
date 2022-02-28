@@ -1,7 +1,7 @@
 import KetClient from "../Main";
 import KetUtils from "../Components/Core/KetUtils";
 import Prisma from "../Components/Database/PrismaConnection";
-import DMexec from "../Packages/Home/_on-messageDMCreate";
+import DMexec from "../Packages/Home/_DMClient";
 import { Message } from "eris";
 import { getContext, getColor } from "../Components/Commands/CommandStructure";
 import { TRUSTED_BOTS, DEVS, guilds } from "../JSON/settings.json";

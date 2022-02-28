@@ -2,7 +2,7 @@ import KetClient from "../Main";
 import KetUtils from "../Components/Core/KetUtils";
 import Prisma from "../Components/Database/PrismaConnection";
 import { Message } from "eris";
-import { globalchat } from "../JSON/settings.json";
+import { globalchat, guilds } from "../JSON/settings.json";
 
 module.exports = class MessageUpdateEvent {
     ket: KetClient;
@@ -13,18 +13,25 @@ module.exports = class MessageUpdateEvent {
         this.prisma = prisma;
         this.KetUtils = new (KetUtils)(this.ket, this.prisma);
     }
-    async on(newMessage: any, oldMessage: Message) {
-        if ((String(oldMessage?.content).trim() === String(newMessage?.content).trim() && !newMessage.editedTimestamp) || newMessage.author?.bot) return;
-        const guild = await this.prisma.servers.find(newMessage.guildID)
+    async on(newMsg: any, oldMsg: Message) {
+        if ((String(oldMsg?.content).trim() === String(newMsg?.content).trim() && !newMsg.editedTimestamp) || newMsg.author?.bot) return;
 
-        if (newMessage.channel.id !== guild.globalchat) return this.ket.emit("messageCreate", newMessage);
+        if (newMsg.channel.parentID === guilds.dmCategory) {
+            //@ts-ignore
+            let DMChannel = (await (await this.ket.findUser(newMsg.channel.topic)).getDMChannel()),
+                msg = await this.ket.findMessage(DMChannel, { content: oldMsg.content, limit: 25 });
+            return this.ket.editMessage(DMChannel.id, msg.id, { content: newMsg.content })
+                .catch((e) => this.ket.send({ ctx: newMsg.channel.msgID, content: `Não foi possível \`editar\` a sua mensagem\n\n${e}` }))
+        }
 
-        const user = await this.prisma.users.find(newMessage.author.id),
-            msgData = await this.prisma.globalchat.find(newMessage.id);
+        const guild = await this.prisma.servers.find(newMsg.guildID)
 
-        if (user.banned || !msgData) return;
+        if (newMsg.channel.id !== guild.globalchat) return this.ket.emit("messageCreate", newMsg);
 
-        if (Date.now() > newMessage.timestamp + (15 * 1000 * 60) || Number(msgData.editCount) >= globalchat.editLimit) return;
+        const user = await this.prisma.users.find(newMsg.author.id),
+            msgData = await this.prisma.globalchat.find(newMsg.id);
+
+        if (user.banned || !msgData || Date.now() > newMsg.timestamp + (15 * 1000 * 60) || Number(msgData.editCount) >= globalchat.editLimit) return;
 
         msgData.messages.forEach(async data => {
             let msgID = data.split('|')[0],
@@ -37,7 +44,7 @@ module.exports = class MessageUpdateEvent {
                 if (!webhook) return;
             }
             this.ket.editWebhookMessage(webhook.id, webhook.token, msgID, {
-                content: this.KetUtils.msgFilter(newMessage.cleanContent),
+                content: this.KetUtils.msgFilter(newMsg.cleanContent),
                 allowedMentions: {
                     everyone: false,
                     roles: false,

@@ -1,7 +1,7 @@
-import { Guild, Member, Message, User } from "eris";
+import { Member, Message, User } from "eris";
 import axios from "axios";
 import { CanvasRenderingContext2D, createCanvas } from "canvas";
-const moment = require('moment');
+import moment from 'moment';
 
 export default function start() {
 

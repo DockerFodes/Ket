@@ -5,7 +5,7 @@ import { getEmoji, getColor, EmbedBuilder } from '../Commands/CommandStructure';
 import KetClient from "../../Main";
 import Prisma from "../Database/PrismaConnection";
 import { DEVS, channels } from "../../JSON/settings.json";
-const moment = require('moment');
+import moment from 'moment';
 
 export default class KetUtils {
     ket: KetClient;

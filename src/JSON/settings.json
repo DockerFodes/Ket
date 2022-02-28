@@ -70,7 +70,7 @@
         "directMessages"
     ],
     "maxShards": 1,
-    "messageLimit": 16,
+    "messageLimit": 25,
     "restMode": true,
     "rest": {
         "domain": "canary.discord.com",

@@ -1,6 +1,6 @@
 import KetClient from "../Main";
 import { RawRESTRequest } from "eris";
-const moment = require('moment');
+import moment from 'moment';
 
 module.exports = class RawRESTEvent {
     ket: KetClient;

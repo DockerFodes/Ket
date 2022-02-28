@@ -1,8 +1,7 @@
 import KetClient from "../Main";
 import Prisma from "../Components/Database/PrismaConnection";
 import { Message } from "eris";
-import { DEVS, guilds } from "../JSON/settings.json";
-
+import { guilds } from "../JSON/settings.json";
 module.exports = class MessageDeleteEvent {
     ket: KetClient;
     prisma: Prisma;
@@ -12,10 +11,6 @@ module.exports = class MessageDeleteEvent {
     }
     async on(message: Message<any>) {
         if (message.author?.bot) return;
-        if (message.channel?.type === 0) {
-            let channel = this.ket.guilds.get(guilds.devs).channels.find(c => c.type === 0 && c.topic === message.author.id)
-
-        }
 
         if (message.channel?.parentID === guilds.dmCategory) {
             //@ts-ignore
@@ -56,7 +51,7 @@ module.exports = class MessageDeleteEvent {
                     roles: false,
                     users: false
                 }
-            }).catch(() => !msg.attachments[0] ? this.ket.deleteWebhookMessage(webhook.id, webhook.token, msg.id).catch(() => { }) : null)
+            }).catch(() => !msg.attachments[0] ? this.ket.deleteWebhookMessage(webhook.id, webhook.token, msg.id).catch(() => { msg.delete().catch(() => { }) }) : null)
         })
     }
 }

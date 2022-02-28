@@ -6,11 +6,11 @@ import { CLIENT_OPTIONS } from "./JSON/settings.json";
 import { getEmoji, getColor, CommandContext } from './Components/Commands/CommandStructure';
 import { DEFAULT_LANG } from "./JSON/settings.json";
 import EventHandler from "./Components/Core/EventHandler";
+import moment from "moment";
 import duration from "moment-duration-format";
 import { tz } from "moment-timezone";
 
-const moment = require('moment'),
-    { inspect } = require('util');
+const { inspect } = require('util');
 let db: Prisma;
 
 interface sendFunction {
@@ -315,7 +315,7 @@ export default class KetClient extends Client {
         return user;
     }
 
-    public async findChannel(ctx: Message<any> | CommandInteraction<GuildChannel> | string): Promise<TextableChannel | GuildChannel> {
+    public async findChannel(ctx: Message<any> | CommandInteraction<GuildChannel> | string): Promise<Channel> {
         let channel: TextableChannel | GuildChannel,
             guild: Guild = typeof ctx !== 'string' ? ctx.channel.guild : null;
 
@@ -328,11 +328,9 @@ export default class KetClient extends Client {
             } else {
                 if (typeof ctx === 'string') {
                     if (this.users.get(ctx)) channel = await this.users.get(ctx).getDMChannel();
-                    else channel = this.getChannel(ctx);
+                    else channel = await this.getChannel(ctx);
                 }
-
             }
-
         } catch (_e: unknown) {
             channel = typeof ctx !== 'string' ? ctx.channel : null;
         }
@@ -340,15 +338,18 @@ export default class KetClient extends Client {
         return channel;
     }
 
-    public async findMessage(ctx: Message<any> | CommandInteraction<any> | TextableChannel, options: { id?: string, onlyIfHasFile?: boolean, content?: string, limit?: number }): Promise<Message | null> {
+    public async findMessage(ctx: Message<any> | CommandInteraction<any> | Channel, options: { id?: string, onlyIfHasFile?: boolean, content?: string, limit?: number }): Promise<Message | null> {
         try {
             let channel = ctx instanceof Channel ? ctx : ctx.channel,
-                messages = channel.messages.map(m => m).reverse(),
-                ref = ctx instanceof Message && ctx.messageReference ? await this.getMessage(channel.id, ctx.messageReference.messageID) : null,
-                get = async (msgID: string) => messages.has(msgID) ? messages.get(msgID) : await this.getMessage(channel.id, msgID);
+                messages = channel.messages ? channel.messages.map(m => m).reverse() : null,
+                ref = ctx instanceof Message && ctx.messageReference ? await this.getMessage(channel.id, ctx.messageReference.messageID) : null;
 
-            if (options.id && !isNaN(Number(options.id))) return await get(options.id);
-            if (messages.length < options.limit) messages = (await channel.getMessages({ limit: options.limit })).map(m => m).reverse();
+            if (options.id && !isNaN(Number(options.id)))
+                return !messages || !messages.find(msg => msg.id === options.id)
+                    ? await this.getMessage(channel.id, options.id)
+                    : messages.find(msg => msg.id === options.id);
+
+            if (messages?.length < options.limit) messages = (await channel.getMessages({ limit: options.limit })).map(m => m).reverse();
 
             if (options.onlyIfHasFile) {
                 if (ctx instanceof Message && ctx.attachments) return ctx;
@@ -371,6 +372,7 @@ async function main() {
     global.PRODUCTION_MODE = process.argv.includes('--dev') ? false : true;
     (await import('./Components/Core/ProtoTypes')).default();
     (await import('dotenv')).config();
+    //@ts-ignore
     duration(moment);
 
     // const app = express();
