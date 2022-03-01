@@ -2,6 +2,7 @@ import KetClient from "../Main";
 import Prisma from "../Components/Database/PrismaConnection";
 import TerminalClient from "../Components/CLI/TerminalClient";
 import DatabaseBackup from "../Packages/Security/DatabaseBackup";
+import moment from "moment";
 
 module.exports = class ReadyEvent {
     ket: KetClient;
@@ -17,12 +18,14 @@ module.exports = class ReadyEvent {
             { name: 'sua mãe na panela', type: 0 },
             { name: "mais um gol do vasco", type: 3 },
             { name: "sua mãe gemendo", type: 2 },
-            { name: 'Vasco x Flamengo', type: 5 }
+            { name: 'Vasco x Flamengo', type: 5 },
+            { name: 'Procurando o mundial do Palmeiras', type: 3 }
         ],
             makeBackup: number = 0;
         setInterval(async () => {
-            //@ts-ignore
-            this.ket.editStatus("dnd", status[Math.floor(Math.random() * status.length)]);
+            let now = moment.tz(Date.now(), "America/Bahia").format('H')
+            // @ts-ignore
+            this.ket.editStatus(now < 7 || now > 18 ? 'idle' : 'online', status[Math.floor(Math.random() * status.length)]);
 
             (await this.prisma.blacklist.findMany()).forEach(async user => {
                 if (user.warns < 3 && Date.now() > Number(user.timeout)) {

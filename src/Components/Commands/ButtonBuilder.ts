@@ -1,4 +1,4 @@
-module.exports = class Button {
+export default class Button {
     emoji: any;
     label: string;
     style: number;

@@ -1,4 +1,4 @@
-import { Attachment, Message, StickerItems, Webhook } from "eris";
+import { ComponentInteraction, Message } from "eris";
 import axios from "axios";
 import DidYouMean from "didyoumean";
 import { getEmoji, getColor, EmbedBuilder } from '../Commands/CommandStructure';
@@ -6,6 +6,7 @@ import KetClient from "../../Main";
 import Prisma from "../Database/PrismaConnection";
 import { DEVS, channels } from "../../JSON/settings.json";
 import moment from 'moment';
+import translate from "@iamtraction/google-translate";
 
 export default class KetUtils {
     ket: KetClient;
@@ -64,6 +65,7 @@ export default class KetUtils {
                 avatarURL: message.author.dynamicAvatarURL('jpg'),
                 content: DEVS.includes(ctx.uID) ? message.cleanContent : this.msgFilter(message.cleanContent),
                 embeds: null,
+                components: [],
                 file: [...(await this.getMediaBuffer(message, 0)), ...(await this.getMediaBuffer(message, 1))],
                 wait: true,
                 allowedMentions: {
@@ -77,9 +79,9 @@ export default class KetUtils {
 
         if (await this.checkRateLimit(ctx, user) === false) return;
 
-        if (message?.messageReference.messageID) msg = await message.channel.messages.has(message.messageReference.messageID)
+        if (message.messageReference) msg = await message.channel.messages.has(message.messageReference.messageID)
             ? message.channel.messages.get(message.messageReference.messageID)
-            : this.ket.findMessage(message.channel, { id: message.messageReference.messageID});
+            : this.ket.findMessage(message.channel, { id: message.messageReference.messageID });
 
         if (message.author.bot && message?.embeds) msgObj.embeds = [message.embeds[0]]
 
@@ -96,6 +98,7 @@ export default class KetUtils {
                     this.ket.webhooks.set(channel.id, webhook);
                 }
                 if (!webhook) return;
+
                 if (message.messageReference && !message.author.bot) {
                     let ref = channel.messages.find(m => m?.author.username === msg?.author.username && this.msgFilter(m?.cleanContent, 1990, true) === this.msgFilter(msg?.cleanContent, 1990, true) && m?.timestamp - msg?.timestamp < 1000 && (msg.attachments[0] ? m.attachments[0].name === msg.attachments[0].name : true)),
                         refAuthor = await this.prisma.users.find(msg?.author.id),
@@ -111,6 +114,19 @@ export default class KetUtils {
                                 ? refContent
                                 : `[${refContent}](https://discord.com/channels/${g.id}/${g.globalchat}/${ref.id})`}`,
                         thumbnail: (msg.attachments[0] && !refAuthor?.banned ? { url: `${msg.attachments[0].url}?size=240` } : null)
+                    }]
+                }
+
+                if (msgObj.content?.length > 0 && g.lang && ctx.server.lang && g.lang !== ctx.server.lang) {
+                    msgObj.components = [{
+                        type: 1,
+                        components: [{
+                            type: 2,
+                            label: `Traduzir de ${this.getLangFromIso(ctx.server.lang).name}`,
+                            emoji: { name: this.getLangFromIso(ctx.server.lang).emoji },
+                            style: 2,
+                            custom_id: `translate/${message.id}/${ctx.server.lang}/${g.lang}`
+                        }]
                     }]
                 }
 
@@ -222,6 +238,37 @@ export default class KetUtils {
             !buffer ? {} : files.push({ file: buffer.data, name: type === 0 ? media[i].filename : `${media[i].name}.${media[i].format_type === 1 ? 'png' : 'gif'}` });
         }
         return files;
+    }
+
+    async translateMsg(interaction: ComponentInteraction) {
+        interaction.defer(64).catch(() => { });
+        let interactionData = interaction.data.custom_id.split('/'),
+            data = await translate(interaction.message.content, { from: interactionData[2], to: interactionData[3] })
+                .then(data => data.text)
+                .catch((e) => `Houve um erro ao traduzir essa mensagem:\n\n${e}`)
+        interaction.createFollowup({
+            embeds: [{
+                color: getColor('hardpurple'),
+                author: {
+                    name: 'Google Translate',
+                    icon_url: 'https://cdn.discordapp.com/attachments/788376558271201290/948035531604914176/googletranslate.png'
+                },
+                description: `\`\`\`fix\n${data}\`\`\``,
+                footer: {
+                    text: `From ${this.getLangFromIso(interactionData[2]).name} to ${this.getLangFromIso(interactionData[3]).name}`
+                }
+            }],
+            flags: 64
+        })
+    }
+
+    getLangFromIso(lang: string) {
+        let languages = {
+            en: { name: 'English', emoji: '🇺🇸' },
+            es: { name: 'Spanish', emoji: '🇪🇸' },
+            pt: { name: 'Portuguese', emoji: '🇧🇷' }
+        }
+        return languages[lang] ? languages[lang] : null;
     }
 
     async checkPermissions({ ctx = null, channel = null, command = null, notReply = null }) {

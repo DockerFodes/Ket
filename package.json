@@ -1,12 +1,11 @@
 {
     "name": "ketdiscordbot",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "description": "",
     "main": "dist/Main.js",
     "packageManager": "yarn@3.1.1",
     "scripts": {
-        "build": "tsc",
-        "dbUp": "npx prisma db push && npx prisma generate",
+        "build": "npx prisma db push && npx prisma generate && tsc",
         "start": "npm run build && npm run noCompile",
         "dev": "node --expose-gc --trace-warnings dist/Main.js --dev",
         "noCompile": "node --expose-gc --trace-warnings dist/Main.js ",
@@ -32,13 +31,14 @@
     ],
     "dependencies": {
         "@discordjs/builders": "^0.11.0",
-        "@iamtraction/google-translate": "^1.1.2",
+        "@iamtraction/google-translate": "github:iamtraction/google-translate",
         "@prisma/client": "^3.10.0",
         "axios": "^0.24.0",
         "canvas": "^2.9.0",
         "didyoumean": "^1.2.2",
         "dotenv": "^10.0.0",
         "eris": "^0.16.1",
+        "google-translate-api": "^2.3.0",
         "moment": "^2.29.1",
         "moment-duration-format": "^2.3.2",
         "moment-timezone": "^0.5.33",
@@ -48,7 +48,7 @@
     "devDependencies": {
         "@types/didyoumean": "^1.2.0",
         "@types/moment-duration-format": "^2.2.3",
-        "@types/node": "^16.11.25",
+        "@types/node": "^16.11.26",
         "@types/prompts": "^2.0.14",
         "typescript": "^4.5.5"
     }

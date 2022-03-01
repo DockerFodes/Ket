@@ -10,6 +10,7 @@ const
     fs = require('fs'),
     { inspect } = require('util'),
     moment = require("moment"),
+    translate = require("@iamtraction/google-translate"),
     path = require('path'),
     CommandBuilder = SlashCommandBuilder;
 

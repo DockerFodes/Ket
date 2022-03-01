@@ -15,7 +15,7 @@ export default async function (ket: KetClient, prisma: Prisma) {
             type: 'text',
             validate: async (code) => {
                 if (!code.startsWith('.')) return true;
-                if (!commands.checkCommand(code)) return 'Comando não encontrado, digite .help para ver a lista de comandos.';
+                if (!commands.checkCommand(code.split(' ').shift())) return 'Comando não encontrado, digite .help para ver a lista de comandos.';
                 else return true;
             }
         }, {

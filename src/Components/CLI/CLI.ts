@@ -1,10 +1,10 @@
-import os from "os";
+import os, { type } from "os";
 import { exec } from "child_process";
 import { duration } from "moment";
 import translate from "@iamtraction/google-translate";
 import KetClient from "../../Main";
 import Prisma from "../Database/PrismaConnection";
-import { readdirSync, readFileSync, writeFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import { resolve } from "path";
 
 module.exports = class CLI {
@@ -129,22 +129,10 @@ module.exports = class CLI {
                 let filePath = resolve(`${dir}/${c.langs[a]}/${c.files[b]}`);
                 let defaultLocale = readFileSync(resolve(`${dir}/${c.defaultLang}/${c.files[b]}`));
                 let data = await translate(String(defaultLocale), { from: c.defaultLang, to: c.langs[a] });
-
-                writeFileSync(filePath, this.filtrarLocales(data.text));
-                console.log('LOCALES', `Arquivo ${c.files[b]} foi traduzido`, 2)
+                writeFileSync(filePath, data.text);
+                return console.log('LOCALES', `Arquivo ${c.files[b]} foi traduzido`, 2)
             }
             console.log('LOCALES', `Idioma ${c.langs[a]} traduzido com sucesso`, 32);
         }
-
-        //     let dir = path.resolve(`../../Locales/${c.langs[a]}`)
-        //     for (let b in c.files) {
-        //         let rawLocales = readFileSync(`${dir}/${c.files[b]}`);
-
-        //     }
-    }
-
-    filtrarLocales(text: string) {
-        text = text.replace(new RegExp('": verdadero }', 'g'), '": true }')
-        return text;
     }
 }

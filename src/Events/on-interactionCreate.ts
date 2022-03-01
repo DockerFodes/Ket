@@ -17,8 +17,11 @@ module.exports = class InteractionCreateEvent {
         this.KetUtils = new (KetUtils)(this.ket, this.prisma);
     }
     async on(interaction) {
-        if (channels.homeInteractions.includes(interaction.channel.id) && (interaction instanceof ComponentInteraction))
-            return homeInteractions(interaction);
+        if (interaction instanceof ComponentInteraction) {
+            if (channels.homeInteractions.includes(interaction.channel.id)) return homeInteractions(interaction);
+            if (interaction.message.content.length > 0 && interaction.data.custom_id.startsWith('translate/')) return this.KetUtils.translateMsg(interaction)
+        }
+
         if (!(interaction instanceof CommandInteraction) || interaction.type != 2) return;
         if (!interaction.guildID || interaction.channel.type === 1) DMexec(interaction, this.ket);
 
