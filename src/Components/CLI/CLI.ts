@@ -59,6 +59,7 @@ module.exports = class CLI {
                 options: c.data?.options ? [...c.data.options] : []
             })
         });
+        return console.info(commands.map(c => c.options))
         try {
             if (args[0]) await this.ket.bulkEditGuildCommands(args[0], commands)
             else await this.ket.bulkEditCommands(commands)

@@ -11,7 +11,6 @@ export default class CommandStructure {
         this.config = {
             name: config.name || null,
             aliases: config.aliases || [],
-            category: config.category || "util",
             cooldown: config.cooldown || 3,
             permissions: config.permissions || {
                 user: [],

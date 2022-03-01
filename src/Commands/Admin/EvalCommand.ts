@@ -20,7 +20,6 @@ module.exports = class EvalCommand extends CommandStructure {
         super(ket, {
             name: 'eval',
             aliases: ['e'],
-            category: 'admin',
             cooldown: 1,
             permissions: {
                 user: [],
