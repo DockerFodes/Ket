@@ -3,6 +3,7 @@ import Prisma from "../Components/Database/PrismaConnection";
 import TerminalClient from "../Components/CLI/TerminalClient";
 import DatabaseBackup from "../Packages/Security/DatabaseBackup";
 import moment from "moment";
+import { Manager } from "erela.js";
 
 module.exports = class ReadyEvent {
     ket: KetClient;
@@ -12,6 +13,8 @@ module.exports = class ReadyEvent {
         this.prisma = prisma;
     }
     async on() {
+        await this.ket.erela.init(this.ket.user.id);
+
         let status: object[] = [
             { name: 'no vasco', type: 0 },
             { name: 'sua mãe da janela', type: 0 },

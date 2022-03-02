@@ -4,11 +4,12 @@ import Prisma, { connect } from "./Components/Database/PrismaConnection";
 import { readdirSync } from "fs";
 import { CLIENT_OPTIONS } from "./JSON/settings.json";
 import { getEmoji, getColor, CommandContext } from './Components/Commands/CommandStructure';
-import { DEFAULT_LANG } from "./JSON/settings.json";
+import { DEFAULT_LANG, ERELA_OPTIONS } from "./JSON/settings.json";
 import EventHandler from "./Components/Core/EventHandler";
 import moment from "moment";
 import duration from "moment-duration-format";
 import { tz } from "moment-timezone";
+import { Manager } from "erela.js";
 
 const { inspect } = require('util');
 let db: Prisma;
@@ -25,11 +26,6 @@ interface clientUser extends ExtendedUser {
     rateLimit: number;
     tag: string;
 }
-
-// interface guild extends Guild {
-//     me: Member;
-// }
-
 
 class usuario extends User {
     _client: KetClient;
@@ -49,13 +45,19 @@ export default class KetClient extends Client {
     webhooks: ESMap<string, Webhook>;
     user: clientUser;
     users: Collection<usuario>;
-    // guilds: Collection<guild>;
+    erela: any;
     shardUptime: ESMap<string | number, number>;
 
     constructor(prisma: Prisma, token: string, options: ClientOptions) {
         super(token, options);
 
         db = prisma;
+        this.erela = new Manager({
+            send: (id, payload) => {
+                const guild = this.guilds.get(id);
+                if (guild) guild.shard.sendWS(payload.op, payload.d);
+            }
+        })
         this.users = new Collection(usuario, CLIENT_OPTIONS.cacheLimit.users);
         this.events = new (EventHandler)(this, db);
         this.commands = new Map();
@@ -73,6 +75,7 @@ export default class KetClient extends Client {
         this.loadCommands(`${__dirname}/Commands`);
         this.loadListeners(`${__dirname}/Events/`);
         await this.loadModules(`${__dirname}/Packages/`);
+        this.loadErela()
         return super.connect();
     }
 
@@ -145,6 +148,18 @@ export default class KetClient extends Client {
                 }
             })
         }
+    }
+
+    public loadErela() {
+        this.erela.on("nodeConnect", (node) => {
+            console.log(`Node "${node.options.identifier}" connected.`)
+        })
+
+        this.erela.on("nodeError", (node, error) => {
+            console.log(`Node "${node.options.identifier}" encountered an error: ${error.message}.`)
+        })
+
+        this.on("rawWS", (packet) => this.erela.updateVoiceState(packet));
     }
 
     public loadListeners(path: string) {
