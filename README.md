@@ -24,7 +24,7 @@ git clone https://github.com/KetDiscordBot/Ket
 
 ### `3 -` 🧰 Install the necessary dependencies to run the project:
 ```bash
-cd ket
+cd Ket
 npm install
 ```
 > ⚠️ It may be necessary to install a package separately:
@@ -48,6 +48,6 @@ npm start
 
 - - - -
 
-### Hope you like the project :)
+### I Hope you like the project :)
 
 (Ket is still in development, not yet open for public use.)
