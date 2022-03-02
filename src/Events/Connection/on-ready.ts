@@ -1,7 +1,7 @@
-import KetClient from "../Main";
-import Prisma from "../Components/Database/PrismaConnection";
-import TerminalClient from "../Components/CLI/TerminalClient";
-import DatabaseBackup from "../Packages/Security/DatabaseBackup";
+import KetClient from "../../Main";
+import Prisma from "../../Components/Prisma/PrismaConnection";
+import TerminalClient from "../../Components/CLI/TerminalClient";
+import DatabaseBackup from "../../Packages/Security/DatabaseBackup";
 import moment from "moment";
 import { Manager } from "erela.js";
 
@@ -52,6 +52,7 @@ module.exports = class ReadyEvent {
   - Sessão iniciada como ${this.ket.user.tag}
  ◆ ▬▬▬▬▬▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬▬▬▬▬▬ ◆
   - Operante em ${this.ket.guilds.size} servidores com ${this.ket.allUsersCount} membros.`, 33);
-        return TerminalClient(this.ket, this.prisma);
+        TerminalClient(this.ket, this.prisma);
+        return;
     }
 }

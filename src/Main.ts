@@ -1,10 +1,10 @@
-import { Channel, Client, ClientOptions, Collection, CommandInteraction, EmbedOptions, ExtendedUser, Guild, GuildChannel, Member, Message, TextableChannel, User, Webhook } from "eris";
+import { Channel, Client, ClientOptions, Collection, CommandInteraction, Guild, GuildChannel, Member, Message, MessageContent, TextableChannel, User, Webhook } from "eris";
 import { ESMap } from "typescript";
-import Prisma, { connect } from "./Components/Database/PrismaConnection";
+import Prisma, { connect } from "./Components/Prisma/PrismaConnection";
 import { readdirSync } from "fs";
 import { CLIENT_OPTIONS } from "./JSON/settings.json";
 import { getEmoji, getColor, CommandContext } from './Components/Commands/CommandStructure';
-import { DEFAULT_LANG, ERELA_OPTIONS } from "./JSON/settings.json";
+import { DEFAULT_LANG } from "./JSON/settings.json";
 import EventHandler from "./Components/Core/EventHandler";
 import moment from "moment";
 import duration from "moment-duration-format";
@@ -16,25 +16,10 @@ let db: Prisma;
 
 interface sendFunction {
     ctx: Message<any> | CommandInteraction<any> | CommandContext | string;
-    content: { embeds: EmbedOptions[], flags?: number } | string | any;
+    content: MessageContent | string | any;
     emoji?: string;
     embed?: boolean;
     target?: 0 | 1 | 2;
-}
-
-interface clientUser extends ExtendedUser {
-    rateLimit: number;
-    tag: string;
-}
-
-class usuario extends User {
-    _client: KetClient;
-    rateLimit: number;
-    tag: string;
-    lastCommand: {
-        botMsg: string;
-        userMsg: string;
-    }
 }
 
 export default class KetClient extends Client {
@@ -43,8 +28,6 @@ export default class KetClient extends Client {
     commands: ESMap<string, any>;
     aliases: ESMap<string, string>;
     webhooks: ESMap<string, Webhook>;
-    user: clientUser;
-    users: Collection<usuario>;
     erela: any;
     shardUptime: ESMap<string | number, number>;
 
@@ -53,12 +36,9 @@ export default class KetClient extends Client {
 
         db = prisma;
         this.erela = new Manager({
-            send: (id, payload) => {
-                const guild = this.guilds.get(id);
-                if (guild) guild.shard.sendWS(payload.op, payload.d);
-            }
+            send: (id, payload) => this.guilds.get(id) ? this.guilds.get(id).shard.sendWS(payload.op, payload.d) : null
         })
-        this.users = new Collection(usuario, CLIENT_OPTIONS.cacheLimit.users);
+        this.users = new Collection(User, CLIENT_OPTIONS.cacheLimit.users);
         this.events = new (EventHandler)(this, db);
         this.commands = new Map();
         this.aliases = new Map();
@@ -73,9 +53,8 @@ export default class KetClient extends Client {
     public async boot() {
         await this.loadLocales(`${__dirname}/Locales/`);
         this.loadCommands(`${__dirname}/Commands`);
-        this.loadListeners(`${__dirname}/Events/`);
+        this.addListeners(`${__dirname}/Events/`);
         await this.loadModules(`${__dirname}/Packages/`);
-        this.loadErela()
         return super.connect();
     }
 
@@ -120,7 +99,7 @@ export default class KetClient extends Client {
             console.log('LOCALES', e, 41);
         } finally {
             delete String.prototype.getT;
-            return Object.defineProperty(String.prototype, 'getT', {
+            Object.defineProperty(String.prototype, 'getT', {
                 value: function (placeholders?: object, language?: string) {
                     const str = String(this);
                     try {
@@ -148,26 +127,20 @@ export default class KetClient extends Client {
                 }
             })
         }
+        return;
     }
 
-    public loadErela() {
-        this.erela.on("nodeConnect", (node) => {
-            console.log(`Node "${node.options.identifier}" connected.`)
-        })
-
-        this.erela.on("nodeError", (node, error) => {
-            console.log(`Node "${node.options.identifier}" encountered an error: ${error.message}.`)
-        })
-
-        this.on("rawWS", (packet) => this.erela.updateVoiceState(packet));
-    }
-
-    public loadListeners(path: string) {
+    public async addListeners(path: string) {
         try {
-            let files = readdirSync(path)
-            for (let a in files) {
-                if (files[a].startsWith('_')) return;
-                this.events.add(files[a].split(".")[0].replace('on-', ''), `${__dirname}/events/${files[a]}`);
+            let categories = readdirSync(path)
+            for (let a in categories) {
+                let files = readdirSync(`${path}/${categories[a]}/`);
+                for (let b in files) {
+                    if (files[b].startsWith('_')) continue;
+                    let eventName = files[b].split(".")[0].replace('on-', ''),
+                        eventPath = `${path}/${categories[a]}/${files[b]}`;
+                    this.events.add(eventName, eventPath, categories[a] === 'Music' ? 1 : 0);
+                }
             }
             console.log('EVENTS', `${this.events.size} Listeners adicionados`, 2);
             return true;
@@ -217,7 +190,7 @@ export default class KetClient extends Client {
             if (!ctx || !content) return null;
             if (!(ctx instanceof CommandInteraction) && !(ctx instanceof Message) && typeof ctx === 'object') ctx = ctx.env;
 
-            const user: usuario | null = typeof ctx === 'string' ? null : this.users.get(ctx instanceof Message ? ctx.author.id : ctx.member.user.id);
+            const user: User | null = typeof ctx === 'string' ? null : this.users.get(ctx instanceof Message ? ctx.author.id : ctx.member.user.id);
             let msgObj: any = {
                 content: '',
                 embeds: embed ? [{
@@ -287,7 +260,7 @@ export default class KetClient extends Client {
         }
     }
 
-    public async findUser(ctx?: Message<any> | CommandInteraction<any> | string, returnMember: boolean = false, argsPosition: number = 0): Promise<User | Member> {
+    public async findUser(ctx?: Message<any> | CommandInteraction<any> | string, returnMember: boolean = false, argsPosition: number = 0): Promise<any> {
         let user: User | Member;
         let checkType = (user: User | Member) => {
             if (typeof ctx !== 'string' && user instanceof User && returnMember) user = ctx.channel.guild.members.get(user.id);
@@ -437,6 +410,7 @@ async function main() {
         .on("uncaughtException", (error: Error) => console.log('ERRO CAPTURADO: ', String(error.stack.slice(0, 512)), 41))
         .on('uncaughtExceptionMonitor', (error: Error) => console.log('BLOQUEADO: ', String(error.stack.slice(0, 512)), 41));
     // .on('multipleResolves', (type, promise, reason) => reject('MULTIPLOS ERROS: ', reason));
+    return;
 }
     /**
 * TONS DE BRANCO E CINZA

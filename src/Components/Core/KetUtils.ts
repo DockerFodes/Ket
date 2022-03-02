@@ -3,7 +3,7 @@ import axios from "axios";
 import DidYouMean from "didyoumean";
 import { getEmoji, getColor, EmbedBuilder } from '../Commands/CommandStructure';
 import KetClient from "../../Main";
-import Prisma from "../Database/PrismaConnection";
+import Prisma from "../Prisma/PrismaConnection";
 import { DEVS, channels } from "../../JSON/settings.json";
 import moment from 'moment';
 import translate from "@iamtraction/google-translate";

@@ -1,10 +1,10 @@
-import KetClient from "../Main";
-import KetUtils from "../Components/Core/KetUtils";
-import Prisma from "../Components/Database/PrismaConnection";
-import DMexec from "../Packages/Home/_DMClient";
+import KetClient from "../../Main";
+import KetUtils from "../../Components/Core/KetUtils";
+import Prisma from "../../Components/Prisma/PrismaConnection";
+import DMexec from "../../Packages/Home/_DMClient";
 import { Message } from "eris";
-import { getContext, getColor } from "../Components/Commands/CommandStructure";
-import { TRUSTED_BOTS, DEVS, guilds } from "../JSON/settings.json";
+import { getContext, getColor } from "../../Components/Commands/CommandStructure";
+import { TRUSTED_BOTS, DEVS, guilds } from "../../JSON/settings.json";
 
 module.exports = class MessageCreateEvent {
     ket: KetClient;
@@ -75,14 +75,16 @@ module.exports = class MessageCreateEvent {
         //     footer: { text: t("events:footer.f1", { prefix: user.prefix }), icon_url: message.author.displayAvatarURL({ format: 'jpg', dynamic: true }) }
         // }
 
-        return new Promise(async (res, rej) => {
+        new Promise(async (res, rej) => {
             try {
                 ctx.command.dontType ? null : await ctx.channel.sendTyping().catch(() => { });
                 await command.execute(ctx);
-                return res(this.KetUtils.sendCommandLog(ctx));
+                res(this.KetUtils.sendCommandLog(ctx));
             } catch (error: any) {
-                return res(this.KetUtils.CommandError(ctx, error));
+                res(this.KetUtils.CommandError(ctx, error));
             }
+            return;
         })
+        return;
     }
 }

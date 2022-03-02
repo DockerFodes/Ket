@@ -1,4 +1,4 @@
-import KetClient from "../Main";
+import KetClient from "../../Main";
 import { RawRESTRequest } from "eris";
 import moment from 'moment';
 
@@ -14,5 +14,6 @@ module.exports = class RawRESTEvent {
 
             console.log(`${String(req.resp.headers['x-ratelimit-scope']).toUpperCase()} RATE LIMIT/${timeout}`, `${rl.limit} ${req.method}S em ${req.route}`)
         }
+        return;
     }
 }

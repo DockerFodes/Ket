@@ -1,5 +1,5 @@
 import KetClient from "../../Main";
-import Prisma from "../Database/PrismaConnection";
+import Prisma from "../Prisma/PrismaConnection";
 
 export default class EventHandler {
     ket: KetClient;
@@ -12,12 +12,14 @@ export default class EventHandler {
         this.events = [];
     }
 
-    add(name: string, dir: string) {
+    add(name: string, dir: string, type?: number) {
         this.events.push({ name, dir, run: new (require(dir))(this.ket, this.prisma) })
 
-        return name === 'ready'
+        if (!type) name === 'ready'
             ? this.ket.once(name, (...args) => this.execute(name, args))
             : this.ket.on(name, (...args) => this.execute(name, args));
+        else this.ket.erela.on(name, (...args) => this.execute(name, args));
+        return;
     }
     execute(name: string, args: any[]) {
         return this.events.filter(e => e.name === name).forEach((event) => {

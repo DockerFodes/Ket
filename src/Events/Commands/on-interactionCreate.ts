@@ -1,11 +1,11 @@
-import KetClient from "../Main";
-import KetUtils from "../Components/Core/KetUtils";
-import homeInteractions from "../Packages/Home/_homeInteractions";
-import Prisma from "../Components/Database/PrismaConnection";
-import DMexec from "../Packages/Home/_DMClient";
+import KetClient from "../../Main";
+import KetUtils from "../../Components/Core/KetUtils";
+import homeInteractions from "../../Packages/Home/_homeInteractions";
+import Prisma from "../../Components/Prisma/PrismaConnection";
+import DMexec from "../../Packages/Home/_DMClient";
 import { CommandClientOptions, CommandInteraction, ComponentInteraction } from "eris";
-import { getContext, getColor } from "../Components/Commands/CommandStructure";
-import { channels, DEVS } from "../JSON/settings.json";
+import { getContext, getColor } from "../../Components/Commands/CommandStructure";
+import { channels, DEVS } from "../../JSON/settings.json";
 
 module.exports = class InteractionCreateEvent {
     ket: KetClient;
@@ -66,14 +66,16 @@ module.exports = class InteractionCreateEvent {
             return option?.options ? option.options.forEach(op => getArgs(op)) : null
         }
 
-        return new Promise(async (res, rej) => {
+        new Promise(async (res, rej) => {
             try {
                 ctx.command.dontType ? null : await interaction.defer().catch(() => { });
                 await command.execute(ctx);
-                return res(this.KetUtils.sendCommandLog(ctx));
+                res(this.KetUtils.sendCommandLog(ctx));
             } catch (error: any) {
-                return res(this.KetUtils.CommandError(ctx, error));
+                res(this.KetUtils.CommandError(ctx, error));
             }
+            return;
         })
+        return;
     }
 }

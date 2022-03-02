@@ -1,4 +1,4 @@
-import KetClient from "../Main";
+import KetClient from "../../Main";
 
 module.exports = class ShardResumeEvent {
     ket: KetClient;
@@ -6,6 +6,7 @@ module.exports = class ShardResumeEvent {
         this.ket = ket;
     }
     async on(shardID: number) {
-        return this.ket.emit('shardReady', shardID);
+        this.ket.emit('shardReady', shardID);
+        return;
     }
 }

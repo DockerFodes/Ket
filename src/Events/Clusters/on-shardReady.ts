@@ -1,4 +1,4 @@
-import KetClient from "../Main";
+import KetClient from "../../Main";
 
 module.exports = class ShardReadyEvent {
     ket: KetClient;
@@ -7,6 +7,7 @@ module.exports = class ShardReadyEvent {
     }
     async on(shardID: number) {
         console.log(`SHARD ${shardID}`, 'Conectada ao Discord', 34);
-        return this.ket.shardUptime.set(shardID, Date.now());
+        this.ket.shardUptime.set(shardID, Date.now());
+        return;
     }
 }

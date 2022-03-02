@@ -2,16 +2,24 @@ import { Member, Message, User } from "eris";
 import axios from "axios";
 import { CanvasRenderingContext2D, createCanvas } from "canvas";
 import moment from 'moment';
+import KetClient from "../../Main";
 
 export default function start() {
 
 	/* message.deleteAfter(5) */
-	//@ts-ignore
 	delete Message.prototype.deleteAfter;
 	Object.defineProperty(Message.prototype, 'deleteAfter', {
 		value: async function (time: number) {
 			await sleep(time);
 			this.delete().catch(() => { });
+		}
+	})
+
+	/* 'let ket = new KetClient()'.encode('js') */
+	delete String.prototype.encode;
+	Object.defineProperty(String.prototype, 'encode', {
+		value: function (lang: string) {
+			return '```' + lang + '\n' + String(this) + '```'
 		}
 	})
 
@@ -48,10 +56,9 @@ export default function start() {
 		}
 	})
 
-	//@ts-ignore
 	delete Member.prototype.mute;
 	Object.defineProperty(Member.prototype, 'mute', {
-		value: async function mutar(args, reason: string | null) {
+		value: async function mutar(args: string, reason: string | null) {
 			let regex: RegExp = /([0-9]+)( |)(h|m|s)/gi,
 				time: number = Date.now();
 			args.match(regex).forEach(t => {
@@ -79,25 +86,15 @@ export default function start() {
 		}
 	})
 
-	//@ts-ignore
-	// delete Guild.prototype.me;
-	// Object.defineProperty(Guild.prototype, 'me', {
-	// 	get() {
-	// 		return this.members.get(this._client.user.id);
-	// 	}
-	// })
-
 	/* user.tag */
-	//@ts-ignore
 	delete User.prototype.tag;
 	Object.defineProperty(User.prototype, "tag", {
 		get() {
 			return `${this.username}#${this.discriminator}`;
 		}
 	});
-	return;
+
 	/** Canvas Structures **/
-	//@ts-ignore
 	delete CanvasRenderingContext2D.prototype.roundRect;
 	Object.defineProperty(CanvasRenderingContext2D.prototype, 'roundRect', {
 		value: function roundRect(x, y, width, height, radius, fill, stroke) {
@@ -106,7 +103,7 @@ export default function start() {
 			if (typeof radius === "number")
 				radius = { tl: radius, tr: radius, br: radius, bl: radius };
 			else {
-				var defaultRadius = { tl: 0, tr: 0, br: 0, bl: 0 };
+				let defaultRadius = { tl: 0, tr: 0, br: 0, bl: 0 };
 				for (var side in defaultRadius)
 					radius[side] = radius[side] || defaultRadius[side];
 			}
@@ -127,12 +124,11 @@ export default function start() {
 		}
 	})
 
-	//@ts-ignore
 	delete CanvasRenderingContext2D.prototype.roundImageCanvas;
 	Object.defineProperty(CanvasRenderingContext2D.prototype, 'roundImageCanvas', {
 		value: function roundImageCanvas(img, w = img.width, h = img.height, r = w * 0.5) {
 			const canvas = createCanvas(w, h);
-			const ctx = canvas.getContext('2d');
+			const ctx: any = canvas.getContext('2d');
 
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -150,13 +146,12 @@ export default function start() {
 		}
 	})
 
-	//@ts-ignore
 	delete CanvasRenderingContext2D.prototype.getLines;
 	Object.defineProperty(CanvasRenderingContext2D.prototype, 'getLines', {
-		value: function getLines(text, maxWidth) {
-			var words = text.split(" ");
-			var lines = [];
-			var currentLine = words[0];
+		value: function getLines(text: string, maxWidth: number) {
+			let words = text.split(" "),
+				lines = [],
+				currentLine = words[0];
 
 			for (var i = 1; i < words.length; i++) {
 				var word = words[i];
@@ -172,4 +167,32 @@ export default function start() {
 			return lines;
 		}
 	})
+}
+
+declare module 'eris' {
+	export interface Message {
+		deleteAfter(time: number): void;
+	}
+
+	export interface Member {
+		mute(args: string, reason?: string): boolean | never;
+	}
+
+	export interface User {
+		_client: KetClient;
+		rateLimit: number;
+		tag: string;
+		lastCommand: {
+			botMsg: string;
+			userMsg: string;
+		}
+	}
+}
+
+declare module 'canvas' {
+	export interface CanvasRenderingContext2D {
+		roundRect(x: number, y: number, width: number, height: number, radius: number, fill: Function, stroke: boolean): void;
+		getLines(text: string, maxWidth: number): string;
+		roundImageCanvas(img: any, w: number, h: number, r: number): CanvasImageData;
+	}
 }

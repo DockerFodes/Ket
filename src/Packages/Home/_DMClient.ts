@@ -63,7 +63,6 @@ async function DM(ctx: Message<PrivateChannel>, ket: KetClient) {
 
 async function sendMessageDM(ctx: Message<GuildTextableChannel>, ket: KetClient) {
     if (!DEVS.includes(ctx.author.id) || ctx.author.bot || ctx.content.startsWith(';')) return;
-    //@ts-ignore
     let DMChannel = (await (await ket.findUser(ctx.channel.topic)).getDMChannel());
 
     if (!DMChannel) return;

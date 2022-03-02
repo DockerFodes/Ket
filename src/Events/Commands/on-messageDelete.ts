@@ -1,7 +1,7 @@
-import KetClient from "../Main";
-import Prisma from "../Components/Database/PrismaConnection";
+import KetClient from "../../Main";
+import Prisma from "../../Components/Prisma/PrismaConnection";
 import { Message } from "eris";
-import { guilds } from "../JSON/settings.json";
+import { guilds } from "../../JSON/settings.json";
 module.exports = class MessageDeleteEvent {
     ket: KetClient;
     prisma: Prisma;
@@ -13,7 +13,6 @@ module.exports = class MessageDeleteEvent {
         if (message.author?.bot) return;
 
         if (message.channel?.parentID === guilds.dmCategory) {
-            //@ts-ignore
             let DMChannel = (await (await this.ket.findUser(message.channel.topic, false)).getDMChannel());
             return (await this.ket.findMessage(DMChannel, { content: message.content, limit: 25 })).delete()
                 .catch((e) => this.ket.send({ ctx: message.channel, content: `Não foi possível \`apagar\` a mensagem\n\n\`\`\`js\n${e}\`\`\`` }))
@@ -53,5 +52,6 @@ module.exports = class MessageDeleteEvent {
                 }
             }).catch(() => !msg.attachments[0] ? this.ket.deleteWebhookMessage(webhook.id, webhook.token, msg.id).catch(() => { msg.delete().catch(() => { }) }) : null)
         })
+        return;
     }
 }

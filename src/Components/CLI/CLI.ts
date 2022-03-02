@@ -3,7 +3,7 @@ import { exec } from "child_process";
 import { duration } from "moment";
 import translate from "@iamtraction/google-translate";
 import KetClient from "../../Main";
-import Prisma from "../Database/PrismaConnection";
+import Prisma from "../Prisma/PrismaConnection";
 import { readFileSync, writeFileSync } from "fs";
 import { resolve } from "path";
 

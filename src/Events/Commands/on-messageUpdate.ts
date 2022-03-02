@@ -1,8 +1,8 @@
-import KetClient from "../Main";
-import KetUtils from "../Components/Core/KetUtils";
-import Prisma from "../Components/Database/PrismaConnection";
+import KetClient from "../../Main";
+import KetUtils from "../../Components/Core/KetUtils";
+import Prisma from "../../Components/Prisma/PrismaConnection";
 import { Message } from "eris";
-import { globalchat, guilds } from "../JSON/settings.json";
+import { globalchat, guilds } from "../../JSON/settings.json";
 
 module.exports = class MessageUpdateEvent {
     ket: KetClient;
@@ -17,7 +17,6 @@ module.exports = class MessageUpdateEvent {
         if ((String(oldMsg?.content).trim() === String(newMsg?.content).trim() && !newMsg.editedTimestamp) || newMsg.author?.bot) return;
 
         if (newMsg.channel.parentID === guilds.dmCategory) {
-            //@ts-ignore
             let DMChannel = (await (await this.ket.findUser(newMsg.channel.topic)).getDMChannel()),
                 msg = await this.ket.findMessage(DMChannel, { content: oldMsg.content, limit: 25 });
             return this.ket.editMessage(DMChannel.id, msg.id, { content: newMsg.content })
@@ -57,6 +56,6 @@ module.exports = class MessageUpdateEvent {
             where: { id: msgData.id },
             data: { editCount: msgData.editCount + 1 }
         })
-
+        return;
     }
 }

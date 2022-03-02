@@ -1,5 +1,5 @@
-import KetClient from "../Main";
-import Prisma from "../Components/Database/PrismaConnection";
+import KetClient from "../../Main";
+import Prisma from "../../Components/Prisma/PrismaConnection";
 import { Webhook, WebhookData } from "eris";
 
 module.exports = class Event {
@@ -31,5 +31,6 @@ module.exports = class Event {
                 channelID: wData.channelID
             }, webhook.token)
         }
+        return;
     }
 }

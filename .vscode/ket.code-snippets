@@ -2,14 +2,14 @@
     "clg": {
         "scope": "typescript",
         "prefix": "clg",
-        "body": "console.log($1)"
+        "body": "console.info($1)"
     },
     "Event": {
         "scope": "typescript",
         "prefix": "newKetEvent",
         "body": [
-            "import KetClient from \"../Main\";",
-            "import Prisma from \"../Components/Database/PrismaConnection\";",
+            "import KetClient from \"../../Main\";",
+            "import Prisma from \"../../Components/Prisma/PrismaConnection\";",
             "",
             "module.exports = class $1Event {",
             "    ket: KetClient;",

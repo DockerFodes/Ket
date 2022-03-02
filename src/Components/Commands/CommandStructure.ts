@@ -1,6 +1,6 @@
 import KetClient from "../../Main";
 import settings from "../../JSON/settings.json";
-import Prisma from "../Database/PrismaConnection";
+import Prisma from "../Prisma/PrismaConnection";
 import { CommandInteraction, Guild, GuildTextableChannel, Member, Message, Shard, TextableChannel, User } from "eris";
 
 export default class CommandStructure {
@@ -210,7 +210,6 @@ export function getContext({ ket, prisma, message, interaction, user, server, ar
         prisma: prisma,
         config: settings,
         env: message ? message : interaction,
-        //@ts-ignore
         send: (args) => (args.ctx = ctx) && ket.send(args),
         user: user,
         server: server,

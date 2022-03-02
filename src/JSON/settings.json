@@ -12,7 +12,8 @@
     },
 
     "channels": {
-        "guilds": "927782637106524181",
+        "guildCreate": "927782637106524181",
+        "guildDelete": "948468411510448189",
         "database": "918991789304725575",
         "erros": "916745097712922685",
         "commandLogs": "916745050162098186",
@@ -45,14 +46,6 @@
             "https://instagram.com",
             "https://spotify.com"
         ]
-    },
-
-    "ERELA_OPTIONS": {
-        "nodes": [{
-                "host": "localhost",
-                "password": "youshallnotpass",
-                "port": 2333
-            }]
     },
 
     "CLIENT_OPTIONS": {

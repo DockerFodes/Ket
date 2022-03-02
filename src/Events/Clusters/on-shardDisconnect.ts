@@ -1,4 +1,4 @@
-import KetClient from "../Main";
+import KetClient from "../../Main";
 
 module.exports = class ShardDisconnect {
     ket: KetClient;
@@ -7,6 +7,7 @@ module.exports = class ShardDisconnect {
     }
     async on(error: string, shardID: number) {
         console.log(`SHARD ${shardID}`, `Reiniciando: ${error}`, 41);
-        return this.ket.shardUptime.set(shardID, NaN);
+        this.ket.shardUptime.set(shardID, NaN);
+        return;
     }
 }

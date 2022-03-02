@@ -4,7 +4,10 @@ dist/
 migrations/
 src/Components/Database/migrations
 test/
+logs/
 
 # Arquivos
 package-lock.json
 .env
+application.yml
+Lavalink.jar
