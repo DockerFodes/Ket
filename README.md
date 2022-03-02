@@ -6,41 +6,48 @@
 
 # How to install 🤔
 ### `1 -` 🛠️ Download and install the necessary tools to get started
-There's not much to see here, but if you want to run Ket on your machine you'll need:
+If you want to run Ket on your machine, you'll need to:
 - [NodeJS](https://nodejs.org/pt-br/)
-> ⚠️ Recommended version: 14.18.2
+> ⚠️ Recommended version: 14.18.3
 - [PostgreSQL](https://www.postgresql.org/download/)
-> ⚠️ Recommended version: 12 or higher
+> ⚠️ Recommended version: 13 or higher
+- [Lavalink](https://ci.fredboat.com/repository/download/Lavalink_Build/9347:id/Lavalink.jar)
+> ⚠️ Lavalink is required for music commands
+- [Java 13](https://www.oracle.com/java/technologies/javase/jdk13-archive-downloads.html)
+> ⚠️ Java 13 is required to run Lavalink, Java 14 is not recommended
 - [GIT CLI](https://git-scm.com/downloads)
 
-### `2 -` 📁 Download the above files or clone the repository:
+### `2 -` 📁 Download the above frameworks and clone the repository:
 ```bash
 git clone https://github.com/KetDiscordBot/Ket
 ```
 
 ### `3 -` 🧰 Install the necessary dependencies to run the project:
 ```bash
-cd Ket
+cd ket
 npm install
 ```
-> ⚠️ You may need to install 2 packages separately:
+> ⚠️ It may be necessary to install a package separately:
 ```bash
-npm install -g typescript pm2
+npm install -g typescript
 ```
-### `4 -` 🌿 Preparing the environment 
-- Rename the ".env.example" file to ".env"
-- Replace or fill the settings from the ".env" and "settings.json"
-> ⚠️ settings.json is located in "src/JSON/settings.json"
+### `4 -` 🌿 Preparing the environment
+- Rename the file "`.env.example`" to "`.env`"
+- Replace or fill in "`.env`" and "`settings.json`" settings
+> ⚠️ settings.json is located in "`src/JSON/settings.json`"
 
-### 🚀 Starting
-To start just type:
-```bash
+### 🚀 Getting Started
+To get started, just type:
+``` bash
+# Starting Lavalink:
+java -jar Lavalink.jar # Watch out! Lavalink can consume a lot of RAM
+# in a separate terminal:
 npm start
 ```
-> ⚠️ To skip compilation use `npm run noCompile`
+> ⚠️ To skip compilation use `npm run noCompile`, but you need to build the project first
 
 - - - -
 
-### I hope you like the project :) 
+### Hope you like the project :)
 
 (Ket is still in development, not yet open for public use.)
