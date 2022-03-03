@@ -73,7 +73,7 @@ export default class KetClient extends Client {
             console.log('COMMANDS', `${this.commands.size} Comandos carregados`, 2);
             return true;
         } catch (e) {
-            console.log('COMMANDS', e, 41)
+            console.log('COMMANDS', e, 31)
             return false;
         }
     }
@@ -96,7 +96,7 @@ export default class KetClient extends Client {
                 }
             console.log('LOCALES', `${config.langs.length} Locales carregados`, 36);
         } catch (e) {
-            console.log('LOCALES', e, 41);
+            console.log('LOCALES', e, 31);
         } finally {
             delete String.prototype.getT;
             Object.defineProperty(String.prototype, 'getT', {
@@ -145,7 +145,7 @@ export default class KetClient extends Client {
             console.log('EVENTS', `${this.events.size} Listeners adicionados`, 2);
             return true;
         } catch (e) {
-            console.log('EVENTS', e, 41);
+            console.log('EVENTS', e, 31);
             return false;
         }
     }
@@ -162,7 +162,7 @@ export default class KetClient extends Client {
             console.log('MODULES', `${i} Módulos inicializados`, 2);
             return true;
         } catch (e) {
-            console.log('MODULES', e, 41);
+            console.log('MODULES', e, 31);
             return false;
         }
     }
@@ -384,7 +384,7 @@ async function main() {
         return console.info(`\x1B[${color}m${str}\x1B[0m`);
     }
     console.error = function () {
-        return console.log('ANTI-CRASH', 'ERRO GENÉRICO:', String(arguments['0'].stack).slice(0, 512), 41);
+        return console.log('ANTI-CRASH', 'ERRO GENÉRICO:', String(arguments['0'].stack).slice(0, 512), 31);
     }
     console.log('SHARD MANAGER', 'Iniciando fragmentação', 46);
     ket.boot().then(() => {
@@ -406,9 +406,9 @@ async function main() {
             ket.editStatus('dnd', { name: 'Encerrando...', type: 0 });
             process.exit();
         })
-        .on('unhandledRejection', (error: Error) => console.log('SCRIPT REJEITADO: ', String(error.stack.slice(0, 512)), 41))
-        .on("uncaughtException", (error: Error) => console.log('ERRO CAPTURADO: ', String(error.stack.slice(0, 512)), 41))
-        .on('uncaughtExceptionMonitor', (error: Error) => console.log('BLOQUEADO: ', String(error.stack.slice(0, 512)), 41));
+        .on('unhandledRejection', (error: Error) => console.log('ANTI-CRASH', 'SCRIPT REJEITADO: ', String(error.stack.slice(0, 512)), 31))
+        .on("uncaughtException", (error: Error) => console.log('ANTI-CRASH', 'ERRO CAPTURADO: ', String(error.stack.slice(0, 512)), 31))
+        .on('uncaughtExceptionMonitor', (error: Error) => console.log('ANTI-CRASH', 'BLOQUEADO: ', String(error.stack.slice(0, 512)), 31));
     // .on('multipleResolves', (type, promise, reason) => reject('MULTIPLOS ERROS: ', reason));
     return;
 }

@@ -58,7 +58,7 @@ export async function connect(): Promise<Prisma> {
             db.ready = true;
             console.log('DATABASE', '√ Banco de dados operante', 32)
         })
-        .catch((error: Error) => console.log('DATABASE', `x Não foi possível realizar conexão ao banco de dados: ${error}`, 41));
+        .catch((error: Error) => console.log('DATABASE', `x Não foi possível realizar conexão ao banco de dados: ${error}`, 31));
 
     Object.keys(prisma).filter(key => !key.startsWith("_") && !key.startsWith('$')).forEach(key => {
         db[key] = { ...prisma[key] };

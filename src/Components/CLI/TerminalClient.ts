@@ -20,7 +20,7 @@ export default async function (ket: KetClient, prisma: Prisma) {
             }
         }, {
             onCancel: function () {
-                console.log('TERMINAL CLIENT', 'Para encerrar o processo digite .exit (para mais informações use .help)', 41);
+                console.log('TERMINAL CLIENT', 'Para encerrar o processo digite .exit (para mais informações use .help)', 31);
                 return termEval();
             }
         });
@@ -34,7 +34,7 @@ export default async function (ket: KetClient, prisma: Prisma) {
             evaled = await eval(response.code);
             console.log(evaled);
         } catch (e) {
-            console.log('TERMINAL CLIENT', e, 41);
+            console.log('TERMINAL CLIENT', e, 31);
         } finally {
             return termEval();
         }

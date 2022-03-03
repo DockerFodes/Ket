@@ -65,7 +65,7 @@ module.exports = class CLI {
             else await this.ket.bulkEditCommands(commands)
             console.log('SLASH CLIENT', `${commands.length} comandos registrados`, 32)
         } catch (e) {
-            console.log('SLASH CLIENT', e, 41)
+            console.log('SLASH CLIENT', e, 31)
         }
         return;
     }

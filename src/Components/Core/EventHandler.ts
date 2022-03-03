@@ -30,7 +30,7 @@ export default class EventHandler {
                     return new (require(event.dir))(this.ket, this.prisma).on(...args);
                 }
             } catch (error: any) {
-                return console.log(`EVENTS/${event.name}`, 'ERRO GENÉRICO:', String(error.stack).slice(0, 256), 41)
+                return console.log(`EVENTS/${event.name}`, 'ERRO GENÉRICO:', String(error.stack).slice(0, 256), 31)
             }
         })
     }
