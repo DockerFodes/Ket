@@ -28,7 +28,7 @@ export default class KetClient extends Client {
     commands: ESMap<string, any>;
     aliases: ESMap<string, string>;
     webhooks: ESMap<string, Webhook>;
-    erela: any;
+    erela: Manager;
     shardUptime: ESMap<string | number, number>;
 
     constructor(prisma: Prisma, token: string, options: ClientOptions) {
@@ -67,7 +67,7 @@ export default class KetClient extends Client {
                     const comando = new (require(`${path}/${categories[a]}/${files[b]}`))(this);
                     comando.config.dir = `${path}/${categories[a]}/${files[b]}`;
                     this.commands.set(comando.config.name, comando);
-                    comando.config.aliases.forEach((aliase: any) => this.aliases.set(aliase, comando.config.name));
+                    comando.config.aliases.forEach((aliase: string) => this.aliases.set(aliase, comando.config.name));
                 }
             }
             console.log('COMMANDS', `${this.commands.size} Comandos carregados`, 2);
@@ -79,7 +79,14 @@ export default class KetClient extends Client {
     }
 
     public async loadLocales(path: string) {
-        let config: any = global.locales = {
+        interface locales  {
+            defaultLang: string;
+            defaultJSON: string;
+            langs: string[];
+            files: string[];
+            filesMetadata: { }
+        }
+        let config: locales = global.locales = {
             defaultLang: DEFAULT_LANG,
             defaultJSON: 'commands',
             langs: readdirSync(path),
@@ -88,46 +95,18 @@ export default class KetClient extends Client {
         }
 
         try {
-            config.files = readdirSync(`${path}/${config.defaultLang}/`);
+            config.files = global.locales = readdirSync(`${path}/${config.defaultLang}/`);
             for (let a in config.langs)
                 for (let b in config.files) {
                     if (!config.filesMetadata[config.langs[a]]) config.filesMetadata[config.langs[a]] = {};
                     config.filesMetadata[config.langs[a]][config.files[b].split('.json')[0]] = (await import(`${path}/${config.langs[a]}/${config.files[b]}`));
                 }
             console.log('LOCALES', `${config.langs.length} Locales carregados`, 36);
+            return true;
         } catch (e) {
             console.log('LOCALES', e, 31);
-        } finally {
-            delete String.prototype.getT;
-            Object.defineProperty(String.prototype, 'getT', {
-                value: function (placeholders?: object, language?: string) {
-                    const str = String(this);
-                    try {
-                        const data = config.filesMetadata[language || global.lang || config.defaultLang][str.includes(':') ? str.split(':')[0] : config.defaultJSON];
-                        let content = eval(`data.${str.includes(':') ? str.split(':')[1] : str}`);
-                        if (!data || !content) return str;
-
-                        let filtrar = (ctt: string) => {
-                            if (!placeholders) return ctt;
-                            Object.entries(placeholders).forEach(([key, value]: any) => {
-                                let regex: RegExp = eval(`/{{(${key}|${key}.*?)}}/g`);
-                                ctt.match(regex).map(a => a.replace(new RegExp('{{|}}', 'g'), '')).forEach((match: string) => {
-                                    let ph = placeholders[match.split('.')[0]][match.split('.')[1]];
-                                    if (match.includes('.') && ph) ctt = ctt.replace(`{{${match}}}`, ph);
-                                    else typeof value !== 'object' ? ctt = ctt.replace(`{{${match}}}`, value) : null;
-                                });
-                            });
-                            return ctt;
-                        }
-
-                        return typeof content === 'object' ? JSON.parse(filtrar(JSON.stringify(content))) : filtrar(content);
-                    } catch (_e: unknown) {
-                        return str;
-                    }
-                }
-            })
+            return false;
         }
-        return;
     }
 
     public async addListeners(path: string) {
@@ -170,7 +149,7 @@ export default class KetClient extends Client {
     public async reloadCommand(commandName: string) {
         const comando = this.commands.get(commandName) || this.commands.get(this.aliases.get(commandName));
         if (!comando) return 'Comando não encontrado';
-        comando.config.aliases.forEach((aliase: any) => this.aliases.delete(aliase));
+        comando.config.aliases.forEach((aliase: string) => this.aliases.delete(aliase));
         this.commands.delete(comando.config.name);
         delete require.cache[require.resolve(comando.config.dir)];
         try {
@@ -255,8 +234,8 @@ export default class KetClient extends Client {
             }
 
             return true;
-        } catch (e: any) {
-            throw new Error(e);
+        } catch (e) {
+            throw new Error(String(e));
         }
     }
 
@@ -275,9 +254,6 @@ export default class KetClient extends Client {
             if (ctx.mentions) user = ctx.mentions[0];
             else if (!isNaN(Number(args))) user = await this.getRESTUser(args);
             else if (ctx.guildID && ctx.content) {
-                function filtrar(text: string) {
-                    return String(text.includes('@') || text.includes('#') ? text.replace('@', '').split('#')[0] : text).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")
-                }
                 let cleanMsg = filtrar(args);
 
                 user = ctx.channel.guild.members.find((m: Member) =>
@@ -292,7 +268,9 @@ export default class KetClient extends Client {
                 if (!user) return checkType(ctx.author);
             }
         }
-
+        function filtrar(text: string) {
+            return String(text.includes('@') || text.includes('#') ? text.replace('@', '').split('#')[0] : text).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+        }
         if (ctx instanceof CommandInteraction) {
 
         }
@@ -370,7 +348,7 @@ async function main() {
     const ket = new KetClient(prisma, `Bot ${global.PRODUCTION_MODE ? process.env.DISCORD_TOKEN : process.env.BETA_CLIENT_TOKEN}`, CLIENT_OPTIONS as ClientOptions);
 
     console.log = function () {
-        let args: any[] = [...arguments];
+        let args = [...arguments];
 
         if (isNaN(args[args.length - 1])) {
             console.info(args.join(' '));

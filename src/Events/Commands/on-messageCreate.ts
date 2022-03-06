@@ -5,6 +5,7 @@ import DMexec from "../../Packages/Home/_DMClient";
 import { Message } from "eris";
 import { getContext, getColor } from "../../Components/Commands/CommandStructure";
 import { TRUSTED_BOTS, DEVS, guilds } from "../../JSON/settings.json";
+import getT from "../../Components/Core/LocaleStructure";
 
 module.exports = class MessageCreateEvent {
     ket: KetClient;
@@ -21,7 +22,8 @@ module.exports = class MessageCreateEvent {
 
         let server = await this.prisma.servers.find(message.guildID, true),
             user = await this.prisma.users.find(message.author.id),
-            ctx = getContext({ ket: this.ket, prisma: this.prisma, message, server, user });
+            t = getT(user.lang),
+        ctx = getContext({ ket: this.ket, prisma: this.prisma, message, server, user, t });
         global.lang = user.lang;
 
         if (user.banned) return;
@@ -35,18 +37,19 @@ module.exports = class MessageCreateEvent {
             command = this.ket.commands.get(commandName) || this.ket.commands.get(this.ket.aliases.get(commandName));
 
         if (!command && (command = await this.KetUtils.commandNotFound(ctx, commandName)) === false) return;
-        ctx = getContext({ ket: this.ket, prisma: this.prisma, user, server, message, args, command, commandName })
+        ctx = getContext({ ket: this.ket, prisma: this.prisma, user, server, message, args, command, commandName, t })
 
         await this.KetUtils.checkCache(ctx);
         global.lang = user.lang;
         ctx.user = await this.KetUtils.checkUserGuildData(ctx);
+        ctx.t = getT(ctx.user.lang);
 
         if (await this.KetUtils.checkPermissions({ ctx }) === false) return;
         if (ctx.command.permissions.onlyDevs && !DEVS.includes(ctx.uID)) return ctx.send({
             emoji: 'negado', content: {
                 embeds: [{
                     color: getColor('red'),
-                    description: 'events:isDev'.getT()
+                    description: t('events:isDev')
                 }]
             }
         })
@@ -80,7 +83,7 @@ module.exports = class MessageCreateEvent {
                 ctx.command.dontType ? null : await ctx.channel.sendTyping().catch(() => { });
                 await command.execute(ctx);
                 res(this.KetUtils.sendCommandLog(ctx));
-            } catch (error: any) {
+            } catch (error) {
                 res(this.KetUtils.CommandError(ctx, error));
             }
             return;

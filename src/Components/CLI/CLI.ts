@@ -1,11 +1,12 @@
 import os, { type } from "os";
 import { exec } from "child_process";
 import { duration } from "moment";
-import translate from "@iamtraction/google-translate";
 import KetClient from "../../Main";
 import Prisma from "../Prisma/PrismaConnection";
 import { readFileSync, writeFileSync } from "fs";
 import { resolve } from "path";
+import getT from "../Core/LocaleStructure";
+import Translator from "../Core/Translator";
 
 module.exports = class CLI {
     commands: { name: string, aliase: string | string[] }[]
@@ -50,12 +51,13 @@ module.exports = class CLI {
     }
 
     async deploy(args: string[]) {
-        let commands = []
+        let commands = [],
+            t = getT('en')
         await this.ket.commands.forEach(command => {
             let c = command.config;
             commands.push({
                 name: c.name,
-                description: `[${c.category}] - ${`${c.name}.description`.getT()}`,
+                description: `[${c.category}] - ${t(`${c.name}.description`)}`,
                 options: c.data?.options ? [...c.data.options] : []
             })
         });
@@ -129,7 +131,7 @@ module.exports = class CLI {
 
                 let filePath = resolve(`${dir}/${c.langs[a]}/${c.files[b]}`);
                 let defaultLocale = readFileSync(resolve(`${dir}/${c.defaultLang}/${c.files[b]}`));
-                let data = await translate(String(defaultLocale), { from: c.defaultLang, to: c.langs[a] });
+                let data = await Translator.translate(String(defaultLocale), c.langs[a], c.defaultLang);
                 writeFileSync(filePath, data.text);
                 return console.log('LOCALES', `Arquivo ${c.files[b]} foi traduzido`, 2)
             }

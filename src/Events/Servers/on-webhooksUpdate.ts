@@ -1,6 +1,6 @@
 import KetClient from "../../Main";
 import Prisma from "../../Components/Prisma/PrismaConnection";
-import { Webhook, WebhookData } from "eris";
+import { GuildChannel, Webhook, WebhookData } from "eris";
 
 module.exports = class Event {
     ket: KetClient;
@@ -13,16 +13,16 @@ module.exports = class Event {
         if ((await this.prisma.servers.findMany({ where: { globalchat: wData.channelID } }))[0]) {
             let data = this.ket.webhooks.get(wData.channelID),
                 guild = this.ket.guilds.get(wData.guildID),
-                channel: any = guild?.channels?.get(wData.channelID);
+                channel: GuildChannel = guild?.channels?.get(wData.channelID);
 
             if (!guild || !channel || !channel.permissionsOf(this.ket.user.id).has('manageWebhooks')) return;
             let webhooks: Webhook[] = (await this.ket.getChannelWebhooks(wData.channelID)).filter((w: Webhook) => w.user.id === this.ket.user.id);
-            let webhook: any = webhooks[0];
+            let webhook: Webhook = webhooks[0];
 
-            if (!webhooks[0])
-                return webhook = await this.ket.createChannelWebhook(wData.channelID, { name: 'Ket' })
-                    .then((w) => this.ket.webhooks.set(wData.channelID, w))
-                    .catch(() => { })
+            if (!webhooks[0]) {
+                webhook = await this.ket.createChannelWebhook(wData.channelID, { name: 'Ket' })
+                this.ket.webhooks.set(wData.channelID, webhook)
+            }
 
             if (webhooks[1]) for (let i in webhooks) Number(i) === 0 ? null : this.ket.deleteWebhook(webhooks[i].id);
 

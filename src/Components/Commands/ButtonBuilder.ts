@@ -1,14 +1,16 @@
+import { ComponentInteractionButtonData, InteractionButton } from "eris";
+
 export default class Button {
-    emoji: any;
+    emoji: { name: string, id: string };
     label: string;
-    style: number;
+    style: 2 | 1 | 3 | 4;
     disabled: boolean;
     url: string;
     id: string;
     constructor() {
         this.emoji = null;
         this.label = null;
-        this.style = 0;
+        this.style = 2;
         this.disabled = false;
         this.url = '';
         this.id = null;
@@ -68,15 +70,15 @@ export default class Button {
     }
 
     data() {
-        const a: any = {};
-        a.type = 2;
-        if (typeof this.emoji === 'string') a.emoji = this.emoji;
-        if (typeof this.id === 'string') a.custom_id = this.id;
-        if (typeof this.label === 'string') a.label = this.label;
-        if (typeof this.style === 'number') a.style = this.style;
-        if (typeof this.disabled === 'boolean') a.disabled = this.disabled;
-        if (typeof this.url === 'string') a.url = this.url;
+        const button: any = {};
+        button.type = 2;
+        if (typeof this.emoji === 'string') button.emoji = this.emoji;
+        if (typeof this.id === 'string') button.custom_id = this.id;
+        if (typeof this.label === 'string') button.label = this.label;
+        if (typeof this.style === 'number') button.style = this.style;
+        if (typeof this.disabled === 'boolean') button.disabled = this.disabled;
+        if (typeof this.url === 'string') button.url = this.url;
 
-        return a;
+        return button;
     }
 }

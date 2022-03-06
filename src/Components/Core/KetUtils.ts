@@ -6,7 +6,7 @@ import KetClient from "../../Main";
 import Prisma from "../Prisma/PrismaConnection";
 import { DEVS, channels } from "../../JSON/settings.json";
 import moment from 'moment';
-import translate from "@iamtraction/google-translate";
+import Translator from "./Translator";
 
 export default class KetUtils {
     ket: KetClient;
@@ -37,7 +37,7 @@ export default class KetUtils {
             if (globalchat) this.ket.send({
                 ctx: ctx.uID, content: {
                     embeds: [{
-                        ...Object('events:globalchat.welcome'.getT({ avatar: ctx.author.dynamicAvatarURL('jpg') })),
+                        ...Object(ctx.t('events:globalchat.welcome', { avatar: ctx.author.dynamicAvatarURL('jpg') })),
                         color: getColor('green'),
                         image: { url: 'https://goyalankit.com/assets/img/el_gato2.gif' }
                     }]
@@ -122,7 +122,7 @@ export default class KetUtils {
                         type: 1,
                         components: [{
                             type: 2,
-                            label: `Traduzir de ${this.getLangFromIso(ctx.server.lang).name}`,
+                            label: `Traduzir de ${Translator.getLanguage(ctx.server.lang)}`,
                             emoji: { name: this.getLangFromIso(ctx.server.lang).emoji },
                             style: 2,
                             custom_id: `translate/${message.id}/${ctx.server.lang}/${g.lang}`
@@ -241,11 +241,11 @@ export default class KetUtils {
     }
 
     async translateMsg(interaction: ComponentInteraction) {
-        interaction.defer(64).catch(() => { });
+        await interaction.defer(64).catch(() => { });
         let interactionData = interaction.data.custom_id.split('/'),
-            data = await translate(interaction.message.content, { from: interactionData[2], to: interactionData[3] })
+            data = await Translator.translate(interaction.message.content, interactionData[3], interactionData[2])
                 .then(data => data.text)
-                .catch((e) => `Houve um erro ao traduzir essa mensagem:\n\n${e}`)
+                .catch((e) => `Houve um erro ao traduzir essa mensagem:\n\n${e.stack}`)
         interaction.createFollowup({
             embeds: [{
                 color: getColor('hardpurple'),
@@ -255,11 +255,12 @@ export default class KetUtils {
                 },
                 description: `\`\`\`fix\n${data}\`\`\``,
                 footer: {
-                    text: `From ${this.getLangFromIso(interactionData[2]).name} to ${this.getLangFromIso(interactionData[3]).name}`
+                    text: `From ${Translator.getLanguage(interactionData[2])} to ${Translator.getLanguage(interactionData[3])}`
                 }
             }],
             flags: 64
         })
+        return;
     }
 
     getLangFromIso(lang: string) {
@@ -283,20 +284,21 @@ export default class KetUtils {
                 content: {
                     embeds: [{
                         color: getColor('red'),
-                        title: `${getEmoji('sireneRed').mention} ${'events:no-threads'.getT()}`
+                        title: `${getEmoji('sireneRed').mention} ${ctx.t('events:no-threads')}`
                     }]
                 }
             })
             return false
         }
 
-        missingPermissions = ctx.command.permissions.bot.filter((perm) => !ctx.me.permissions.has(perm)).map(value => `permissions:${value}`.getT());
+        missingPermissions = ctx.command.permissions.bot.filter((perm) => !ctx.me.permissions.has(perm)).map(value => ctx.t(`permissions:${value}`));
 
         if (missingPermissions[0]) {
+            let content = ctx.t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') });
             notReply ? null :
-                ctx.send({ content: 'permissions:missingPerms'.getT({ missingPerms: missingPermissions.join(', ') }), embed: false, emoji: 'negado' })
+                ctx.send({ content, embed: false, emoji: 'negado' })
                     .catch(async () => {
-                        this.ket.send({ ctx: ctx.uID, content: 'permissions:missingPerms'.getT({ missingPerms: missingPermissions.join(', ') }) })
+                        this.ket.send({ ctx: ctx.uID, content })
                             .catch(() => {
                                 if (ctx.me.permissions.has('changeNickname')) ctx.me.edit({ nick: "pls give me some permission" }).catch(() => { });
                             });
@@ -323,7 +325,7 @@ export default class KetUtils {
                 embeds: [{
                     color: getColor('red'),
                     thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/918721199029231716/error.gif' },
-                    description: 'events:error.description'.getT({ error })
+                    description: ctx.t('events:error.description', { error })
                 }],
                 flags: 64
             }
@@ -355,7 +357,7 @@ export default class KetUtils {
 
     findResult(entrada: string, mapa: string[]) {
         const checkSimilarity = this.checkSimilarity
-        function Algorithm2(str: string, array: any, threshold: number = 60) {
+        function Algorithm2(str: string, array, threshold: number = 60) {
             return array
                 .map(e => { return { e, v: checkSimilarity(str, e) } })
                 .filter(({ v }) => v >= threshold / 100)

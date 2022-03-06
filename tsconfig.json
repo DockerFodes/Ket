@@ -99,7 +99,7 @@
         "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
     },
     "include": [
-        "index.d.ts",
+        "./index.d.ts",
         "src",
         "src/**/*.json"
     ]

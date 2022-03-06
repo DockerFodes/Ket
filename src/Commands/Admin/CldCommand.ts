@@ -34,11 +34,11 @@ module.exports = class CldCommand extends CommandStructure {
         let embed = new EmbedBuilder();
 
         try {
-            let data: any = execSync(ctx.args.join(' '));
+            let data: Buffer = execSync(ctx.args.join(' '));
             embed
                 .setTitle('Só sucexo bb')
                 .setColor('green')
-                .setDescription(data, 'bash');
+                .setDescription(String(data), 'bash');
         } catch (e) {
             embed
                 .setTitle('Ih deu merda viado')

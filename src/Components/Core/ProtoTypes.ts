@@ -193,6 +193,6 @@ declare module 'canvas' {
 	export interface CanvasRenderingContext2D {
 		roundRect(x: number, y: number, width: number, height: number, radius: number, fill: Function, stroke: boolean): void;
 		getLines(text: string, maxWidth: number): string;
-		roundImageCanvas(img: any, w: number, h: number, r: number): CanvasImageData;
+		roundImageCanvas(img: CanvasImageData, w: number, h: number, r: number): CanvasImageData;
 	}
 }

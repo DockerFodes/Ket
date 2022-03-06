@@ -8,12 +8,10 @@ const
     cld = require('child_process'),
     Eris = require('eris'),
     fs = require('fs'),
-    { inspect } = require('util'),
+    util = require('util'),
+    translate = require("../../Components/Core/Translator"),
     moment = require("moment"),
-    translate = require("@iamtraction/google-translate"),
-    path = require('path'),
-    CommandBuilder = SlashCommandBuilder;
-
+    path = require('path');
 module.exports = class EvalCommand extends CommandStructure {
     utils: any;
     constructor(ket: KetClient) {
@@ -54,8 +52,9 @@ module.exports = class EvalCommand extends CommandStructure {
             canReturn = (ctx.commandName === 'eval' ? true : false),
             embed = new EmbedBuilder(),
             mb = (data: number) => Math.floor(data / 1024 / 1024) + "MB";
-        function filtrar(content: string) {
-            return content = inspect(content)
+
+        function filtrar(content: unknown) {
+            return content = util.inspect(content)
                 .replace(new RegExp(ket._token, 'gi'), 'censored key')
         }
 
@@ -66,7 +65,7 @@ module.exports = class EvalCommand extends CommandStructure {
                 .setTitle('Só suSEXO bb')
                 .setColor('green')
                 .setDescription(filtrar(evaled), 'js');
-        } catch (e: any) {
+        } catch (e) {
             embed
                 .setTitle('Ih deu merda viado')
                 .setColor('red')

@@ -9,7 +9,7 @@ export default async function (ket: KetClient, prisma: Prisma) {
         let commands = new (require(`./CLI`))(ket, prisma),
             ramUsage = Math.floor(process.memoryUsage().rss / 1024 / 1024) + "MB"
 
-        const response: any = await prompts({
+        const response: { code: string } = await prompts({
             name: 'code',
             message: `${ket.user.username}$`,
             type: 'text',

@@ -62,7 +62,7 @@ export async function connect(): Promise<Prisma> {
 
     Object.keys(prisma).filter(key => !key.startsWith("_") && !key.startsWith('$')).forEach(key => {
         db[key] = { ...prisma[key] };
-        db[key].find = async (queryData: any, createIfNull: boolean = false) => {
+        db[key].find = async (queryData: string | { where: { } }, createIfNull: boolean = false) => {
             typeof queryData === 'string' ? queryData = { where: { id: queryData } } : null;
             let res = (await prisma[key].findMany(queryData))[0];
 

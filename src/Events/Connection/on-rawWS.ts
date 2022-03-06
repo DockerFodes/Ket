@@ -9,7 +9,7 @@ module.exports = class Event {
         this.ket = ket;
         this.prisma = prisma;
     }
-    async on(packet: RawPacket) {
+    async on(packet) {
         this.ket.erela.updateVoiceState(packet);
         return;
     }

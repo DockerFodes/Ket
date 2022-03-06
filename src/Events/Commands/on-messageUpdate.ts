@@ -1,7 +1,7 @@
 import KetClient from "../../Main";
 import KetUtils from "../../Components/Core/KetUtils";
 import Prisma from "../../Components/Prisma/PrismaConnection";
-import { Message } from "eris";
+import { GuildChannel, Message } from "eris";
 import { globalchat, guilds } from "../../JSON/settings.json";
 
 module.exports = class MessageUpdateEvent {
@@ -13,7 +13,7 @@ module.exports = class MessageUpdateEvent {
         this.prisma = prisma;
         this.KetUtils = new (KetUtils)(this.ket, this.prisma);
     }
-    async on(newMsg: any, oldMsg: Message) {
+    async on(newMsg: Message<any>, oldMsg: Message) {
         if ((String(oldMsg?.content).trim() === String(newMsg?.content).trim() && !newMsg.editedTimestamp) || newMsg.author?.bot) return;
 
         if (newMsg.channel.parentID === guilds.dmCategory) {
@@ -35,7 +35,7 @@ module.exports = class MessageUpdateEvent {
         msgData.messages.forEach(async data => {
             let msgID = data.split('|')[0],
                 guildData = await this.prisma.servers.find(data.split('|')[1]),
-                channel: any = this.ket.guilds.get(guildData.id).channels.get(guildData.globalchat),
+                channel: GuildChannel = this.ket.guilds.get(guildData.id).channels.get(guildData.globalchat),
                 webhook = this.ket.webhooks.get(channel.id);
 
             if (!webhook) {

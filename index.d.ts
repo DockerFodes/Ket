@@ -1,11 +1,15 @@
 declare interface global {
     PRODUCTION_MODE: boolean;
-    lang: string;
+    locales: {
+        defaultLang: string;
+        defaultJSON: string;
+        langs: string[];
+        files: string[];
+        filesMetadata: {}
+    }
 }
 
-
 declare interface String {
-    getT(placeholders?: object, lang?: string): string;
     encode(lang: string): string;
 }
 

@@ -1,6 +1,6 @@
 import KetClient from "../../Main";
 import Prisma from "../../Components/Prisma/PrismaConnection";
-import { Message } from "eris";
+import { GuildChannel, GuildTextableChannel, Message } from "eris";
 import { guilds } from "../../JSON/settings.json";
 module.exports = class MessageDeleteEvent {
     ket: KetClient;
@@ -27,7 +27,7 @@ module.exports = class MessageDeleteEvent {
         !msgData ? null : msgData.messages.forEach(async data => {
 
             let guildData = await this.prisma.servers.find(data.split('|')[1]),
-                channel: any = this.ket.guilds.get(guildData.id).channels.get(guildData.globalchat),
+                channel = this.ket.guilds.get(guildData.id).channels.get(guildData.globalchat) as GuildTextableChannel,
                 msg: Message = await channel.getMessage(data.split('|')[0]),
                 webhook = this.ket.webhooks.get(channel.id),
                 hasDeleted: boolean = false;

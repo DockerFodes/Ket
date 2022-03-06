@@ -1,7 +1,7 @@
 import KetClient from "../../Main";
 import settings from "../../JSON/settings.json";
 import Prisma from "../Prisma/PrismaConnection";
-import { CommandInteraction, Guild, GuildTextableChannel, Member, Message, Shard, TextableChannel, User } from "eris";
+import { CommandInteraction, EmbedFooter, EmbedImage, Guild, GuildTextableChannel, ImageFormat, Member, Message, Shard, TextableChannel, User } from "eris";
 
 export default class CommandStructure {
     ket: KetClient;
@@ -35,12 +35,12 @@ export class EmbedBuilder {
     description: string;
     color: number;
     file: object[];
-    footer: object;
-    image: any;
-    timestamp: any;
+    footer: EmbedFooter;
+    image: EmbedImage;
+    timestamp: Date;
     title: string;
-    thumbnail: any;
-    url: any;
+    thumbnail: { url: string };
+    url: string;
 
     constructor() {
         this.fields = [];
@@ -180,7 +180,8 @@ interface CommandContextFunc {
     server: any;
     args?: string[];
     command?: any;
-    commandName?: string
+    commandName?: string,
+    t(lang: string, placeholders?: object, language?: string)
 }
 
 export class CommandContext {
@@ -202,9 +203,10 @@ export class CommandContext {
     cID: string;
     command: any;
     commandName: string;
+    t: Function
 }
 
-export function getContext({ ket, prisma, message, interaction, user, server, args, command, commandName }: CommandContextFunc) {
+export function getContext({ ket, prisma, message, interaction, user, server, args, command, commandName, t }: CommandContextFunc) {
     let ctx = message ? message : interaction;
     return {
         prisma: prisma,
@@ -225,5 +227,6 @@ export function getContext({ ket, prisma, message, interaction, user, server, ar
         cID: ctx.channel.id,
         command: command?.config,
         commandName: commandName,
+        t: t
     } as CommandContext;
 }
