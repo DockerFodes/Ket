@@ -1,26 +1,38 @@
 {
-        "BOT SETTINGS": "",
+    "BOT SETTINGS": "",
     "DEFAULT_PREFIX": ",",
     "DEFAULT_LANG": "pt",
-    "DEVS": ["340626138076282900", "568493382884917258"],
-    "TRUSTED_BOTS": ["777938917117919255", "789123515882012683", "737044809650274325", "297153970613387264"],
-
+    "DEVS": [
+        "340626138076282900",
+        "568493382884917258"
+    ],
+    "TRUSTED_BOTS": [
+        "777938917117919255",
+        "789123515882012683",
+        "737044809650274325",
+        "297153970613387264"
+    ],
     "guilds": {
         "support": "810125751441162240",
         "devs": "761424522259202108",
         "dmCategory": "946200165746892862"
     },
-
     "channels": {
         "guildCreate": "927782637106524181",
         "guildDelete": "948468411510448189",
-        "database": "918991789304725575",
-        "erros": "916745097712922685",
+        "databaseBackup": "918991789304725575",
+        "errorLogs": "916745097712922685",
         "commandLogs": "916745050162098186",
-        "suggestions": "835893819765030922",
-        "homeInteractions": ["846729978467844097", "933814361611456632"]
+        "suggestionsLogs": "835893819765030922",
+        "homeInteractions": [
+            "846729978467844097",
+            "933814361611456632"
+        ]
     },
-
+    "statusMsg": {
+        "id": "",
+        "channel": "945859498378133585"
+    },
     "globalchat": {
         "editLimit": 3,
         "allowedLinks": [
@@ -31,15 +43,12 @@
             "https://prnt.sc",
             "https://imgur.com",
             "https://crunchyroll.com",
-            
             "https://gog.com",
             "https://epicgames.com",
             "https://ubisoft.com",
-            
-                "Sites de jogos",
+            "Sites de jogos",
             "https://roblox.com",
             "https://chess.com",
-            
             "https://google.com",
             "https://pt.wikipedia.org",
             "https://dicio.com.br",
@@ -47,7 +56,6 @@
             "https://spotify.com"
         ]
     },
-
     "CLIENT_OPTIONS": {
         "allowedMentions": {
             "everyone": false,
@@ -69,7 +77,7 @@
             "guildPresences",
             "directMessages"
         ],
-        "maxShards": 1,
+        "maxShards": 4,
         "messageLimit": 25,
         "restMode": true,
         "rest": {
@@ -78,7 +86,7 @@
         },
         "cacheLimit": {
             "users": 5000,
-            "channels": 500
+            "channels": 1000
         }
     }
 }

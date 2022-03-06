@@ -1,7 +1,8 @@
 import KetClient from "../../Main";
-import settings from "../../JSON/settings.json";
+import settings, { statusMsg } from "../../JSON/settings.json";
 import Prisma from "../Prisma/PrismaConnection";
-import { CommandInteraction, EmbedFooter, EmbedImage, Guild, GuildTextableChannel, ImageFormat, Member, Message, Shard, TextableChannel, User } from "eris";
+import { CommandInteraction, EmbedFooter, EmbedImage, Guild, GuildTextableChannel, Member, Message, Shard, TextableChannel, User } from "eris";
+import { duration } from "moment";
 
 export default class CommandStructure {
     ket: KetClient;
@@ -229,4 +230,38 @@ export function getContext({ ket, prisma, message, interaction, user, server, ar
         commandName: commandName,
         t: t
     } as CommandContext;
+}
+
+export async function infoEmbed(shardID: number, ket: KetClient) {
+    let embed = {
+        color: getColor('blue'),
+        title: `${getEmoji('carregando').mention} **Bot Status** ${getEmoji('carregando').mention}`,
+        description: 'Bot Uptime 🗓️: ' + (ket.startTime === 0 ? 'Iniciando...' : duration(Date.now() - ket.startTime).format('dd[d] hh[h] mm[m] ss[s]')).encode('fix'),
+        fields: [
+            { name: 'Users 👥:', value: ket.allUsersCount.encode('cs'), inline: true },
+            { name: 'Servers 🌎:', value: String(ket.guilds.size).encode('cs'), inline: true },
+            { name: 'RAM 🎞️:', value: String(Math.round(process.memoryUsage().rss / 1024 / 1024) + 'MB').encode('fix'), inline: true },
+        ]
+    };
+    let status = {
+        'ready': `Online ${getEmoji('online').mention}`,
+        'connecting': `Conectando ${getEmoji('idle').mention}`,
+        'disconnected': `Offline ${getEmoji('offline').mention}`
+    }
+    ket.shards.forEach(s =>
+        embed.fields.push({
+            name: `${getEmoji('cristal').mention} Shard ${s.id}`,
+            value: `${status[s.status] || 'unknown'} ${(duration(Date.now() - ket.shardUptime.get(s.id))
+                .format(" dd[d] hh[h] mm[m] ss[s]"))
+                .encode('fix')}`,
+            inline: true
+        })
+    );
+
+    if (shardID === 0 && !ket.ready) return statusMsg.id = (await ket.send({
+        ctx: statusMsg.channel, content: {
+            embeds: [embed]
+        }
+    }) as Message<any>).id;
+    if (statusMsg.channel && statusMsg.id) return ket.editMessage(statusMsg.channel, statusMsg.id, { embeds: [embed] });
 }

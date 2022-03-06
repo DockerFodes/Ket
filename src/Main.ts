@@ -79,12 +79,12 @@ export default class KetClient extends Client {
     }
 
     public async loadLocales(path: string) {
-        interface locales  {
+        interface locales {
             defaultLang: string;
             defaultJSON: string;
             langs: string[];
             files: string[];
-            filesMetadata: { }
+            filesMetadata: {}
         }
         let config: locales = global.locales = {
             defaultLang: DEFAULT_LANG,
@@ -232,8 +232,7 @@ export default class KetClient extends Client {
                     case 1: return ctx.editOriginalMessage(msgObj, attachments)
                 }
             }
-
-            return true;
+            return;
         } catch (e) {
             throw new Error(String(e));
         }

@@ -17,7 +17,7 @@ export default async function run(ket: KetClient, prisma: Prisma) {
                 await sleep((index + 1) * 3000);
                 let data = await prisma[key].findMany();
                 await ket.send({
-                    ctx: channels.database, emoji: 'autorizado', content: {
+                    ctx: channels.databaseBackup, emoji: 'autorizado', content: {
                         embeds: [{
                             color: getColor('red'),
                             title: key,

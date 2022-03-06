@@ -7,7 +7,7 @@ module.exports = class nodeErrorEvent {
         this.ket = ket;
     }
     async on(node: Node, error: Error) {
-        console.log('ERELA', `Node "${node.options.identifier}" encountered an error: ${error.message}.`, 31)
+        console.log(`ERELA / ${node.options.identifier}`, error, 31);
         return;
     }
 }

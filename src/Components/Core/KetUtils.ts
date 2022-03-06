@@ -332,7 +332,7 @@ export default class KetUtils {
         })
 
         this.ket.send({
-            ctx: channels.erros,
+            ctx: channels.errorLogs,
             content: {
                 embeds: [{
                     color: getColor('red'),
