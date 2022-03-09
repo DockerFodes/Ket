@@ -1,5 +1,4 @@
 {
-    "BOT SETTINGS": "",
     "DEFAULT_PREFIX": ",",
     "DEFAULT_LANG": "pt",
     "DEVS": [
@@ -27,7 +26,8 @@
         "homeInteractions": [
             "846729978467844097",
             "933814361611456632"
-        ]
+        ],
+        "homeWelcome": "852154624222691358"
     },
     "statusMsg": {
         "id": "",

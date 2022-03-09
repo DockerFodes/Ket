@@ -26,6 +26,7 @@ module.exports = class ReadyEvent {
         ],
             makeBackup = 0;
         setInterval(async () => {
+            infoEmbed(NaN, this.ket);
             let now = moment.tz(Date.now(), "America/Bahia").format('H')
             //@ts-ignore
             this.ket.editStatus(now < 7 || now > 18 ? 'idle' : 'online', status[Math.floor(Math.random() * status.length)]);
@@ -49,7 +50,6 @@ module.exports = class ReadyEvent {
 
         setInterval(() => {
             this.ket.users.filter(user => user.rateLimit > 0).forEach(u => u.rateLimit--);
-            infoEmbed(NaN, this.ket);
             return;
         }, 5000);
 

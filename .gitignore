@@ -1,8 +1,8 @@
 # Pastas
 node_modules/
-dist/
+build/
 migrations/
-src/Components/Database/migrations
+src/Components/Prisma/migrations
 test/
 logs/
 

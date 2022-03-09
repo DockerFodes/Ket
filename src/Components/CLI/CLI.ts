@@ -122,7 +122,7 @@ module.exports = class CLI {
 
     async translateLocales() {
         let c = global.locales
-        let dir = resolve(`${String(__dirname).replace('dist', 'src')}/../../Locales`);
+        let dir = resolve(`${String(__dirname).replace('build', 'src')}/../../Locales`);
 
         for (let a in c.langs) {
             if (c.langs[a] === c.defaultLang) continue;

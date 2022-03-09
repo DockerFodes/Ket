@@ -30,6 +30,7 @@ export default class KetClient extends Client {
     webhooks: ESMap<string, Webhook>;
     erela: Manager;
     shardUptime: ESMap<string | number, number>;
+    rootDir: string;
 
     constructor(prisma: Prisma, token: string, options: ClientOptions) {
         super(token, options);
@@ -38,6 +39,7 @@ export default class KetClient extends Client {
         this.erela = new Manager({
             send: (id, payload) => this.guilds.get(id) ? this.guilds.get(id).shard.sendWS(payload.op, payload.d) : null
         })
+        this.rootDir = __dirname;
         this.users = new Collection(User, CLIENT_OPTIONS.cacheLimit.users);
         this.events = new (EventHandler)(this, db);
         this.commands = new Map();
@@ -169,7 +171,7 @@ export default class KetClient extends Client {
             if (!ctx || !content) return null;
             if (!(ctx instanceof CommandInteraction) && !(ctx instanceof Message) && typeof ctx === 'object') ctx = ctx.env;
 
-            const user: User | null = typeof ctx === 'string' ? null : this.users.get(ctx instanceof Message ? ctx.author.id : ctx.member.user.id);
+            const user: User | null = typeof ctx === 'string' ? null : this.users.get(ctx instanceof Message ? ctx.author.id : ctx.member.id);
             let msgObj: any = {
                 content: '',
                 embeds: embed ? [{
@@ -191,7 +193,7 @@ export default class KetClient extends Client {
                     repliedUser: true
                 }
             },
-                attachments = typeof content === 'object' && content.file ? content.file : null,
+                attachments = typeof content === 'object' && (content.file || content.files) ? content.file || content.files : null,
                 botMsg: Message<any> | void;
 
             if (typeof content === 'object') {
@@ -267,15 +269,17 @@ export default class KetClient extends Client {
                 if (!user) return checkType(ctx.author);
             }
         }
-        function filtrar(text: string) {
-            return String(text.includes('@') || text.includes('#') ? text.replace('@', '').split('#')[0] : text).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")
-        }
+
         if (ctx instanceof CommandInteraction) {
 
         }
 
         if (typeof ctx === 'string')
             user = this.users.has(ctx) ? this.users.get(ctx) : user = await this.getRESTUser(ctx);
+
+        function filtrar(text: string) {
+            return String(text.includes('@') || text.includes('#') ? text.replace('@', '').split('#')[0] : text).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+        }
 
         return user;
     }

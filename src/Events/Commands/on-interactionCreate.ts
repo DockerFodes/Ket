@@ -27,7 +27,7 @@ module.exports = class InteractionCreateEvent {
         if (!interaction.guildID || interaction.channel.type === 1) DMexec(interaction, this.ket);
 
         let server = await this.prisma.servers.find(interaction.guildID, true),
-            user = await this.prisma.users.find(interaction.member.user.id),
+            user = await this.prisma.users.find(interaction.member.id),
             t = getT(user.lang),
             ctx = getContext({ ket: this.ket, prisma: this.prisma, interaction, server, user, t });
         global.lang = user.lang;

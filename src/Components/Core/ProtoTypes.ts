@@ -1,6 +1,6 @@
 import { Member, Message, User } from "eris";
 import axios from "axios";
-import { CanvasRenderingContext2D, createCanvas } from "canvas";
+import { CanvasRenderingContext2D, createCanvas, Image } from "canvas";
 import moment from 'moment';
 import KetClient from "../../Main";
 
@@ -69,7 +69,7 @@ export default function start() {
 				if (t.endsWith('s')) return time += bah * 1_000;
 			})
 			let data = await axios({
-				"url": `https://${this.user._client.requestHandler.options.domain}${this.user._client.requestHandler.options.baseURL}/guilds/${this.guild.id}/members/${this.user.id}`,
+				"url": `https://${this.user._client.requestHandler.options.domain}${this.user._client.requestHandler.options.baseURL}/guilds/${this.guild.id}/members/${this.id}`,
 				"headers": {
 					"authorization": this.user._client._token,
 					"x-audit-log-reason": reason,
@@ -97,7 +97,7 @@ export default function start() {
 	/** Canvas Structures **/
 	delete CanvasRenderingContext2D.prototype.roundRect;
 	Object.defineProperty(CanvasRenderingContext2D.prototype, 'roundRect', {
-		value: function roundRect(x, y, width, height, radius, fill, stroke) {
+		value: function roundRect(x: number, y: number, width: number, height: number, radius, fill, stroke: boolean) {
 			if (typeof stroke === "undefined") stroke = true;
 			if (typeof radius === "undefined") radius = 5;
 			if (typeof radius === "number")
@@ -126,7 +126,7 @@ export default function start() {
 
 	delete CanvasRenderingContext2D.prototype.roundImageCanvas;
 	Object.defineProperty(CanvasRenderingContext2D.prototype, 'roundImageCanvas', {
-		value: function roundImageCanvas(img, w = img.width, h = img.height, r = w * 0.5) {
+		value: function roundImageCanvas(img: Image, w = img.width, h = img.height, r = w * 0.5) {
 			const canvas = createCanvas(w, h);
 			const ctx: any = canvas.getContext('2d');
 
@@ -193,6 +193,6 @@ declare module 'canvas' {
 	export interface CanvasRenderingContext2D {
 		roundRect(x: number, y: number, width: number, height: number, radius: number, fill: Function, stroke: boolean): void;
 		getLines(text: string, maxWidth: number): string;
-		roundImageCanvas(img: CanvasImageData, w: number, h: number, r: number): CanvasImageData;
+		roundImageCanvas(img: Image, w?: number, h?: number, r?: number): CanvasImageData;
 	}
 }

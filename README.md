@@ -11,7 +11,7 @@ If you want to run Ket on your machine, you'll need to:
 > ⚠️ Recommended version: 14.18.3
 - [PostgreSQL](https://www.postgresql.org/download/)
 > ⚠️ Recommended version: 13 or higher
-- [Lavalink](https://ci.fredboat.com/repository/download/Lavalink_Build/9347:id/Lavalink.jar)
+- [Lavalink](https://ci.fredboat.com/viewLog.html?buildId=lastSuccessful&buildTypeId=Lavalink_Build&tab=artifacts&guest=1)
 > ⚠️ Lavalink is required for music commands
 - [Java 13](https://www.oracle.com/java/technologies/javase/jdk13-archive-downloads.html)
 > ⚠️ Java 13 is required to run Lavalink, Java 14 is not recommended

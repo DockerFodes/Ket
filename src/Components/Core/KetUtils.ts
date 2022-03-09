@@ -1,7 +1,7 @@
 import { ComponentInteraction, Message } from "eris";
 import axios from "axios";
 import DidYouMean from "didyoumean";
-import { getEmoji, getColor, EmbedBuilder } from '../Commands/CommandStructure';
+import { getEmoji, getColor, EmbedBuilder, CommandContext } from '../Commands/CommandStructure';
 import KetClient from "../../Main";
 import Prisma from "../Prisma/PrismaConnection";
 import { DEVS, channels } from "../../JSON/settings.json";
@@ -16,10 +16,10 @@ export default class KetUtils {
         this.prisma = prisma;
     }
 
-    async checkCache(ctx) {
+    async checkCache(ctx: CommandContext) {
         if (!this.ket.users.has(ctx.uID)) await this.ket.getRESTUser(ctx.uID);
         if (!this.ket.guilds.has(ctx.gID)) await this.ket.getRESTGuild(ctx.gID);
-        if (!ctx.guild.members.has(this.ket.user.id)) await ctx.guild.getRESTMember(this.ket.user.id);
+        if (!ctx.guild.members.has(ctx.uID)) await this.ket.getRESTGuildMember(ctx.gID, ctx.uID);
         if (!ctx.guild.channels.has(ctx.cID)) await this.ket.getRESTChannel(ctx.cID);
         return;
     }
@@ -142,7 +142,7 @@ export default class KetUtils {
         })
 
         await Promise.all(sendAllChats);
-        return await this.prisma.globalchat.create({
+        await this.prisma.globalchat.create({
             data: {
                 id: message.id,
                 author: message.author.id,
@@ -151,6 +151,7 @@ export default class KetUtils {
                 messages: msgs
             }
         })
+        return;
     }
 
     msgFilter(content: string, maxLength: number = 1990, ignoreEmojis: boolean = false) {
@@ -316,6 +317,7 @@ export default class KetUtils {
                 .addField('Autor:', `${ctx.author.tag} (ID: ${ctx.author.id})`, false, 'fix')
                 .addField('Argumentos:', `- ${!ctx.args[0] ? 'Nenhum argumento foi usado neste comando' : ctx.args.join(' ')}`, false, 'diff');
         this.ket.send({ ctx: channels.commandLogs, content: { embeds: [embed.build()] } });
+        return;
     }
 
     CommandError(ctx, error: Error) {
@@ -345,6 +347,7 @@ export default class KetUtils {
                 }]
             }
         })
+        return;
     }
 
     async commandNotFound(ctx, commandName: string) {
