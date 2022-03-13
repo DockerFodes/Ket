@@ -1,5 +1,4 @@
 import KetClient from "../../Main";
-import Prisma from "../../Components/Prisma/PrismaConnection";
 import { GuildChannel, GuildTextableChannel, Message } from "eris";
 import { guilds } from "../../JSON/settings.json";
 module.exports = class MessageDeleteEvent {

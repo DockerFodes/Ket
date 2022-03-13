@@ -1,6 +1,5 @@
 import KetClient from "../../Main";
 import KetUtils from "../../Components/Core/KetUtils";
-import Prisma from "../../Components/Prisma/PrismaConnection";
 import { GuildChannel, Message } from "eris";
 import { globalchat, guilds } from "../../JSON/settings.json";
 

@@ -1,8 +1,8 @@
 import KetClient from "../../Main";
 import settings, { statusMsg } from "../../JSON/settings.json";
-import Prisma from "../Prisma/PrismaConnection";
-import { CommandInteraction, EmbedFooter, EmbedImage, Guild, GuildTextableChannel, Member, Message, Shard, TextableChannel, User } from "eris";
+import { CommandInteraction, EmbedField, EmbedFooter, EmbedImage, Guild, GuildTextableChannel, Member, Message, Shard, TextableChannel, User } from "eris";
 import { duration } from "moment";
+import { CommandContextFunc } from "../Typings/Modules";
 
 export default class CommandStructure {
     ket: KetClient;
@@ -31,7 +31,7 @@ export default class CommandStructure {
 }
 
 export class EmbedBuilder {
-    fields: object[];
+    fields: EmbedField[];
     author: object;
     description: string;
     color: number;
@@ -172,19 +172,6 @@ export function getColor(color: string, toNumber = true) {
     } else return parseInt((color.replace('#', '')), 16)
 }
 
-interface CommandContextFunc {
-    ket: KetClient;
-    prisma: Prisma;
-    message?: Message<any>;
-    interaction?: CommandInteraction<any>;
-    user: any;
-    server: any;
-    args?: string[];
-    command?: any;
-    commandName?: string,
-    t(lang: string, placeholders?: object, language?: string)
-}
-
 export class CommandContext {
     prisma: Prisma;
     config: any;
@@ -204,7 +191,7 @@ export class CommandContext {
     cID: string;
     command: any;
     commandName: string;
-    t: Function
+    t: Function;
 }
 
 export function getContext({ ket, prisma, message, interaction, user, server, args, command, commandName, t }: CommandContextFunc) {

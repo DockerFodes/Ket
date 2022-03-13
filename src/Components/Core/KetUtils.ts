@@ -3,8 +3,7 @@ import axios from "axios";
 import DidYouMean from "didyoumean";
 import { getEmoji, getColor, EmbedBuilder, CommandContext } from '../Commands/CommandStructure';
 import KetClient from "../../Main";
-import Prisma from "../Prisma/PrismaConnection";
-import { DEVS, channels } from "../../JSON/settings.json";
+import { DEVS, channels, globalchat } from "../../JSON/settings.json";
 import moment from 'moment';
 import Translator from "./Translator";
 
@@ -170,12 +169,10 @@ export default class KetUtils {
             : null;
 
         if (content.match(isUrl)) {
-            let config = require('../JSON/settings.json');
-
             content.split(' ').forEach(text => {
                 if (!content.match(text)) return;
-                for (let i in config.globalchat.allowedLinks)
-                    if (text.replace('www.', '').startsWith(config.globalchat.allowedLinks[i])) return;
+                for (let i in globalchat.allowedLinks)
+                    if (text.replace('www.', '').startsWith(globalchat.allowedLinks[i])) return;
 
                 return content = content.replace(text, ' `link bloqueado` ');
             })

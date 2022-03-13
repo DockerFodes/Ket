@@ -1,4 +1,3 @@
-import Prisma from "../../Components/Prisma/PrismaConnection";
 import KetClient from "../../Main";
 import { channels } from "../../JSON/settings.json";
 import { getColor } from "../../Components/Commands/CommandStructure";

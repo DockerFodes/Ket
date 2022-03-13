@@ -1,5 +1,4 @@
 import KetClient from "../../Main";
-import Prisma from "../../Components/Prisma/PrismaConnection";
 import { GuildChannel, Webhook, WebhookData } from "eris";
 
 module.exports = class Event {

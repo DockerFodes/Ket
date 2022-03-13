@@ -1,6 +1,5 @@
-import { Channel, Client, ClientOptions, Collection, CommandInteraction, Guild, GuildChannel, Member, Message, MessageContent, TextableChannel, User, Webhook } from "eris";
-import { ESMap } from "typescript";
-import Prisma, { connect } from "./Components/Prisma/PrismaConnection";
+import { Channel, Client, ClientOptions, Collection, CommandInteraction, Guild, GuildChannel, Member, Message, MessageContent, TextableChannel, User } from "eris";
+import { connect } from "./Components/Prisma/PrismaConnection";
 import { readdirSync } from "fs";
 import { CLIENT_OPTIONS } from "./JSON/settings.json";
 import { getEmoji, getColor, CommandContext } from './Components/Commands/CommandStructure';
@@ -23,15 +22,6 @@ interface sendFunction {
 }
 
 export default class KetClient extends Client {
-    _token: string;
-    events: EventHandler;
-    commands: ESMap<string, any>;
-    aliases: ESMap<string, string>;
-    webhooks: ESMap<string, Webhook>;
-    erela: Manager;
-    shardUptime: ESMap<string | number, number>;
-    rootDir: string;
-
     constructor(prisma: Prisma, token: string, options: ClientOptions) {
         super(token, options);
 
@@ -81,13 +71,6 @@ export default class KetClient extends Client {
     }
 
     public async loadLocales(path: string) {
-        interface locales {
-            defaultLang: string;
-            defaultJSON: string;
-            langs: string[];
-            files: string[];
-            filesMetadata: {}
-        }
         let config: locales = global.locales = {
             defaultLang: DEFAULT_LANG,
             defaultJSON: 'commands',

@@ -46,6 +46,7 @@ module.exports = class CldCommand extends CommandStructure {
                 .setDescription(inspect(e), 'bash');
         }
 
-        return ctx.send({ content: { embeds: [embed.build()] } });
+        ctx.send({ content: { embeds: [embed.build()] } });
+        return;
     }
 }

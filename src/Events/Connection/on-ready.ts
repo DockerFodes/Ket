@@ -1,5 +1,4 @@
 import KetClient from "../../Main";
-import Prisma from "../../Components/Prisma/PrismaConnection";
 import TerminalClient from "../../Components/CLI/TerminalClient";
 import DatabaseBackup from "../../Packages/Security/DatabaseBackup";
 import moment from "moment";

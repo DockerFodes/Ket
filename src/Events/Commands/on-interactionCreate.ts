@@ -1,7 +1,6 @@
 import KetClient from "../../Main";
 import KetUtils from "../../Components/Core/KetUtils";
 import homeInteractions from "../../Packages/Home/_homeInteractions";
-import Prisma from "../../Components/Prisma/PrismaConnection";
 import DMexec from "../../Packages/Home/_DMClient";
 import { CommandClientOptions, CommandInteraction, ComponentInteraction } from "eris";
 import { getContext, getColor } from "../../Components/Commands/CommandStructure";

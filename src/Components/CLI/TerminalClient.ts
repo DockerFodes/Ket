@@ -1,6 +1,5 @@
 import KetClient from "../../Main";
 import prompts from "prompts";
-import Prisma from "../Prisma/PrismaConnection";
 
 export default async function (ket: KetClient, prisma: Prisma) {
     termEval();

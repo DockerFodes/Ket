@@ -1,6 +1,5 @@
 import KetClient from "../../Main";
-import Prisma from "../../Components/Prisma/PrismaConnection";
-import { Guild, OldGuild, User } from "eris";
+import { Guild, User } from "eris";
 import { channels } from "../../JSON/settings.json";
 import { getColor } from "../../Components/Commands/CommandStructure";
 

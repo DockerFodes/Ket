@@ -1,12 +1,14 @@
+interface locales {
+    defaultLang: string;
+    defaultJSON: string;
+    langs: string[];
+    files: string[];
+    filesMetadata: {};
+}
+
 declare interface global {
     PRODUCTION_MODE: boolean;
-    locales: {
-        defaultLang: string;
-        defaultJSON: string;
-        langs: string[];
-        files: string[];
-        filesMetadata: {}
-    }
+    locales: locales;
 }
 
 declare interface String {

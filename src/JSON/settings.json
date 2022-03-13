@@ -77,7 +77,7 @@
             "guildPresences",
             "directMessages"
         ],
-        "maxShards": 4,
+        "maxShards": 1,
         "messageLimit": 25,
         "restMode": true,
         "rest": {

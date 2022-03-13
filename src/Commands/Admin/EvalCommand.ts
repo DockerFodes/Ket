@@ -1,17 +1,18 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
+import { duration } from "moment";
 import CommandStructure, { EmbedBuilder, getEmoji, getColor, CommandContext } from "../../Components/Commands/CommandStructure";
 import KetUtils from "../../Components/Core/KetUtils";
 import KetClient from "../../Main";
 
 const
     axios = require('axios'),
-    cld = require('child_process'),
     Eris = require('eris'),
     fs = require('fs'),
     util = require('util'),
     translate = require("../../Components/Core/Translator"),
     moment = require("moment"),
     path = require('path');
+
 module.exports = class EvalCommand extends CommandStructure {
     utils: any;
     constructor(ket: KetClient) {
@@ -41,38 +42,41 @@ module.exports = class EvalCommand extends CommandStructure {
     async execute(ctx: CommandContext) {
         const
             ket = this.ket,
-            prisma = ctx.prisma,
-            utils = this.utils;
+            utils = this.utils,
+            time = Date.now(),
+            AsyncFunction = (async function () { }).constructor;
         let
+            evaled,
             message = ctx.env,
-            evaled = ctx.args.join(" ")
-                .replace('```js', '')
-                .replace('```', '')
-                .replace(/val /g, 'global.'),
             canReturn = (ctx.commandName === 'eval' ? true : false),
             embed = new EmbedBuilder(),
-            mb = (data: number) => Math.floor(data / 1024 / 1024) + "MB";
+            code = ctx.args.join(" ")
+                .replace('```js', '')
+                .replace('```', '')
+                .replace(/val /g, 'global.');
 
-        function filtrar(content: unknown) {
+        function filtrar(content: unknown): string {
             return content = util.inspect(content)
-                .replace(new RegExp(ket._token, 'gi'), 'censored key')
+                .replace(new RegExp(`(${ket._token}|${process.env.DATABASE_URL})`, 'gi'), 'censored key');
         }
 
         try {
-            if (ctx.args.join(' ').includes('await')) evaled = await eval(`async function bah() {${evaled}};bah()`);
-            else evaled = await eval(evaled);
+            if (code.includes('await')) evaled = await AsyncFunction(code)();
+            else evaled = await eval(code);
+
+            embed.addField("Tempo de execução: ", '0');
             embed
-                .setTitle('Só suSEXO bb')
                 .setColor('green')
-                .setDescription(filtrar(evaled), 'js');
+                .addField('Retorno: ', filtrar(evaled).encode('js'));
         } catch (e) {
             embed
-                .setTitle('Ih deu merda viado')
                 .setColor('red')
-                .setDescription(filtrar(e), 'js');
-            canReturn = true
+                .addField('Erro: ', filtrar(e).encode('js'));
+            canReturn = true;
         } finally {
+            embed.fields[0].value = duration(Date.now() - time).format('dd[d] hh[h] mm[m] ss[s] S[ms]').encode('fix')
             if (canReturn) return this.ket.send({ ctx, content: { embeds: [embed.build()] } });
         }
+        return;
     }
 }

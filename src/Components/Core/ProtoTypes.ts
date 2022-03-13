@@ -168,31 +168,3 @@ export default function start() {
 		}
 	})
 }
-
-declare module 'eris' {
-	export interface Message {
-		deleteAfter(time: number): void;
-	}
-
-	export interface Member {
-		mute(args: string, reason?: string): boolean | never;
-	}
-
-	export interface User {
-		_client: KetClient;
-		rateLimit: number;
-		tag: string;
-		lastCommand: {
-			botMsg: string;
-			userMsg: string;
-		}
-	}
-}
-
-declare module 'canvas' {
-	export interface CanvasRenderingContext2D {
-		roundRect(x: number, y: number, width: number, height: number, radius: number, fill: Function, stroke: boolean): void;
-		getLines(text: string, maxWidth: number): string;
-		roundImageCanvas(img: Image, w?: number, h?: number, r?: number): CanvasImageData;
-	}
-}

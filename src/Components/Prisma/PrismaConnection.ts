@@ -16,29 +16,6 @@ let template = {
     }
 }
 
-type table = {
-    create?(data: object);
-    update?(data: object);
-    find?(data: string | object, boolean?);
-    delete?(data: object);
-
-    findMany?(options?: object)
-    findUnique?(options: object)
-}
-
-interface Prisma {
-    $connect: Function;
-    $disconnect: Function;
-    ready: boolean;
-    users: table;
-    servers: table,
-    commands: table;
-    globalchat: table
-    blacklist: table;
-}
-
-export default Prisma;
-
 export async function connect(): Promise<Prisma> {
     let prisma = new PrismaClient()
 
@@ -62,7 +39,7 @@ export async function connect(): Promise<Prisma> {
 
     Object.keys(prisma).filter(key => !key.startsWith("_") && !key.startsWith('$')).forEach(key => {
         db[key] = { ...prisma[key] };
-        db[key].find = async (queryData: string | { where: { } }, createIfNull: boolean = false) => {
+        db[key].find = async (queryData: string | { where: {} }, createIfNull: boolean = false) => {
             typeof queryData === 'string' ? queryData = { where: { id: queryData } } : null;
             let res = (await prisma[key].findMany(queryData))[0];
 

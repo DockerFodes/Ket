@@ -1,5 +1,4 @@
 import KetClient from "../../Main";
-import Prisma from "../Prisma/PrismaConnection";
 
 export default class EventHandler {
     ket: KetClient;
