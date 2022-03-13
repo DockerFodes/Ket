@@ -6,14 +6,18 @@
     "packageManager": "yarn@3.1.1",
     "scripts": {
         "postinstall": "npx prisma db push && npx prisma generate",
-        "build": "tsc",
+        "build": "npx typescript && cp -r -f -v src/Assets build/Assets",
         "start": "npm run build && npm run noCompile",
         "dev": "node --expose-gc --trace-warnings build/Main.js --dev",
         "noCompile": "node --expose-gc --trace-warnings build/Main.js ",
         "ts-mode": "ts-node-dev --ignore-watch ./ src/Main.ts"
     },
+    "engines": {
+        "node": "^14.19.0",
+        "npm": "^6.14.16"
+    },
     "prisma": {
-        "schema": "src/components/Prisma/schema.prisma"
+        "schema": "src/Components/Prisma/schema.prisma"
     },
     "repository": {
         "type": "git",
@@ -36,6 +40,7 @@
         "axios": "^0.24.0",
         "canvas": "^2.9.0",
         "didyoumean": "^1.2.2",
+        "dotenv": "^10.0.0",
         "erela.js": "^2.3.3",
         "eris": "^0.16.1",
         "moment": "^2.29.1",
@@ -49,7 +54,6 @@
         "@types/moment-duration-format": "^2.2.3",
         "@types/node": "^16.11.26",
         "@types/prompts": "^2.0.14",
-        "dotenv": "^10.0.0",
         "typescript": "^4.5.5"
     }
 }
