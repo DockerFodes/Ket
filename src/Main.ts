@@ -213,14 +213,14 @@ export default class KetClient extends Client {
 
             if (ctx instanceof CommandInteraction) {
                 switch (target) {
-                    case 0: return ctx.createMessage(msgObj, attachments)
-                    case 1: return ctx.editOriginalMessage(msgObj, attachments)
+                    case 0: return ctx.createMessage(msgObj, attachments);
+                    case 1: return ctx.editOriginalMessage(msgObj);
                 }
             }
-            return;
         } catch (e) {
             throw new Error(String(e));
         }
+        return;
     }
 
     public async findUser(ctx?: Message<any> | CommandInteraction<any> | string, returnMember: boolean = false, argsPosition: number = 0): Promise<any> {
@@ -351,10 +351,7 @@ async function main() {
         return console.log('ANTI-CRASH', 'ERRO GENÉRICO:', String(arguments['0'].stack).slice(0, 512), 31);
     }
     console.log('SHARD MANAGER', 'Iniciando fragmentação', 46);
-    ket.boot().then(() => {
-        process.env.DISCORD_TOKEN = null;
-        process.env.BETA_DISCORD_TOKEN = null;
-    })
+    ket.boot();
 
     function sendWebhook(str: string | string[]) {
         global.PRODUCTION_MODE ? ket.executeWebhook(process.env.WEBHOOK_LOGS.split(' | ')[0], process.env.WEBHOOK_LOGS.split(' | ')[1], {

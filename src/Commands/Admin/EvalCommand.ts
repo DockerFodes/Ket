@@ -41,10 +41,9 @@ module.exports = class EvalCommand extends CommandStructure {
     }
     async execute(ctx: CommandContext) {
         const
-            ket = this.ket,
-            utils = this.utils,
-            time = Date.now(),
-            AsyncFunction = (async function () { }).constructor;
+            initialTime = Date.now(),
+            initialRamUsage = (process.memoryUsage().rss / 1024 / 1024).toFixed(2);
+
         let
             evaled,
             message = ctx.env,
@@ -57,25 +56,34 @@ module.exports = class EvalCommand extends CommandStructure {
 
         function filtrar(content: unknown): string {
             return content = util.inspect(content)
-                .replace(new RegExp(`(${ket._token}|${process.env.DATABASE_URL})`, 'gi'), 'censored key');
+                .replace(new RegExp(`(${process.env.DISCORD_TOKEN}|${process.env.BETA_CLIENT_TOKEN}|${process.env.DATABASE_URL})`, 'gi'), 'censored key')
+                .slice(0, 3090);
         }
 
         try {
-            if (code.includes('await')) evaled = await AsyncFunction(code)();
+            if (code.includes('await')) evaled = await eval(`(async () => { ${code} })()`);
             else evaled = await eval(code);
 
-            embed.addField("Tempo de execução: ", '0');
             embed
                 .setColor('green')
-                .addField('Retorno: ', filtrar(evaled).encode('js'));
+                .setTitle('Retorno:')
+                .setDescription(filtrar(evaled), 'js');
         } catch (e) {
             embed
                 .setColor('red')
-                .addField('Erro: ', filtrar(e).encode('js'));
+                .setTitle('Erro:')
+                .setDescription(filtrar(e), 'js');
+
             canReturn = true;
         } finally {
-            embed.fields[0].value = duration(Date.now() - time).format('dd[d] hh[h] mm[m] ss[s] S[ms]').encode('fix')
-            if (canReturn) return this.ket.send({ ctx, content: { embeds: [embed.build()] } });
+            if (canReturn) {
+                embed
+                    .addField("⏰ runtime: ", duration(Date.now() - initialTime).format('dd[d] hh[h] mm[m] ss[s] S[ms]').encode('fix'), true)
+                    .addField("🎞️ Ram usage: ", `- ${initialRamUsage}/${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)}MB`.encode('diff'), true)
+                    .addField(`${getEmoji('cristal').mention} Shard id: `, `# ${ctx.shard.id}/${this.ket.shards.size}`.encode('md'), true);
+
+                this.ket.send({ ctx, content: { embeds: [embed.build()] } });
+            }
         }
         return;
     }

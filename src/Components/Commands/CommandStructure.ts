@@ -65,7 +65,7 @@ export class EmbedBuilder {
         return this;
     }
     setDescription(description: string | number | void, code: string = null) {
-        this.description = String(description).toString().substring(0, 3072)
+        this.description = String(description).toString().substring(0, 3090)
         if (code) this.description = `\`\`\`${code}\n${this.description}\n\`\`\``;
         return this;
     }
