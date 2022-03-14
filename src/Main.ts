@@ -80,7 +80,7 @@ export default class KetClient extends Client {
         }
 
         try {
-            config.files = global.locales = readdirSync(`${path}/${config.defaultLang}/`);
+            config.files = readdirSync(`${path}/${config.defaultLang}/`);
             for (let a in config.langs)
                 for (let b in config.files) {
                     if (!config.filesMetadata[config.langs[a]]) config.filesMetadata[config.langs[a]] = {};

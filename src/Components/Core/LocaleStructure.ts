@@ -4,10 +4,9 @@ class Locales {
         this.lang = lang;
     }
     getString(str: string, placeholders?: object, language?: string): string {
-        let l = global.locales
         try {
-            const data = l.filesMetadata[language || this.lang || l.defaultLang][str.includes(':') ? str.split(':')[0] : l.defaultJSON];
-            let content = eval(`data.${str.includes(':') ? str.split(':')[1] : str}`);
+            const data = global.locales.filesMetadata[language || this.lang || global.locales.defaultLang][str.includes(':') ? str.split(':')[0] : global.locales.defaultJSON];
+            let content = data[str.includes(':') ? str.split(':')[1] : str];
             if (!data || !content) return str;
 
             let filtrar = (ctt: string) => {
@@ -23,7 +22,9 @@ class Locales {
                 return ctt;
             }
 
-            return typeof content === 'object' ? JSON.parse(filtrar(JSON.stringify(content))) : filtrar(content);
+            return typeof content === 'object'
+                ? JSON.parse(filtrar(JSON.stringify(content)))
+                : filtrar(content);
         } catch (_e: unknown) {
             return str;
         }
