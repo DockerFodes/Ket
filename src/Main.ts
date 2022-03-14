@@ -1,25 +1,18 @@
-import { Channel, Client, ClientOptions, Collection, CommandInteraction, Guild, GuildChannel, Member, Message, MessageContent, TextableChannel, User } from "eris";
+import { Channel, Client, ClientOptions, Collection, CommandInteraction, FileContent, Guild, GuildChannel, Member, Message, TextableChannel, User } from "eris";
 import { connect } from "./Components/Prisma/PrismaConnection";
 import { readdirSync } from "fs";
 import { CLIENT_OPTIONS } from "./JSON/settings.json";
-import { getEmoji, getColor, CommandContext } from './Components/Commands/CommandStructure';
+import { getEmoji, getColor } from './Components/Commands/CommandStructure';
 import { DEFAULT_LANG } from "./JSON/settings.json";
 import EventHandler from "./Components/Core/EventHandler";
 import moment from "moment";
 import duration from "moment-duration-format";
 import { tz } from "moment-timezone";
 import { Manager } from "erela.js";
+import { KetSendContent, KetSendFunction } from "./Components/Typings/Modules";
 
 const { inspect } = require('util');
 let db: Prisma;
-
-interface sendFunction {
-    ctx: Message<any> | CommandInteraction<any> | CommandContext | string;
-    content: MessageContent | string | any;
-    emoji?: string;
-    embed?: boolean;
-    target?: 0 | 1 | 2;
-}
 
 export default class KetClient extends Client {
     constructor(prisma: Prisma, token: string, options: ClientOptions) {
@@ -149,13 +142,13 @@ export default class KetClient extends Client {
 
     }
 
-    public async send({ ctx, content, embed = true, emoji, target = 0 }: sendFunction) {
+    public async send({ ctx, content, embed = true, emoji, target = 0 }: KetSendFunction ) {
         try {
             if (!ctx || !content) return null;
             if (!(ctx instanceof CommandInteraction) && !(ctx instanceof Message) && typeof ctx === 'object') ctx = ctx.env;
 
             const user: User | null = typeof ctx === 'string' ? null : this.users.get(ctx instanceof Message ? ctx.author.id : ctx.member.id);
-            let msgObj: any = {
+            let msgObj: KetSendContent = {
                 content: '',
                 embeds: embed ? [{
                     color: getColor('red'),
@@ -185,7 +178,7 @@ export default class KetClient extends Client {
             } else (embed ? msgObj.embeds[0].description = content : msgObj.content = content);
 
             if (emoji) {
-                content = (getEmoji(emoji) ? `${getEmoji(emoji).mention} **| ${content}**` : content);
+                content = String(getEmoji(emoji) ? `${getEmoji(emoji).mention} **| ${content}**` : content);
                 embed ? msgObj.embeds[0].description = content : msgObj.content = content;
             }
 

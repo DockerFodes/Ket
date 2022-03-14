@@ -9,7 +9,6 @@
         "prefix": "newKetEvent",
         "body": [
             "import KetClient from \"../../Main\";",
-            "import Prisma from \"../../Components/Prisma/PrismaConnection\";",
             "",
             "module.exports = class $1Event {",
             "    ket: KetClient;",

@@ -1,5 +1,5 @@
 import type { CanvasRenderingContext2D, Image, CanvasImageData, CommandInteraction } from "canvas";
-import type { Message, Member, User, Client, Webhook, Guild, Shard, TextableChannel, GuildTextableChannel } from "eris";
+import type { Message, Member, User, Client, Webhook, Guild, Shard, TextableChannel, GuildTextableChannel, AdvancedMessageContent, MessageContent } from "eris";
 import type { ESMap } from "typescript";
 import type { Manager } from "erela.js";
 import type KetClient from "../../Main.ts";
@@ -78,4 +78,17 @@ interface CommandContext {
     command: any;
     commandName: string;
     t: Function;
+}
+
+interface KetSendContent extends AdvancedMessageContent {
+    file?: FileContent;
+    files?: FileContent[];
+}
+
+export interface KetSendFunction {
+    ctx: Message<any> | CommandInteraction<any> | CommandContext | string;
+    content: KetSendContent | string;
+    emoji?: string;
+    embed?: boolean;
+    target?: 0 | 1 | 2;
 }
