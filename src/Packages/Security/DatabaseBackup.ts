@@ -3,7 +3,7 @@ import { channels } from "../../JSON/settings.json";
 import { getColor } from "../../Components/Commands/CommandStructure";
 
 export default async function run(ket: KetClient, prisma: Prisma) {
-    if (!global.PRODUCTION_MODE) return;
+    if (!global.PROD) return;
     await sleep(30_000);
 
     return backupAndCacheController();

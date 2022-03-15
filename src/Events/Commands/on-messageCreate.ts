@@ -4,7 +4,7 @@ import DMexec from "../../Packages/Home/_DMClient";
 import { Message } from "eris";
 import { getContext, getColor } from "../../Components/Commands/CommandStructure";
 import { TRUSTED_BOTS, DEVS, guilds } from "../../JSON/settings.json";
-import getT from "../../Components/Core/LocaleStructure";
+import getT from "../../Components/Core/LocalesStructure";
 
 module.exports = class MessageCreateEvent {
     ket: KetClient;
@@ -22,8 +22,7 @@ module.exports = class MessageCreateEvent {
         let server = await this.prisma.servers.find(message.guildID, true),
             user = await this.prisma.users.find(message.author.id),
             t = getT(user.lang),
-        ctx = getContext({ ket: this.ket, prisma: this.prisma, message, server, user, t });
-        global.lang = user.lang;
+            ctx = getContext({ ket: this.ket, prisma: this.prisma, message, server, user, t });
 
         if (user.banned) return;
         if (server.banned) return ctx.guild.leave();
@@ -39,7 +38,6 @@ module.exports = class MessageCreateEvent {
         ctx = getContext({ ket: this.ket, prisma: this.prisma, user, server, message, args, command, commandName, t })
 
         await this.KetUtils.checkCache(ctx);
-        global.lang = user.lang;
         ctx.user = await this.KetUtils.checkUserGuildData(ctx);
         ctx.t = getT(ctx.user.lang);
 

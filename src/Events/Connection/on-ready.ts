@@ -12,7 +12,7 @@ module.exports = class ReadyEvent {
         this.prisma = prisma;
     }
     async on() {
-        await this.ket.erela.init(this.ket.user.id);
+        // this.ket.erela.init(this.ket.user.id);
 
         let status = [
             { name: 'no vasco', type: 0 },
@@ -25,7 +25,10 @@ module.exports = class ReadyEvent {
         ],
             makeBackup = 0;
         setInterval(async () => {
-            infoEmbed(NaN, this.ket);
+            global.PROD
+                ? infoEmbed(NaN, this.ket)
+                : null;
+
             let now = moment.tz(Date.now(), "America/Bahia").format('H')
             //@ts-ignore
             this.ket.editStatus(now < 7 || now > 18 ? 'idle' : 'online', status[Math.floor(Math.random() * status.length)]);

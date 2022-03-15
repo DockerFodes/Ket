@@ -7,7 +7,7 @@ interface locales {
 }
 
 declare interface global {
-    PRODUCTION_MODE: boolean;
+    PROD: boolean;
     locales: locales;
 }
 

@@ -1,5 +1,5 @@
 import KetClient from "../../Main";
-import { GuildChannel, GuildTextableChannel, Message } from "eris";
+import { GuildTextableChannel, Message, User } from "eris";
 import { guilds } from "../../JSON/settings.json";
 module.exports = class MessageDeleteEvent {
     ket: KetClient;
@@ -12,7 +12,8 @@ module.exports = class MessageDeleteEvent {
         if (message.author?.bot) return;
 
         if (message.channel?.parentID === guilds.dmCategory) {
-            let DMChannel = (await (await this.ket.findUser(message.channel.topic, false)).getDMChannel());
+            let DMChannel = (await (await this.ket.findUser(message.channel.topic, false) as User).getDMChannel());
+
             return (await this.ket.findMessage(DMChannel, { content: message.content, limit: 25 })).delete()
                 .catch((e) => this.ket.send({ ctx: message.channel, content: `Não foi possível \`apagar\` a mensagem\n\n\`\`\`js\n${e}\`\`\`` }))
         }
@@ -21,21 +22,23 @@ module.exports = class MessageDeleteEvent {
         if (message.channel.id !== guild.globalchat || Date.now() > message.timestamp + (15 * 1000 * 60)) return;
 
         let msgs = await this.prisma.globalchat.findMany(),
-            msgData = msgs.filter(msg => msg.id === message.id || msg.messages.includes(message.id))[0];
+            msg = msgs.data.find((m) => m.id === message.id || msg.messages.find((ms) => ms.includes(message.id)));
 
-        !msgData ? null : msgData.messages.forEach(async data => {
+        !msg ? null : msg.messages.forEach(async data => {
 
-            let guildData = await this.prisma.servers.find(data.split('|')[1]),
-                channel = this.ket.guilds.get(guildData.id).channels.get(guildData.globalchat) as GuildTextableChannel,
+            let server = await this.prisma.servers.find(data.split('|')[1]),
+                channel = this.ket.guilds.get(server.id).channels.get(server.globalchat) as GuildTextableChannel,
                 msg: Message = await channel.getMessage(data.split('|')[0]),
                 webhook = this.ket.webhooks.get(channel.id),
                 hasDeleted: boolean = false;
 
             if (!msg) return;
             if (!webhook) {
-                webhook = (await this.ket.getChannelWebhooks(guildData.globalchat)).find(w => w.name === 'Ket' && w.user.id === this.ket.user.id);
+                webhook = (await this.ket.getChannelWebhooks(server.globalchat))
+                    .find(w => w.name === 'Ket' && w.user.id === this.ket.user.id);
                 if (!webhook) return;
             }
+
             if (msg.attachments[0]) await this.ket.deleteWebhookMessage(webhook.id, webhook.token, msg.id)
                 .then(() => hasDeleted = true)
                 .catch(() => hasDeleted = false)
@@ -49,7 +52,13 @@ module.exports = class MessageDeleteEvent {
                     roles: false,
                     users: false
                 }
-            }).catch(() => !msg.attachments[0] ? this.ket.deleteWebhookMessage(webhook.id, webhook.token, msg.id).catch(() => { msg.delete().catch(() => { }) }) : null)
+            })
+                .catch(() =>
+                    !msg.attachments[0]
+                        ? msg.delete()
+                            .catch(() => { })
+                        : null
+                )
         })
         return;
     }

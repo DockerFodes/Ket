@@ -9,7 +9,10 @@ module.exports = class ShardDisconnect {
     async on(error: string, shardID: number) {
         console.log(`SHARD ${shardID}`, `Reiniciando: ${error}`, 31);
         this.ket.shardUptime.set(shardID, NaN);
-        infoEmbed(shardID, this.ket);
+
+        global.PROD
+            ? infoEmbed(shardID, this.ket)
+            : null;
         return;
     }
 }

@@ -18,6 +18,7 @@ module.exports = class MessageUpdateEvent {
         if (newMsg.channel.parentID === guilds.dmCategory) {
             let DMChannel = (await (await this.ket.findUser(newMsg.channel.topic)).getDMChannel()),
                 msg = await this.ket.findMessage(DMChannel, { content: oldMsg.content, limit: 25 });
+
             return this.ket.editMessage(DMChannel.id, msg.id, { content: newMsg.content })
                 .catch((e) => this.ket.send({ ctx: newMsg.channel.msgID, content: `Não foi possível \`editar\` a sua mensagem\n\n${e}` }))
         }
@@ -27,21 +28,22 @@ module.exports = class MessageUpdateEvent {
         if (newMsg.channel.id !== guild.globalchat) return this.ket.emit("messageCreate", newMsg);
 
         const user = await this.prisma.users.find(newMsg.author.id),
-            msgData = await this.prisma.globalchat.find(newMsg.id);
+            msg = await this.prisma.globalchat.find(newMsg.id);
 
-        if (user.banned || !msgData || Date.now() > newMsg.timestamp + (15 * 1000 * 60) || Number(msgData.editCount) >= globalchat.editLimit) return;
+        if (user.banned || !msg || Date.now() > newMsg.timestamp + (15 * 1000 * 60) || Number(msg.editCount) >= globalchat.editLimit)
+            return;
 
-        msgData.messages.forEach(async data => {
-            let msgID = data.split('|')[0],
-                guildData = await this.prisma.servers.find(data.split('|')[1]),
-                channel: GuildChannel = this.ket.guilds.get(guildData.id).channels.get(guildData.globalchat),
+        msg.messages.forEach(async (data) => {
+            let id = data.split('|')[0],
+                server = await this.prisma.servers.find(data.split('|')[1]),
+                channel: GuildChannel = this.ket.guilds.get(server.id).channels.get(server.globalchat),
                 webhook = this.ket.webhooks.get(channel.id);
 
             if (!webhook) {
-                webhook = (await this.ket.getChannelWebhooks(guildData.globalchat)).find(w => w.name === 'Ket' && w.user.id === this.ket.user.id);
+                webhook = (await this.ket.getChannelWebhooks(server.globalchat)).find(w => w.name === 'Ket' && w.user.id === this.ket.user.id);
                 if (!webhook) return;
             }
-            this.ket.editWebhookMessage(webhook.id, webhook.token, msgID, {
+            this.ket.editWebhookMessage(webhook.id, webhook.token, id, {
                 content: this.KetUtils.msgFilter(newMsg.cleanContent),
                 allowedMentions: {
                     everyone: false,
@@ -52,8 +54,8 @@ module.exports = class MessageUpdateEvent {
         })
 
         await this.prisma.globalchat.update({
-            where: { id: msgData.id },
-            data: { editCount: msgData.editCount + 1 }
+            where: { id: msg.id },
+            data: { editCount: msg.editCount + 1 }
         })
         return;
     }

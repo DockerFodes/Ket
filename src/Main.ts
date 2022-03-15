@@ -314,7 +314,7 @@ main()
 async function main() {
     console.clear();
     global.sleep = async (timeout: number) => timeout <= 0 ? false : await (new Promise((res) => setTimeout(() => res(true), timeout))) //Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, timeout)
-    global.PRODUCTION_MODE = process.argv.includes('--dev') ? false : true;
+    global.PROD = process.argv.includes('--dev') ? false : true;
     (await import('./Components/Core/ProtoTypes')).default();
     (await import('dotenv')).config();
     //@ts-ignore
@@ -324,7 +324,7 @@ async function main() {
     // app.get("/", (_req, res: Response) => res.sendStatus(200));
     // app.listen(process.env.PORT);
     const prisma: Prisma = await connect();
-    const ket = new KetClient(prisma, `Bot ${global.PRODUCTION_MODE ? process.env.DISCORD_TOKEN : process.env.BETA_CLIENT_TOKEN}`, CLIENT_OPTIONS as ClientOptions);
+    const ket = new KetClient(prisma, `Bot ${global.PROD ? process.env.DISCORD_TOKEN : process.env.BETA_CLIENT_TOKEN}`, CLIENT_OPTIONS as ClientOptions);
 
     console.log = function () {
         let args = [...arguments];
@@ -347,7 +347,7 @@ async function main() {
     ket.boot();
 
     function sendWebhook(str: string | string[]) {
-        global.PRODUCTION_MODE ? ket.executeWebhook(process.env.WEBHOOK_LOGS.split(' | ')[0], process.env.WEBHOOK_LOGS.split(' | ')[1], {
+        global.PROD ? ket.executeWebhook(process.env.WEBHOOK_LOGS.split(' | ')[0], process.env.WEBHOOK_LOGS.split(' | ')[1], {
             username: "Ket Logs",
             avatarURL: "https://cdn.discordapp.com/attachments/788376558271201290/932605381539139635/797062afbe6a08ae32e443277f14b7e2.jpg",
             content: `\`${str}\``.slice(0, 1998)

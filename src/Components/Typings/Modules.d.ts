@@ -18,6 +18,7 @@ declare module 'eris' {
 	}
 
 	interface Message {
+        cleanContent: string;
 		deleteAfter(time: number): void;
 	}
 
