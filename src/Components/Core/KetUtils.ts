@@ -239,6 +239,7 @@ export default class KetUtils {
     }
 
     async translateMsg(interaction: ComponentInteraction) {
+        console.info('traduzindoo')
         await interaction.defer(64).catch(() => { });
         let interactionData = interaction.data.custom_id.split('/'),
             data = await Translator.translate(interaction.message.content, interactionData[3], interactionData[2])
