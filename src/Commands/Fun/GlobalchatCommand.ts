@@ -70,7 +70,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     emoji: 'autorizado', content: {
                         embeds: [{
                             color: getColor('green'),
-                            ...Object(ctx.t('globalchat.start', { channel }))
+                            ...ctx.t('globalchat.start', { channel })
                         }]
                     }
                 });
@@ -84,13 +84,13 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     emoji: 'autorizado', content: {
                         embeds: [{
                             color: getColor('green'),
-                            ...Object(ctx.t('globalchat.stop', { user: ctx.user }))
+                            ...ctx.t('globalchat.stop', { user: ctx.user })
                         }]
                     }
                 });
             case 'getinfo':
                 let data = await ctx.prisma.globalchat.findMany(),
-                    msg = data.find(msg => msg.id === ctx.args[1] || msg.messages.find((m) => m.includes(ctx.args[1])));
+                    msg = data.find(m => msg.id === ctx.args[1] || m.messages.find((ms) => ms.includes(ctx.args[1])));
 
                 if (isNaN(Number(ctx.args[1])) || !ctx.args[1] || !msg)
                     return ctx.send({ emoji: 'negado', content: ctx.t('globalchat.messageNotFound') });
@@ -99,7 +99,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     user: User = await this.ket.findUser(userData.id),
                     server = await ctx.prisma.servers.find(msg.guild),
                     message = await this.ket.getMessage(server.globalchat, msg.id)
-                        .catch(() => { }) as Message<any>
+                        .catch(() => { }) as Message<any>;
                 moment.locale(ctx.user.lang);
 
                 return ctx.send({
@@ -107,12 +107,14 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                         embeds: [{
                             thumbnail: { url: user.dynamicAvatarURL('jpg') },
                             color: getColor('green'),
-                            ...Object(ctx.t('globalchat.getinfo', {
-                                msg, user, guild: this.ket.guilds.get(server.id), messages: msg.messages,
+                            ...ctx.t('globalchat.getinfo', {
+                                msg, user,
+                                messages: msg.messages,
+                                guild: this.ket.guilds.get(server.id),
                                 timestamp: moment.utc(message?.timestamp || Date.now()).format('LLLL'),
                                 isBanned: userData.banned ? 'BANNED' : 'not banned',
                                 messagesCount: data.filter(msg => msg.author === user.id).length
-                            }))
+                            })
                         }]
                     }
                 })

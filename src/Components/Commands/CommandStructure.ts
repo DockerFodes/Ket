@@ -1,6 +1,6 @@
 import KetClient from "../../Main";
 import settings, { statusMsg } from "../../JSON/settings.json";
-import { CommandInteraction, EmbedField, EmbedFooter, EmbedImage, Guild, GuildTextableChannel, Member, Message, Shard, TextableChannel, User } from "eris";
+import { CommandInteraction, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage, EmbedOptions, Guild, GuildTextableChannel, Member, Message, Shard, TextableChannel, User } from "eris";
 import { duration } from "moment";
 import { CommandContextFunc } from "../Typings/Modules";
 
@@ -32,10 +32,9 @@ export default class CommandStructure {
 
 export class EmbedBuilder {
     fields: EmbedField[];
-    author: object;
+    author: EmbedAuthor;
     description: string;
     color: number;
-    file: object[];
     footer: EmbedFooter;
     image: EmbedImage;
     timestamp: Date;
@@ -48,7 +47,6 @@ export class EmbedBuilder {
         this.author = null;
         this.description = null;
         this.color = null;
-        this.file = null;
         this.footer = null;
         this.image = null;
         this.timestamp = null;
@@ -98,7 +96,7 @@ export class EmbedBuilder {
         else this.color = parseInt((String(color).replace('#', '')), 16)
         return this;
     }
-    setImage(image, height = null, width = null) {
+    setImage(image: string, height = null, width = null) {
         this.image = {
             url: image
         };
@@ -125,7 +123,7 @@ export class EmbedBuilder {
         this.thumbnail = { url };
         return this;
     }
-    build() {
+    build(): EmbedOptions {
         return this;
     }
 }

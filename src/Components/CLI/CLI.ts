@@ -4,7 +4,7 @@ import { duration } from "moment";
 import KetClient from "../../Main";
 import { readFileSync, writeFileSync } from "fs";
 import { resolve } from "path";
-import getT from "../Core/LocaleStructure";
+import getT from "../Core/LocalesStructure";
 import Translator from "../Core/Translator";
 
 module.exports = class CLI {
