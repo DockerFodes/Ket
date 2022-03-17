@@ -1,9 +1,15 @@
 import type { CanvasRenderingContext2D, Image, CanvasImageData, CommandInteraction } from "canvas";
-import type { Message, Member, User, Client, Webhook, Guild, Shard, TextableChannel, GuildTextableChannel, AdvancedMessageContent, MessageContent } from "eris";
-import type { ESMap } from "typescript";
+import type { Message, Member, User, FileContent, Client, Webhook, Guild, Shard, TextableChannel, GuildTextableChannel, AdvancedMessageContent, MessageContent } from "eris";
+import type { ESMap, server } from "typescript";
 import type { Manager } from "erela.js";
+import type { Client } from "pg";
 import type KetClient from "../../Main.ts";
 import type EventHandler from "../Core/EventHandler";
+
+declare module 'pg' {
+    interface Client extends PostgresClient {
+    }
+}
 
 declare module 'eris' {
 	interface Client extends KetClient {
@@ -66,7 +72,7 @@ interface CommandContext {
     send: Function;
     user: any;
     server: any;
-    args: any[];
+    args: string[];
     author: User;
     uID: string;
     member: Member;

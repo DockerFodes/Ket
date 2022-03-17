@@ -1,4 +1,4 @@
-import { Channel, Client, ClientOptions, Collection, CommandInteraction, FileContent, Guild, GuildChannel, Member, Message, TextableChannel, User } from "eris";
+import { Channel, Client, ClientOptions, Collection, CommandInteraction, Guild, GuildChannel, Member, Message, TextableChannel, User } from "eris";
 import { connect } from "./Components/Prisma/PrismaConnection";
 import { readdirSync } from "fs";
 import { CLIENT_OPTIONS } from "./JSON/settings.json";
@@ -12,7 +12,6 @@ import { Manager } from "erela.js";
 import { KetSendContent, KetSendFunction } from "./Components/Typings/Modules";
 
 const { inspect } = require('util');
-let db: Prisma;
 
 export default class KetClient extends Client {
     constructor(prisma: Prisma, token: string, options: ClientOptions) {
