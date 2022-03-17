@@ -142,7 +142,7 @@ export default class KetClient extends Client {
 
     }
 
-    public async send({ ctx, content, embed = true, emoji, target = 0 }: KetSendFunction ) {
+    public async send({ ctx, content, embed = true, emoji, target = 0 }: KetSendFunction) {
         try {
             if (!ctx || !content) return null;
             if (!(ctx instanceof CommandInteraction) && !(ctx instanceof Message) && typeof ctx === 'object') ctx = ctx.env;
@@ -256,6 +256,8 @@ export default class KetClient extends Client {
         function filtrar(text: string) {
             return String(text.includes('@') || text.includes('#') ? text.replace('@', '').split('#')[0] : text).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")
         }
+
+        if (this.users.has(user.id)) this.users.add(user instanceof User ? user : user.user);
 
         return user;
     }
