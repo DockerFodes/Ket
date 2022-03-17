@@ -78,7 +78,7 @@ async function sendMessageDM(ctx: Message<GuildTextableChannel>, ket: KetClient)
                 channelID: DMChannel.id,
                 failIfNotExists: false
             } : null,
-            file: [...(await utils.getMediaBuffer(ctx, 0)), ...(await utils.getMediaBuffer(ctx, 1))]
+            files: [...(await utils.getMediaBuffer(ctx, 0)), ...(await utils.getMediaBuffer(ctx, 1))]
         }
     })
         .catch((e) => ket.send({ ctx, content: `Não foi possível \`enviar\` a mensagem\n\n\`\`\`js\n${e}\`\`\``, emoji: 'negado' }))

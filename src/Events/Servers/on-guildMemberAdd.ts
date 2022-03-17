@@ -50,7 +50,7 @@ module.exports = class guildMemberAddEvent {
                         icon_url: member.user.dynamicAvatarURL('png', 18)
                     }
                 }],
-                file: [{ name: 'welcum.jpg', file: (canvas.toBuffer('image/jpeg')) }]
+                files: [{ name: 'welcum.jpg', file: (canvas.toBuffer('image/jpeg')) }]
             }
         })
         return;

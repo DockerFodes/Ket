@@ -1,6 +1,6 @@
 import KetClient from "../../Main";
 import TerminalClient from "../../Components/CLI/TerminalClient";
-import DatabaseBackup from "../../Packages/Security/DatabaseBackup";
+import BackupAndCacheController from "../../Packages/Database/_BackupAndCC";
 import moment from "moment";
 import { infoEmbed } from "../../Components/Commands/CommandStructure";
 
@@ -45,7 +45,7 @@ module.exports = class ReadyEvent {
 
             // Database Backup and Cache Controller
             if (++makeBackup >= 30) {
-                await DatabaseBackup(this.ket, this.prisma);
+                await BackupAndCacheController(this.ket, this.prisma);
                 makeBackup = 0;
             }
         }, 60_000)
