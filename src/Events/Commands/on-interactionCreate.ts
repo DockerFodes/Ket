@@ -1,20 +1,22 @@
+import { CommandClientOptions, CommandInteraction, ComponentInteraction } from "eris";
+import { getContext, getColor } from "../../Components/Commands/CommandStructure";
+import { channels, DEVS } from "../../JSON/settings.json";
+import { PostgresClient } from "../../Components/Typings/Database";
 import KetClient from "../../Main";
 import KetUtils from "../../Components/Core/KetUtils";
 import homeInteractions from "../../Packages/Home/_homeInteractions";
 import DMexec from "../../Packages/Home/_DMClient";
-import { CommandClientOptions, CommandInteraction, ComponentInteraction } from "eris";
-import { getContext, getColor } from "../../Components/Commands/CommandStructure";
-import { channels, DEVS } from "../../JSON/settings.json";
 import getT from "../../Components/Core/LocalesStructure";
+
 
 module.exports = class InteractionCreateEvent {
     ket: KetClient;
-    prisma: Prisma;
+    postgres: PostgresClient;
     KetUtils: any;
-    constructor(ket: KetClient, prisma: Prisma) {
+    constructor(ket: KetClient, postgres: PostgresClient) {
         this.ket = ket;
-        this.prisma = prisma;
-        this.KetUtils = new (KetUtils)(this.ket, this.prisma);
+        this.postgres = postgres;
+        this.KetUtils = new (KetUtils)(this.ket, this.postgres);
     }
     async on(interaction) {
         if (interaction instanceof ComponentInteraction) {
@@ -28,10 +30,10 @@ module.exports = class InteractionCreateEvent {
         if (!(interaction instanceof CommandInteraction) || interaction.type != 2) return;
         if (!interaction.guildID || interaction.channel.type === 1) return DMexec(interaction, this.ket);
 
-        let server = await this.prisma.servers.find(interaction.guildID, true),
-            user = await this.prisma.users.find(interaction.member.id),
+        let server = await this.postgres.servers.find(interaction.guildID, true),
+            user = await this.postgres.users.find(interaction.member.id),
             t = getT(user.lang),
-            ctx = getContext({ ket: this.ket, prisma: this.prisma, interaction, server, user, t });
+            ctx = getContext({ ket: this.ket, postgres: this.postgres, interaction, server, user, t });
 
         if (user.banned) return;
         if (server.banned) return ctx.guild.leave();
@@ -42,7 +44,7 @@ module.exports = class InteractionCreateEvent {
 
         if (!command && (command = await this.KetUtils.commandNotFound(ctx, commandName)) === false) return;
         interaction.data?.options?.forEach((option: CommandClientOptions) => getArgs(option));
-        ctx = getContext({ ket: this.ket, prisma: this.prisma, user, server, interaction, args, command, commandName, t })
+        ctx = getContext({ ket: this.ket, postgres: this.postgres, user, server, interaction, args, command, commandName, t })
 
         await this.KetUtils.checkCache(ctx);
         ctx.user = await this.KetUtils.checkUserGuildData(ctx);
@@ -58,10 +60,7 @@ module.exports = class InteractionCreateEvent {
             }
         })
 
-        await this.prisma.users.update({
-            where: { id: ctx.uID },
-            data: { commands: ctx.user.commands + 1 }
-        });
+        await this.postgres.users.update(ctx.uID, { commands: user.commands + 1 });
 
         function getArgs(option) {
             if (!option.value) args.push(option.name);

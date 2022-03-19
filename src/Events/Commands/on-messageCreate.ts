@@ -1,28 +1,29 @@
+import { TRUSTED_BOTS, DEVS, guilds } from "../../JSON/settings.json";
+import { getContext, getColor } from "../../Components/Commands/CommandStructure";
+import { PostgresClient } from "../../Components/Typings/Database";
+import { Message } from "eris";
 import KetClient from "../../Main";
 import KetUtils from "../../Components/Core/KetUtils";
 import DMexec from "../../Packages/Home/_DMClient";
-import { Message } from "eris";
-import { getContext, getColor } from "../../Components/Commands/CommandStructure";
-import { TRUSTED_BOTS, DEVS, guilds } from "../../JSON/settings.json";
 import getT from "../../Components/Core/LocalesStructure";
 
 module.exports = class MessageCreateEvent {
     ket: KetClient;
-    prisma: Prisma;
+    postgres: PostgresClient;
     KetUtils: any;
-    constructor(ket: KetClient, prisma: Prisma) {
+    constructor(ket: KetClient, postgres: PostgresClient) {
         this.ket = ket;
-        this.prisma = prisma;
-        this.KetUtils = new (KetUtils)(this.ket, this.prisma);
+        this.postgres = postgres;
+        this.KetUtils = new (KetUtils)(this.ket, this.postgres);
     }
     async on(message: Message<any>) {
         if (message.author?.bot && !TRUSTED_BOTS.includes(message.author.id)) return;
         if (!message.guildID || message.channel.type === 1 || message.channel.parentID === guilds.dmCategory) return DMexec(message, this.ket, message.channel.parentID === guilds.dmCategory);
 
-        let server = await this.prisma.servers.find(message.guildID, true),
-            user = await this.prisma.users.find(message.author.id),
+        let server = await this.postgres.servers.find(message.guildID, true),
+            user = await this.postgres.users.find(message.author.id),
             t = getT(user.lang),
-            ctx = getContext({ ket: this.ket, prisma: this.prisma, message, server, user, t });
+            ctx = getContext({ ket: this.ket, postgres: this.postgres, message, server, user, t });
 
         if (user.banned) return;
         if (server.banned) return ctx.guild.leave();
@@ -35,7 +36,7 @@ module.exports = class MessageCreateEvent {
             command = this.ket.commands.get(commandName) || this.ket.commands.get(this.ket.aliases.get(commandName));
 
         if (!command && (command = await this.KetUtils.commandNotFound(ctx, commandName)) === false) return;
-        ctx = getContext({ ket: this.ket, prisma: this.prisma, user, server, message, args, command, commandName, t })
+        ctx = getContext({ ket: this.ket, postgres: this.postgres, user, server, message, args, command, commandName, t })
 
         await this.KetUtils.checkCache(ctx);
         ctx.user = await this.KetUtils.checkUserGuildData(ctx);
@@ -51,10 +52,7 @@ module.exports = class MessageCreateEvent {
             }
         })
 
-        await this.prisma.users.update({
-            where: { id: ctx.uID },
-            data: { commands: ctx.user.commands + 1 }
-        });
+        await this.postgres.users.update(ctx.uID, { commands: user.commands + 1 });
 
         // let noargs = {
         //     color: getColor('red'), 

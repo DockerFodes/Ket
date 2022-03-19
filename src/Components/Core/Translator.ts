@@ -1,7 +1,7 @@
 import axios from "axios";
 
 class TranslateAPI {
-    languages;
+    languages: object;
     baseURL: string;
     constructor() {
         this.baseURL = "https://translate.googleapis.com/translate_a/single";

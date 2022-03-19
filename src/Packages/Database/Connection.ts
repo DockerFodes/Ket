@@ -1,4 +1,5 @@
 import { Client } from "pg";
+import { blacklistSchema, commandSchema, globalchatSchema, serverSchema, userSchema } from "../../Components/Typings/Database";
 import table from "./_Interaction";
 
 export default async () => {
@@ -9,20 +10,15 @@ export default async () => {
         host: process.env.DATABASE_HOST,
         port: Number(process.env.DATABASE_PORT),
         ssl: process.env.SSL_MODE == 'false' ? false : { rejectUnauthorized: false }
-    })
+    });
 
     await postgres.connect()
         .then(() => {
-            //@ts-ignore
-            postgres.users = (new table('users', 'id', postgres));
-            //@ts-ignore
-            postgres.servers = (new table('servers', 'id', postgres));
-            //@ts-ignore
-            postgres.commands = (new table('commands', 'name', postgres));
-            //@ts-ignore
-            postgres.globalchat = (new table('globalchat', 'id', postgres));
-            //@ts-ignore
-            postgres.blacklist = (new table('blacklist', 'id', postgres));
+            postgres.users = new table<userSchema>('users', 'id', postgres);
+            postgres.servers = new table<serverSchema>('servers', 'id', postgres);
+            postgres.commands = new table<commandSchema>('commands', 'name', postgres);
+            postgres.globalchat = new table<globalchatSchema>('globalchat', 'id', postgres);
+            postgres.blacklist = new table<blacklistSchema>('blacklist', 'id', postgres);
             postgres.tables = ['users', 'servers', 'commands', 'globalchat', 'blacklist'];
 
             console.log('DATABASE', '√ Banco de dados operante', 32);
@@ -100,5 +96,6 @@ export default async () => {
                 CONSTRAINT "blacklist_pkey" PRIMARY KEY ("id")
             );`)
         })
-    return;
+
+    return postgres;
 }

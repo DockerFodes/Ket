@@ -1,6 +1,7 @@
 import KetClient from "../../Main";
 import { channels } from "../../JSON/settings.json";
 import { getColor } from "../../Components/Commands/CommandStructure";
+import { PostgresClient } from "../../Components/Typings/Database";
 
 export default async function run(ket: KetClient, postgres: PostgresClient) {
     if (!global.PROD) return;

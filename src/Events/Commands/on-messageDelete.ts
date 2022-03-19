@@ -1,12 +1,14 @@
-import KetClient from "../../Main";
 import { GuildTextableChannel, Message, User } from "eris";
+import { PostgresClient } from "../../Components/Typings/Database";
 import { guilds } from "../../JSON/settings.json";
+import KetClient from "../../Main";
+
 module.exports = class MessageDeleteEvent {
     ket: KetClient;
-    prisma: Prisma;
-    constructor(ket: KetClient, prisma: Prisma) {
+    postgres: PostgresClient;
+    constructor(ket: KetClient, postgres: PostgresClient) {
         this.ket = ket;
-        this.prisma = prisma;
+        this.postgres = postgres;
     }
     async on(message: Message<any>) {
         if (message.author?.bot) return;
@@ -18,15 +20,15 @@ module.exports = class MessageDeleteEvent {
                 .catch((e) => this.ket.send({ ctx: message.channel, content: `Não foi possível \`apagar\` a mensagem\n\n\`\`\`js\n${e}\`\`\`` }))
         }
 
-        let guild = await this.prisma.servers.find(message.guildID);
+        let guild = await this.postgres.servers.find(message.guildID);
         if (message.channel.id !== guild.globalchat || Date.now() > message.timestamp + (15 * 1000 * 60)) return;
 
-        let msgs = await this.prisma.globalchat.findMany(),
-            msg = msgs.data.find((m) => m.id === message.id || msg.messages.find((ms) => ms.includes(message.id)));
+        let msgs = await this.postgres.globalchat.getAll(),
+            msg = msgs.find((m) => m.id === message.id || msg.messages.find((ms) => ms.includes(message.id)));
 
         !msg ? null : msg.messages.forEach(async data => {
 
-            let server = await this.prisma.servers.find(data.split('|')[1]),
+            let server = await this.postgres.servers.find(data.split('|')[1]),
                 channel = this.ket.guilds.get(server.id).channels.get(server.globalchat) as GuildTextableChannel,
                 msg: Message = await channel.getMessage(data.split('|')[0]),
                 webhook = this.ket.webhooks.get(channel.id),

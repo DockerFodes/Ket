@@ -1,14 +1,15 @@
-import KetClient from "../../Main";
-import { Guild, User } from "eris";
-import { channels } from "../../JSON/settings.json";
+import { PostgresClient } from "../../Components/Typings/Database";
 import { getColor } from "../../Components/Commands/CommandStructure";
+import { channels } from "../../JSON/settings.json";
+import { Guild, User } from "eris";
+import KetClient from "../../Main";
 
 module.exports = class guildCreateEvent {
     ket: KetClient;
-    prisma: Prisma;
-    constructor(ket: KetClient, prisma: Prisma) {
+    postgres: PostgresClient;
+    constructor(ket: KetClient, postgres: PostgresClient) {
         this.ket = ket;
-        this.prisma = prisma;
+        this.postgres = postgres;
     }
     async on(guild: Guild) {
         this.ket.send({
@@ -27,6 +28,7 @@ module.exports = class guildCreateEvent {
                 }]
             }
         })
+
         return;
     }
 }

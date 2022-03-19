@@ -1,8 +1,9 @@
 import KetClient from "../../Main";
 import settings, { statusMsg } from "../../JSON/settings.json";
-import { CommandInteraction, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage, EmbedOptions, Guild, GuildTextableChannel, Member, Message, Shard, TextableChannel, User } from "eris";
+import { CommandInteraction, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage, EmbedOptions, Guild, GuildTextableChannel, Member, Message, Shard, User } from "eris";
 import { duration } from "moment";
-import { CommandContextFunc } from "../Typings/Modules";
+import { CommandConfig, CommandContextFunc } from "../Typings/Modules";
+import { PostgresClient } from "../Typings/Database";
 
 export default class CommandStructure {
     ket: KetClient;
@@ -10,7 +11,7 @@ export default class CommandStructure {
 
     constructor(ket: KetClient, config) {
         this.config = {
-            name: config.name || null,
+            name: config.name,
             aliases: config.aliases || [],
             cooldown: config.cooldown || 3,
             permissions: config.permissions || {
@@ -24,7 +25,7 @@ export default class CommandStructure {
             },
             dontType: config.dontType || false,
             testCommand: config.testCommand || [],
-            data: config.data || null
+            data: config.data
         }
         this.ket = ket;
     }
@@ -171,7 +172,7 @@ export function getColor(color: string, toNumber = true) {
 }
 
 export class CommandContext {
-    prisma: Prisma;
+    postgres: PostgresClient;
     config: any;
     env: Message<any> | CommandInteraction<any>;
     send: Function;
@@ -185,17 +186,17 @@ export class CommandContext {
     gID: string;
     me: Member;
     shard: Shard;
-    channel: TextableChannel | GuildTextableChannel;
+    channel: GuildTextableChannel;
     cID: string;
-    command: any;
+    command: CommandConfig;
     commandName: string;
     t: Function;
 }
 
-export function getContext({ ket, prisma, message, interaction, user, server, args, command, commandName, t }: CommandContextFunc) {
+export function getContext({ ket, postgres, message, interaction, user, server, args, command, commandName, t }: CommandContextFunc) {
     let ctx = message ? message : interaction;
     return {
-        prisma: prisma,
+        postgres: postgres,
         config: settings,
         env: message ? message : interaction,
         send: (args) => (args.ctx = ctx) && ket.send(args),
@@ -233,6 +234,7 @@ export async function infoEmbed(shardID: number, ket: KetClient) {
         'connecting': `Conectando ${getEmoji('idle').mention}`,
         'disconnected': `Offline ${getEmoji('offline').mention}`
     }
+
     ket.shards.forEach(s =>
         embed.fields.push({
             name: `${getEmoji('cristal').mention} Shard ${s.id}`,
@@ -243,10 +245,13 @@ export async function infoEmbed(shardID: number, ket: KetClient) {
         })
     );
 
-    if (shardID === 0 && !ket.ready) return statusMsg.id = (await ket.send({
-        ctx: statusMsg.channel, content: {
-            embeds: [embed]
-        }
-    }) as Message<any>).id;
-    if (statusMsg.channel && statusMsg.id) return ket.editMessage(statusMsg.channel, statusMsg.id, { embeds: [embed] });
+    if (shardID === 0 && !ket.ready)
+        return statusMsg.id = (await ket.send({
+            ctx: statusMsg.channel, content: {
+                embeds: [embed]
+            }
+        }) as Message<any>).id;
+
+    if (statusMsg.channel && statusMsg.id)
+        return ket.editMessage(statusMsg.channel, statusMsg.id, { embeds: [embed] });
 }

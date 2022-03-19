@@ -1,8 +1,8 @@
+import CommandStructure, { CommandContext, getColor } from "../../Components/Commands/CommandStructure";
 import { SlashCommandBuilder } from "@discordjs/builders";
+import { Message, User } from "eris";
 import KetClient from "../../Main";
 import moment from "moment";
-import CommandStructure, { CommandContext, getColor } from "../../Components/Commands/CommandStructure";
-import { Message, User } from "eris";
 
 module.exports = class GlobalChatCommand extends CommandStructure {
     constructor(ket: KetClient) {
@@ -58,12 +58,9 @@ module.exports = class GlobalChatCommand extends CommandStructure {
             case 'start':
                 let channel = await this.ket.findChannel(ctx.args[1]);
                 if (!channel) return await ctx.send({ emoji: 'negado', content: ctx.t('globalchat.channelNotFound') });
-                await ctx.prisma.servers.update({
-                    where: { id: ctx.gID },
-                    data: {
-                        globalchat: channel.id,
-                        lang: ctx.args[2]
-                    }
+                await ctx.postgres.servers.update(ctx.gID, {
+                    globalchat: channel.id,
+                    lang: ctx.args[2]
                 });
 
                 return ctx.send({
@@ -75,10 +72,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     }
                 });
             case 'stop':
-                await ctx.prisma.servers.update({
-                    where: { id: ctx.gID },
-                    data: { globalchat: null }
-                });
+                await ctx.postgres.servers.update(ctx.gID, { globalchat: null });
 
                 return ctx.send({
                     emoji: 'autorizado', content: {
@@ -89,15 +83,15 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     }
                 });
             case 'getinfo':
-                let data = await ctx.prisma.globalchat.findMany(),
+                let data = await ctx.postgres.globalchat.getAll(),
                     msg = data.find(m => msg.id === ctx.args[1] || m.messages.find((ms) => ms.includes(ctx.args[1])));
 
                 if (isNaN(Number(ctx.args[1])) || !ctx.args[1] || !msg)
                     return ctx.send({ emoji: 'negado', content: ctx.t('globalchat.messageNotFound') });
 
-                let userData = await ctx.prisma.users.find(msg.author),
+                let userData = await ctx.postgres.users.find(msg.author),
                     user: User = await this.ket.findUser(userData.id),
-                    server = await ctx.prisma.servers.find(msg.guild),
+                    server = await ctx.postgres.servers.find(msg.guild),
                     message = await this.ket.getMessage(server.globalchat, msg.id)
                         .catch(() => { }) as Message<any>;
                 moment.locale(ctx.user.lang);

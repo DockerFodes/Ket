@@ -1,5 +1,6 @@
 import { infoEmbed } from "../../Components/Commands/CommandStructure";
 import KetClient from "../../Main";
+
 module.exports = class ShardReadyEvent {
     ket: KetClient;
     constructor(ket: KetClient) {

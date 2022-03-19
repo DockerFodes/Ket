@@ -26,10 +26,12 @@ class LocalesStructure {
                         ?.map(a => a.replace(new RegExp('{{|}}', 'g'), '')) // removendo as chaves
                         ?.forEach((m: string) => {
                             let newStr = String(this.getValue(placeholders, m));
+
                             if (m.includes('.') && !!newStr) ctt = ctt.replace(`{{${m}}}`, newStr);
                             else typeof value !== 'object' ? ctt = ctt.replace(`{{${m}}}`, value) : null;
                         });
                 });
+
                 return ctt;
             }
 
@@ -37,8 +39,8 @@ class LocalesStructure {
                 ? JSON.parse(filtrar(JSON.stringify(content)))
                 : filtrar(content);
 
-        } catch (_e: unknown) {
-            console.info('erro: ', _e);
+        } catch (e: any) {
+            console.log('LOCALES', String(e.stack.slice(512)), 31);
             return str;
         }
     }

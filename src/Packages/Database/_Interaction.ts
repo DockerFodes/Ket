@@ -1,7 +1,5 @@
 import { Client } from "pg";
 import { DEFAULT_PREFIX, DEFAULT_LANG } from "../../JSON/settings.json";
-type responseTypes = boolean | userSchema | serverSchema | commandSchema
-    | globalchatSchema | blacklistSchema | responseTypes[];
 
 let template = {
     users: {
@@ -22,7 +20,7 @@ let template = {
     }
 }
 
-export default class DatabaseInteraction {
+export default class DatabaseInteraction<T> {
     postgres: Client;
     tableName: string;
     primaryKey: string;
@@ -32,7 +30,7 @@ export default class DatabaseInteraction {
         this.postgres = postgres;
     }
 
-    async create(index: string | string[], data?, returnValue?: boolean): Promise<responseTypes> {
+    async create(index: string | string[], data?: Partial<T>, returnValue?: boolean): Promise<T | T[] | boolean> {
         if (!index) return false;
 
         let values: string[] = [];
@@ -66,15 +64,14 @@ export default class DatabaseInteraction {
             else await this.postgres.query(SQLString);
 
             if (returnValue) return await this.postgres[this.tableName].find(index);
-
-            return true;
+            else return true;
         } catch (e) {
             console.log(`DATABASE/CREATE/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e}`, 41);
             return false;
         }
     }
 
-    async update(index: string | string[], data, createIfNull?: boolean, returnValue?: boolean): Promise<responseTypes> {
+    async update(index: string | string[], data: Partial<T>, createIfNull?: boolean, returnValue?: boolean): Promise<T | T[] | boolean> {
         if (!index) return false;
 
         let values: string[] = [];
@@ -96,41 +93,20 @@ export default class DatabaseInteraction {
             else await this.postgres.query(SQLString);
 
             if (returnValue) return await this.postgres[this.tableName].find(index);
-
-            return true;
+            else return true;
         } catch (e) {
             console.log(`DATABASE/UPDATE/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e}`, 41);
             return false;
         }
     }
 
-    async delete(index: string | string[]): Promise<responseTypes> {
-        if (!index) return false;
-
-        let SQLString = `
-        DELETE FROM "${this.tableName}"
-        WHERE ${this.primaryKey} = '${index}';
-        `;
-
-        try {
-            if (Array.isArray(index))
-                for (let i in index) await this.postgres.query(SQLString.replace(String(index), index[i]));
-            else await this.postgres.query(SQLString);
-
-            return true;
-        } catch (e) {
-            console.log(`DATABASE/DELETE/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e}`, 41);
-            return false;
-        }
-    }
-
-    async find(index: string | string[], createIfNull?: boolean): Promise<responseTypes> {
-        if (!index) return false;
+    async find(index: string | string[], createIfNull?: boolean, key?: string): Promise<T> {
+        if (!index) return null;
 
         let SQLString = `
         SELECT * FROM "${this.tableName} "
 
-        WHERE ${this.primaryKey} = '${index}';
+        WHERE "${key || this.primaryKey}" = '${index}';
         `,
             search: string[] | boolean = [];
 
@@ -153,7 +129,27 @@ export default class DatabaseInteraction {
             : search;
     }
 
-    async getAll(limit?: number, resolveProperties?: boolean, orderBy?: { key: string, type: string }): Promise<responseTypes> {
+    async delete(index: string | string[]): Promise<boolean> {
+        if (!index) return false;
+
+        let SQLString = `
+        DELETE FROM "${this.tableName}"
+        WHERE ${this.primaryKey} = '${index}';
+        `;
+
+        try {
+            if (Array.isArray(index))
+                for (let i in index) await this.postgres.query(SQLString.replace(String(index), index[i]));
+            else await this.postgres.query(SQLString);
+
+            return true;
+        } catch (e) {
+            console.log(`DATABASE/DELETE/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e}`, 41);
+            return false;
+        }
+    }
+
+    async getAll(limit?: number, resolveProperties?: boolean, orderBy?: { key: string, type: string }): Promise<T[]> {
         const SQLString = `
         SELECT * FROM "${this.tableName}"
         ${orderBy
@@ -178,7 +174,7 @@ export default class DatabaseInteraction {
     }
 
     _resolveProperties(data) {
-        if (!data) return null;
+        if (!data) return;
 
         Object.entries(data)
             .forEach(([property, value]) =>

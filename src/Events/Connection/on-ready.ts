@@ -1,15 +1,16 @@
-import KetClient from "../../Main";
-import TerminalClient from "../../Components/CLI/TerminalClient";
-import BackupAndCacheController from "../../Packages/Database/_BackupAndCC";
-import moment from "moment";
+import { PostgresClient } from "../../Components/Typings/Database";
 import { infoEmbed } from "../../Components/Commands/CommandStructure";
+import BackupAndCacheController from "../../Packages/Database/_BackupAndCC";
+import TerminalClient from "../../Components/CLI/TerminalClient";
+import KetClient from "../../Main";
+import moment from "moment";
 
 module.exports = class ReadyEvent {
     ket: KetClient;
-    prisma: Prisma;
-    constructor(ket: KetClient, prisma: Prisma) {
+    postgres: PostgresClient;
+    constructor(ket: KetClient, postgres: PostgresClient) {
         this.ket = ket;
-        this.prisma = prisma;
+        this.postgres = postgres;
     }
     async on() {
         // this.ket.erela.init(this.ket.user.id);
@@ -33,19 +34,17 @@ module.exports = class ReadyEvent {
             //@ts-ignore
             this.ket.editStatus(now < 7 || now > 18 ? 'idle' : 'online', status[Math.floor(Math.random() * status.length)]);
 
-            (await this.prisma.blacklist.findMany()).forEach(async user => {
-                if (user.warns < 3 && Date.now() > Number(user.timeout)) {
-                    await this.prisma.users.update({
-                        where: { id: user.id },
-                        data: { banned: null }
-                    });
-                    await this.prisma.blacklist.delete({ where: { id: user.id } });
-                }
-            });
+            (await this.postgres.blacklist.getAll())
+                .forEach(async user => {
+                    if (user.warns < 3 && Date.now() > Number(user.timeout)) {
+                        await this.postgres.users.update(user.id, { banned: null });
+                        await this.postgres.blacklist.delete(user.id);
+                    }
+                });
 
             // Database Backup and Cache Controller
             if (++makeBackup >= 30) {
-                await BackupAndCacheController(this.ket, this.prisma);
+                await BackupAndCacheController(this.ket, this.postgres);
                 makeBackup = 0;
             }
         }, 60_000)
@@ -59,7 +58,8 @@ module.exports = class ReadyEvent {
   - Sessão iniciada como ${this.ket.user.tag}
  ◆ ▬▬▬▬▬▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬▬▬▬▬▬ ◆
   - Operante em ${this.ket.guilds.size} servidores com ${this.ket.allUsersCount} membros.`, 33);
-        TerminalClient(this.ket, this.prisma);
+        TerminalClient(this.ket, this.postgres);
+
         return;
     }
 }

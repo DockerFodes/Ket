@@ -1,11 +1,12 @@
+import { PostgresClient } from "../Typings/Database";
 import KetClient from "../../Main";
 import prompts from "prompts";
 
-export default async function (ket: KetClient, prisma: Prisma) {
+export default async function (ket: KetClient, postgres: PostgresClient) {
     termEval();
     async function termEval() {
         delete require.cache[require.resolve(`./CLI`)];
-        let commands = new (require(`./CLI`))(ket, prisma),
+        let commands = new (require(`./CLI`))(ket, postgres),
             ramUsage = Math.floor(process.memoryUsage().rss / 1024 / 1024) + "MB"
 
         const response: { code: string } = await prompts({

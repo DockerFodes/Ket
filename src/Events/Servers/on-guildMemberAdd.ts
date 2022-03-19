@@ -1,9 +1,9 @@
-import Canvas from "canvas";
-import { Guild, Member } from "eris";
-import KetClient from "../../Main";
 import { guilds, channels } from "../../JSON/settings.json";
-import { getColor } from "../../Components/Commands/CommandStructure";
+import { Guild, Member } from "eris";
 import { readdirSync } from "fs";
+import { getColor } from "../../Components/Commands/CommandStructure";
+import KetClient from "../../Main";
+import Canvas from "canvas";
 
 module.exports = class guildMemberAddEvent {
     ket: KetClient;
@@ -15,6 +15,7 @@ module.exports = class guildMemberAddEvent {
     }
     async on(guild: Guild, member: Member) {
         if (guild.id !== guilds.support) return;
+
         if (!member.user.dynamicAvatarURL())
             member = await this.ket.getRESTGuildMember(guild.id, member.id);
 
@@ -53,6 +54,7 @@ module.exports = class guildMemberAddEvent {
                 files: [{ name: 'welcum.jpg', file: (canvas.toBuffer('image/jpeg')) }]
             }
         })
+
         return;
     }
 }

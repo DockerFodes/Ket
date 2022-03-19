@@ -1,20 +1,22 @@
 import os, { type } from "os";
 import { exec } from "child_process";
-import { duration } from "moment";
-import KetClient from "../../Main";
 import { readFileSync, writeFileSync } from "fs";
+import { PostgresClient } from "../Typings/Database";
+import { duration } from "moment";
 import { resolve } from "path";
-import getT from "../Core/LocalesStructure";
 import Translator from "../Core/Translator";
+import KetClient from "../../Main";
+import getT from "../Core/LocalesStructure";
 
 module.exports = class CLI {
     commands: { name: string, aliase: string | string[] }[]
     args: string[];
     ket: KetClient;
-    prisma: Prisma;
-    constructor(ket: KetClient, prisma: Prisma) {
+    postgres: PostgresClient;
+
+    constructor(ket: KetClient, postgres: PostgresClient) {
         this.ket = ket
-        this.prisma = prisma;
+        this.postgres = postgres;
         this.commands = [
             { name: 'clear', aliase: 'cls' },
             { name: 'compile', aliase: 'c' },
@@ -30,14 +32,13 @@ module.exports = class CLI {
     public checkCommand(cmd: string) {
         cmd = cmd.replace('.', '')
         return this.commands.find(c => c.name === cmd || c.aliase === cmd) ? true : false;
-
     }
 
     exec(cmd: string, args: string[]) {
         cmd = cmd.replace('.', '')
         let command = this.commands.find(c => c.name === cmd || c.aliase === cmd);
         if (!command) return false;
-        return eval(`this.${command.name}(args)`)
+        return this[command.name](args);
     }
 
     clear() {

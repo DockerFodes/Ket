@@ -1,10 +1,15 @@
+import pg from "pg";
+
 interface dbTable<T> {
-    create(index: string | string[], data?: T, returnValue?: boolean): Promise<T | T[] | boolean>;
-    update(index: string | string[], data: T, createIfNull?: boolean, returnValue?: boolean): Promise<T | T[] | boolean>;
-    find(index: string | string[], createIfNull?: boolean): Promise<T | T[] | boolean>;
-    delete(index: string | string[]): Promise<T | T[] | boolean>;
-    getAll(limit?: number, orderBy?: { key: string, type: string }): Promise<T[]>;
+    create(index: string | string[], data?: Partial<T>, returnValue?: boolean): Promise<T | T[] | boolean>;
+    update(index: string | string[], data: Partial<T>, createIfNull?: boolean, returnValue?: boolean): Promise<T | T[] | boolean>;
+    find(index: string | string[], createIfNull?: boolean, key?: string): Promise<T>;
+    delete(index: string | string[]): Promise<boolean>;
+    getAll(limit?: number, resolveProperties?: boolean, orderBy?: { key: string, type: string }): Promise<T[]>;
 }
+
+type responseTypes = boolean | null | userSchema | serverSchema | commandSchema
+    | globalchatSchema | blacklistSchema | responseTypes[]
 
 interface userSchema {
     id: string;
@@ -39,17 +44,17 @@ interface globalchatSchema {
 interface blacklistSchema {
     id: string;
     timeout: number;
-    warns: string;
+    warns: number;
 }
 
-interface PostgresClient {
+interface PostgresClient extends pg.Client {
     connect: () => Promise<boolean>;
     disconnect: () => Promise<boolean>;
     ready: boolean;
     tables: string[];
-    users: dbTable<userSchema?>;
-    servers: dbTable<serverSchema?>,
-    commands: dbTable<commandSchema?>;
-    globalchat: dbTable<globalchatSchema?>;
-    blacklist: dbTable<blacklistSchema?>;
-}
+    users: dbTable<userSchema>;
+    servers: dbTable<serverSchema>,
+    commands: dbTable<commandSchema>;
+    globalchat: dbTable<globalchatSchema>;
+    blacklist: dbTable<blacklistSchema>;
+} 

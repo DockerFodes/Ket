@@ -1,8 +1,7 @@
-import { Member, Message, User } from "eris";
-import axios from "axios";
 import { CanvasRenderingContext2D, createCanvas, Image } from "canvas";
+import { Member, Message, User } from "eris";
 import moment from 'moment';
-import KetClient from "../../Main";
+import axios from "axios";
 
 export default function start() {
 

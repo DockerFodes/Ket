@@ -6,13 +6,13 @@ interface locales {
     filesMetadata: {};
 }
 
-declare interface global {
+interface global {
     PROD: boolean;
     locales: locales;
 }
 
-declare interface String {
+interface String {
     encode(lang: string): string;
 }
 
-declare async function sleep(timeout: number): Promise<boolean | void>;
+async function sleep(timeout: number): Promise<boolean | void>;

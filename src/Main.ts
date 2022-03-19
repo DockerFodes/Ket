@@ -1,29 +1,29 @@
 import { Channel, Client, ClientOptions, Collection, CommandInteraction, Guild, GuildChannel, Member, Message, TextableChannel, User } from "eris";
-import { connect } from "./Components/Prisma/PrismaConnection";
-import { readdirSync } from "fs";
-import { CLIENT_OPTIONS } from "./JSON/settings.json";
+import { KetSendContent, KetSendFunction } from "./Components/Typings/Modules";
 import { getEmoji, getColor } from './Components/Commands/CommandStructure';
+import { PostgresClient } from "./Components/Typings/Database";
+import { CLIENT_OPTIONS } from "./JSON/settings.json";
 import { DEFAULT_LANG } from "./JSON/settings.json";
+import { readdirSync } from "fs";
+import pg from "pg";
+import ConnectDB from "./Packages/Database/Connection";
+// import { Manager } from "erela.js";
+import { tz } from "moment-timezone";
 import EventHandler from "./Components/Core/EventHandler";
 import moment from "moment";
 import duration from "moment-duration-format";
-import { tz } from "moment-timezone";
-import { Manager } from "erela.js";
-import { KetSendContent, KetSendFunction } from "./Components/Typings/Modules";
-
 const { inspect } = require('util');
+let postgres: PostgresClient;
 
 export default class KetClient extends Client {
-    constructor(prisma: Prisma, token: string, options: ClientOptions) {
+    constructor(token: string, options: ClientOptions) {
         super(token, options);
 
-        db = prisma;
-        this.erela = new Manager({
-            send: (id, payload) => this.guilds.get(id) ? this.guilds.get(id).shard.sendWS(payload.op, payload.d) : null
-        })
+        // this.erela = new Manager({
+        //     send: (id, payload) => this.guilds.get(id) ? this.guilds.get(id).shard.sendWS(payload.op, payload.d) : null
+        // })
         this.rootDir = __dirname;
         this.users = new Collection(User, CLIENT_OPTIONS.cacheLimit.users);
-        this.events = new (EventHandler)(this, db);
         this.commands = new Map();
         this.aliases = new Map();
         this.webhooks = new Map();
@@ -36,7 +36,9 @@ export default class KetClient extends Client {
 
     public async boot() {
         await this.loadLocales(`${__dirname}/Locales/`);
+        postgres = await ConnectDB();
         this.loadCommands(`${__dirname}/Commands`);
+        this.events = new (EventHandler)(this, postgres);
         this.addListeners(`${__dirname}/Events/`);
         await this.loadModules(`${__dirname}/Packages/`);
         return super.connect();
@@ -113,7 +115,7 @@ export default class KetClient extends Client {
                 let modules = readdirSync(`${path}/${categories[a]}/`);
                 for (let b in modules) modules[b].startsWith("_")
                     ? null
-                    : (await import(`${path}/${categories[a]}/${i++ ? modules[b] : modules[b]}`)).default(this, db);
+                    : (await import(`${path}/${categories[a]}/${i++ ? modules[b] : modules[b]}`)).default(this, postgres);
             }
             console.log('MODULES', `${i} Módulos inicializados`, 2);
             return true;
@@ -324,14 +326,14 @@ async function main() {
     // const app = express();
     // app.get("/", (_req, res: Response) => res.sendStatus(200));
     // app.listen(process.env.PORT);
-    const prisma: Prisma = await connect();
-    const ket = new KetClient(prisma, `Bot ${global.PROD ? process.env.DISCORD_TOKEN : process.env.BETA_CLIENT_TOKEN}`, CLIENT_OPTIONS as ClientOptions);
+    const ket = new KetClient(
+        `Bot ${global.PROD ? process.env.DISCORD_TOKEN : process.env.BETA_CLIENT_TOKEN}`, CLIENT_OPTIONS as ClientOptions);
 
     console.log = function () {
         let args = [...arguments];
 
         if (isNaN(args[args.length - 1])) {
-            console.info(args.join(' '));
+            console.info(inspect(args.map((_a, index) => `args[${index}]`)));
             return sendWebhook(args.join(' '));
         }
 
@@ -344,6 +346,7 @@ async function main() {
     console.error = function () {
         return console.log('ANTI-CRASH', 'ERRO GENÉRICO:', String(arguments['0'].stack).slice(0, 512), 31);
     }
+
     console.log('SHARD MANAGER', 'Iniciando fragmentação', 46);
     ket.boot();
 
@@ -367,7 +370,8 @@ async function main() {
     // .on('multipleResolves', (type, promise, reason) => reject('MULTIPLOS ERROS: ', reason));
     return;
 }
-    /**
+
+/**
 * TONS DE BRANCO E CINZA
 * 1 branco
 * 2 cinza
