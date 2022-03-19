@@ -8,12 +8,17 @@ module.exports = class RawRESTEvent {
         this.ket = ket;
     }
     async on(req: RawRESTRequest) {
-        if (req.resp.statusCode === 429 || req.resp.headers['x-ratelimit-scope']) {
-            let rl = this.ket.requestHandler.ratelimits[req.route],
-                timeout = moment.duration(Date.now() - rl.reset).format(" dd[d] hh[h] mm[m] ss[s] S[ms]");
+        if (req.resp.statusCode !== 429 && !req.resp.headers['x-ratelimit-bucket']) return;
 
-            console.log(`${String(req.resp.headers['x-ratelimit-scope']).toUpperCase()} RATE LIMIT/${timeout}`, `${rl.limit} ${req.method}S em ${req.route}`)
-        }
+        let res = req.resp.headers,
+            duration = moment.duration(Number(res['x-ratelimit-reset-after']) * 1000)
+                .format(" dd[d] hh[h] mm[m] ss[s] S[ms]");
+
+        let id = String((res['x-ratelimit-global'] ? 'GLOBAL ' : '') + res['x-ratelimit-scope']).toUpperCase()
+        console.log(`${id} RATE LIMIT`,
+            `${duration} por ${res['x-ratelimit-limit']} ${req.method}S em ${req.route}`,
+            `(API response: ${req.resp.statusCode}/${req.resp.statusMessage})`, 31);
+
         return;
     }
 }

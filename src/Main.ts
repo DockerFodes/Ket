@@ -11,6 +11,7 @@ import { tz } from "moment-timezone";
 import EventHandler from "./Components/Core/EventHandler";
 import moment from "moment";
 import duration from "moment-duration-format";
+import getT from "./Components/Core/LocalesStructure";
 let postgres: PostgresClient;
 
 export default class KetClient extends Client {
@@ -39,7 +40,8 @@ export default class KetClient extends Client {
         this.events = new (EventHandler)(this, postgres);
         this.addListeners(`${__dirname}/Events/`);
         await this.loadModules(`${__dirname}/Packages/`);
-        return super.connect();
+        super.connect()
+        return;
     }
 
     public loadCommands(path: string) {
@@ -84,6 +86,9 @@ export default class KetClient extends Client {
         } catch (e) {
             console.log('LOCALES', e, 31);
             return false;
+        } finally {
+            let t = getT(DEFAULT_LANG);
+            // console.log(t('events:noargs'));
         }
     }
 
@@ -351,7 +356,7 @@ async function main() {
 
     function sendWebhook(str: string | string[]) {
         global.PROD ? ket.executeWebhook(process.env.WEBHOOK_LOGS.split(' | ')[0], process.env.WEBHOOK_LOGS.split(' | ')[1], {
-            username: "Ket Logs",
+            username: `${ket.user.username} Logs`,
             avatarURL: "https://cdn.discordapp.com/attachments/788376558271201290/932605381539139635/797062afbe6a08ae32e443277f14b7e2.jpg",
             content: `\`${str}\``.slice(0, 1998)
         }) : null;

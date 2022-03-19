@@ -47,7 +47,7 @@ async function DM(ctx: Message<PrivateChannel>, ket: KetClient) {
     return ket.executeWebhook(webhook.id, webhook.token, {
         username: ctx.author.username,
         avatarURL: ctx.author.dynamicAvatarURL('png'),
-        content: !ctx.content && !ctx.attachments && !ctx.stickerItems ? '_ _' : ctx.content,
+        content: ctx.content || '_ _',
         embeds: ref ? [{
             author: { name: ref.author.username, icon_url: ref.author.dynamicAvatarURL('jpg') },
             color: getColor('green'),
