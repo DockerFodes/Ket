@@ -15,13 +15,39 @@
         "title": "Pane no sistema",
         "description": "Alguma coisa está impedindo que este comando funcione, a minha equipe foi alertada sobre o erro, sinto muito pela incoveniência.\n```js\n{{error}}```"
     },
+    "noargs": {
+        "thumbnail": {
+            "url": "https://cdn.discordapp.com/attachments/788376558271201290/816183379435192330/noargs.thumb.gif"
+        },
+        "title": "$emoji(hum) Tem algo errado aqui $emoji(hum)",
+        "fields": [
+            {
+                "name": "$emoji(negado) | Forma correta de usar esse comando:",
+                "value": "`{{user.prefix}}{{command.config.name}} {{t(`${command.config.name}.usage`)}}`"
+            },
+            {
+                "name": "Exemplo de uso:",
+                "value": "`{{user.prefix}}{{command.config.name}} {{t(`${command.config.name}.ex`)}}`"
+            },
+            {
+                "name": "Sinônimos:",
+                "value": "`{{command.config.aliases.join('`, `')`"
+            }
+        ]
+    },
     "globalchat": {
         "welcome": {
             "title": "Seja bem-viado(a) ao chat global!",
             "description": "Se você não sabe como isso funciona, as mensagens enviadas aqui serão enviadas para outros servidores e vice-versa.",
             "fields": [
-                { "name": "ㅤㅤㅤ➯ㅤㅤㅤㅤ 「 Regras 」", "value": "◈ Apenas tenha bom senso e não viole os Termos do Discord\n◈ Ser desrespeitoso, flodar, enviar conteúdo sexual **explícito**/**muito sugestivo** pode causar banimento" },
-                { "name": "ㅤ➯ㅤ 「O que você ✨ pode/não pode ✨ fazer」", "value": "**Você pode:**\n◈ Enviar/Editar/Apagar mensagens com fotos/vídeos/gifs, emojis, figurinhas e links de sites permitidos\n\n**Mas não pode:**\n◈ Enviar convites de servidores\n◈ Editar/apagar mensagens com mais de 15 minutos\n◈ Mencionar everyone/here ou usuários/cargos\n◈ Definir este chat como canal de conteúdo adulto" }
+                {
+                    "name": "ㅤㅤㅤ➯ㅤㅤㅤㅤ 「 Regras 」",
+                    "value": "◈ Apenas tenha bom senso e não viole os Termos do Discord\n◈ Ser desrespeitoso, flodar, enviar conteúdo sexual **explícito**/**muito sugestivo** pode causar banimento"
+                },
+                {
+                    "name": "ㅤ➯ㅤ 「O que você ✨ pode/não pode ✨ fazer」",
+                    "value": "**Você pode:**\n◈ Enviar/Editar/Apagar mensagens com fotos/vídeos/gifs, emojis, figurinhas e links de sites permitidos\n\n**Mas não pode:**\n◈ Enviar convites de servidores\n◈ Editar/apagar mensagens com mais de 15 minutos\n◈ Mencionar everyone/here ou usuários/cargos\n◈ Definir este chat como canal de conteúdo adulto"
+                }
             ],
             "footer": {
                 "icon_url": "{{avatar}}",

@@ -1,3 +1,5 @@
+import { getEmoji } from "../Commands/CommandStructure";
+
 class LocalesStructure {
     lang: string;
     constructor(lang: string) {
@@ -32,6 +34,10 @@ class LocalesStructure {
                         });
                 });
 
+                ctt.match(new RegExp('$emoji([a-z])', 'gi'))
+                    .map((m) => m.replace('$emoji(', '').replace(')', ''))
+                    .forEach((m) => ctt = ctt.replace(m, getEmoji(m).mention));
+
                 return ctt;
             }
 
@@ -54,6 +60,6 @@ class LocalesStructure {
 }
 
 export default function getT(lang: string) {
-    let locales = new LocalesStructure(lang)
+    let locales = new LocalesStructure(lang);
     return locales.getLocale.bind(locales);
 }

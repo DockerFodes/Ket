@@ -78,6 +78,7 @@ export default class KetClient extends Client {
                     if (!config.filesMetadata[config.langs[a]]) config.filesMetadata[config.langs[a]] = {};
                     config.filesMetadata[config.langs[a]][config.files[b].split('.json')[0]] = (await import(`${path}/${config.langs[a]}/${config.files[b]}`));
                 }
+
             console.log('LOCALES', `${config.langs.length} Locales carregados`, 36);
             return true;
         } catch (e) {

@@ -1,7 +1,6 @@
-import { TRUSTED_BOTS, DEVS, guilds } from "../../JSON/settings.json";
+import { TRUSTED_BOTS, DEVS, guilds, DEFAULT_PREFIX, DEFAULT_LANG } from "../../JSON/settings.json";
 import { getContext, getColor } from "../../Components/Commands/CommandStructure";
 import { PostgresClient } from "../../Components/Typings/Database";
-import { DEFAULT_PREFIX, DEFAULT_LANG } from "../../JSON/settings.json";
 import { Message } from "eris";
 import KetClient from "../../Main";
 import KetUtils from "../../Components/Core/KetUtils";
@@ -55,25 +54,6 @@ module.exports = class MessageCreateEvent {
         })
 
         await this.postgres.users.update(ctx.uID, { commands: user.commands + 1 });
-
-        // let noargs = {
-        //     color: getColor('red'), 
-        //     thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/816183379435192330/noargs.thumb.gif' },
-        //     title: global.t("events:noargs.title", {  }),
-        //     fields: [{
-        //         name: t("events:noargs.field", { negado: ray.emotes.negado }),
-        //         value: `\`${user.prefix}${comando.config.name} ${t(`commands:${comando.config.name}.usage`)}\``,
-        //     },
-        //     {
-        //         name: t("events:noargs.ex"),
-        //         value: `\`${user.prefix}${comando.config.name} ${t(`commands:${comando.config.name}:ex`)}\``,
-        //     },
-        //     {
-        //         name: t("events:noargs.aliases"),
-        //         value: '`' + comando.config.aliases.join(" ").replace(new RegExp(' ', 'g'), '\`, \`') + '`',
-        //     },],
-        //     footer: { text: t("events:footer.f1", { prefix: user.prefix }), icon_url: message.author.displayAvatarURL({ format: 'jpg', dynamic: true }) }
-        // }
 
         new Promise(async (res, rej) => {
             try {

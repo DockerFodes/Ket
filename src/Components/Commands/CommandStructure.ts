@@ -188,34 +188,42 @@ export class CommandContext {
     shard: Shard;
     channel: GuildTextableChannel;
     cID: string;
+    noargs: object;
     command: CommandConfig;
     commandName: string;
     t: Function;
 }
 
 export function getContext({ ket, postgres, message, interaction, user, server, args, command, commandName, t }: CommandContextFunc) {
-    let ctx = message ? message : interaction;
+    let env = message ? message : interaction,
+        author = message ? message.author : interaction.user || interaction.member.user
+
     return {
-        postgres: postgres,
+        postgres,
         config: settings,
-        env: message ? message : interaction,
-        send: (args) => (args.ctx = ctx) && ket.send(args),
-        user: user,
-        server: server,
-        args: args,
-        author: (message ? message.author : ctx.member.user),
-        uID: (message ? message.author : ctx.member.user).id,
-        member: ctx.member,
-        guild: ctx.channel.guild,
-        gID: ctx.guildID,
-        me: ctx.channel.guild.members.get(ket.user.id),
-        shard: ctx.channel.guild.shard,
-        channel: ctx.channel,
-        cID: ctx.channel.id,
+        env,
+        send: (args) => (args.ctx = env) && ket.send(args),
+        user,
+        server,
+        args,
+        author,
+        uID: author.id,
+        member: env.member,
+        guild: env.channel.guild,
+        gID: env.guildID,
+        me: env.channel.guild.members.get(ket.user.id),
+        shard: env.channel.guild.shard,
+        channel: env.channel,
+        cID: env.channel.id,
         command: command?.config,
-        commandName: commandName,
-        t: t
-    } as CommandContext;
+        commandName,
+        t,
+        noargs: {
+            color: getColor('red'),
+            ...t('events:noargs', { command, user, t }),
+            footer: t('events:embedTemplate.footer', { user: author })
+        }
+    } as CommandContext;;
 }
 
 export async function infoEmbed(shardID: number, ket: KetClient) {
