@@ -5,7 +5,7 @@ interface dbTable<T> {
     update(index: string | string[], data: Partial<T>, createIfNull?: boolean, returnValue?: boolean): Promise<T | T[] | boolean>;
     find(index: string | string[], createIfNull?: boolean, key?: string): Promise<T>;
     delete(index: string | string[]): Promise<boolean>;
-    getAll(limit?: number, resolveProperties?: boolean, orderBy?: { key: string, type: string }): Promise<T[]>;
+    getAll(limit?: number, orderBy?: { key: string, type: string }, resolveProperties?: boolean): Promise<T[]>;
 }
 
 type responseTypes = boolean | null | userSchema | serverSchema | commandSchema

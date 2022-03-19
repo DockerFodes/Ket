@@ -4,12 +4,12 @@ import table from "./_Interaction";
 
 export default async () => {
     let postgres = new Client({
-        database: process.env.DATABASE_NAME,
-        password: process.env.DATABASE_PASSWORD,
-        user: process.env.DATABASE_USER,
-        host: process.env.DATABASE_HOST,
-        port: Number(process.env.DATABASE_PORT),
-        ssl: process.env.SSL_MODE == 'false' ? false : { rejectUnauthorized: false }
+        database: process.env.DATABASE,
+        password: process.env.PASSWORD,
+        user: process.env.USER,
+        host: process.env.HOST,
+        port: Number(process.env.PORT),
+        ssl: process.env.SSL == 'false' ? false : { rejectUnauthorized: false }
     });
 
     await postgres.connect()

@@ -104,7 +104,7 @@ export default class DatabaseInteraction<T> {
         if (!index) return null;
 
         let SQLString = `
-        SELECT * FROM "${this.tableName} "
+        SELECT * FROM "${this.tableName}"
 
         WHERE "${key || this.primaryKey}" = '${index}';
         `,
@@ -114,11 +114,10 @@ export default class DatabaseInteraction<T> {
             if (Array.isArray(index))
                 for (let i in index) search.push(
                     this._resolveProperties(
-                        (await this.postgres.query(SQLString.replace(String(index), index[i])))
-                            .rows[0]
+                        (await this.postgres.query(SQLString.replace(String(index), index[i]))).rows[0]
                     )
                 );
-            else search = (await this.postgres.query(SQLString)).rows[0];
+            else search = this._resolveProperties((await this.postgres.query(SQLString)).rows[0]);
         } catch (e) {
             console.log(`DATABASE/FIND/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e}`, 41);
             search = false;
@@ -149,7 +148,7 @@ export default class DatabaseInteraction<T> {
         }
     }
 
-    async getAll(limit?: number, resolveProperties?: boolean, orderBy?: { key: string, type: string }): Promise<T[]> {
+    async getAll(limit?: number, orderBy?: { key: string, type: string }, resolveProperties?: boolean): Promise<T[]> {
         const SQLString = `
         SELECT * FROM "${this.tableName}"
         ${orderBy

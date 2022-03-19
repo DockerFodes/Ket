@@ -50,7 +50,9 @@ module.exports = class ReadyEvent {
         }, 60_000)
 
         setInterval(() => {
-            this.ket.users.filter(user => user.rateLimit > 0).forEach(u => u.rateLimit--);
+            this.ket.users
+                .filter(user => user.rateLimit > 0)
+                .forEach(u => u.rateLimit--);
             return;
         }, 5000);
 

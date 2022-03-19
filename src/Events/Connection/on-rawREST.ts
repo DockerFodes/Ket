@@ -1,5 +1,5 @@
-import KetClient from "../../Main";
 import { RawRESTRequest } from "eris";
+import KetClient from "../../Main";
 import moment from 'moment';
 
 module.exports = class RawRESTEvent {

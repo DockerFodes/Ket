@@ -1,6 +1,7 @@
 import { TRUSTED_BOTS, DEVS, guilds } from "../../JSON/settings.json";
 import { getContext, getColor } from "../../Components/Commands/CommandStructure";
 import { PostgresClient } from "../../Components/Typings/Database";
+import { DEFAULT_PREFIX, DEFAULT_LANG } from "../../JSON/settings.json";
 import { Message } from "eris";
 import KetClient from "../../Main";
 import KetUtils from "../../Components/Core/KetUtils";
@@ -10,7 +11,7 @@ import getT from "../../Components/Core/LocalesStructure";
 module.exports = class MessageCreateEvent {
     ket: KetClient;
     postgres: PostgresClient;
-    KetUtils: any;
+    KetUtils;
     constructor(ket: KetClient, postgres: PostgresClient) {
         this.ket = ket;
         this.postgres = postgres;
@@ -18,18 +19,19 @@ module.exports = class MessageCreateEvent {
     }
     async on(message: Message<any>) {
         if (message.author?.bot && !TRUSTED_BOTS.includes(message.author.id)) return;
-        if (!message.guildID || message.channel.type === 1 || message.channel.parentID === guilds.dmCategory) return DMexec(message, this.ket, message.channel.parentID === guilds.dmCategory);
+        if (!message.guildID || message.channel.type === 1 || message.channel.parentID === guilds.dmCategory)
+            return DMexec(message, this.ket, message.channel.parentID === guilds.dmCategory);
 
         let server = await this.postgres.servers.find(message.guildID, true),
             user = await this.postgres.users.find(message.author.id),
-            t = getT(user.lang),
+            t = getT(user?.lang || DEFAULT_LANG),
             ctx = getContext({ ket: this.ket, postgres: this.postgres, message, server, user, t });
 
-        if (user.banned) return;
+        if (user?.banned) return;
         if (server.banned) return ctx.guild.leave();
         if (server.globalchat && ctx.cID === server.globalchat) this.KetUtils.sendGlobalChat(ctx);
 
-        const prefixRegex = new RegExp(`^(${user.prefix.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}|<@!?${this.ket.user.id}>)( )*`, 'gi')
+        const prefixRegex = new RegExp(`^(${String(user?.prefix || DEFAULT_PREFIX).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}|<@!?${this.ket.user.id}>)( )*`, 'gi')
         if (!message.content.match(prefixRegex)) return;
         let args: string[] = message.content.replace(prefixRegex, '').trim().split(/ /g),
             commandName: string | null = args.shift().toLowerCase(),

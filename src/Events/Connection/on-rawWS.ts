@@ -7,7 +7,7 @@ module.exports = class Event {
         this.ket = ket;
     }
     async on(packet: VoicePacket) {
-        this.ket.erela.updateVoiceState(packet);
+        if (this.ket.erela) this.ket.erela.updateVoiceState(packet);
         return;
     }
 }

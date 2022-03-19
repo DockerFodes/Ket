@@ -5,14 +5,12 @@ import { PostgresClient } from "./Components/Typings/Database";
 import { CLIENT_OPTIONS } from "./JSON/settings.json";
 import { DEFAULT_LANG } from "./JSON/settings.json";
 import { readdirSync } from "fs";
-import pg from "pg";
 import ConnectDB from "./Packages/Database/Connection";
 // import { Manager } from "erela.js";
 import { tz } from "moment-timezone";
 import EventHandler from "./Components/Core/EventHandler";
 import moment from "moment";
 import duration from "moment-duration-format";
-const { inspect } = require('util');
 let postgres: PostgresClient;
 
 export default class KetClient extends Client {
@@ -332,9 +330,9 @@ async function main() {
     console.log = function () {
         let args = [...arguments];
 
-        if (isNaN(args[args.length - 1])) {
-            console.info(inspect(args.map((_a, index) => `args[${index}]`)));
-            return sendWebhook(args.join(' '));
+        if (typeof args[args.length - 1] !== 'number') {
+            console.info(eval(args.map((_a, index) => `args[${index}]`).join(', ')));
+            return sendWebhook(eval(args.map((_a, index) => `args[${index}]`).join(', ')));
         }
 
         moment.locale("pt-BR");
