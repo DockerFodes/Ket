@@ -18,7 +18,7 @@ export default class EventHandler {
         if (!type) name === 'ready'
             ? this.ket.once(name, (...args) => this.execute(name, args))
             : this.ket.on(name, (...args) => this.execute(name, args));
-        else this.ket.erela.on(name as any, (...args) => this.execute(name, args));
+        // else this.ket.erela.on(name as any, (...args) => this.execute(name, args));
         return;
     }
     execute(name: string, args: any[]) {

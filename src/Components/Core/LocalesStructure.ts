@@ -24,9 +24,9 @@ class LocalesStructure {
 
                 Object.entries(placeholders).forEach(([key, value]) => {
 
-                    ctt.match(new RegExp(`{{(${key}|${key}.*?)}}`, 'g')) // regex pra encontrar placeholders
-                        ?.map(a => a.replace(new RegExp('{{|}}', 'g'), '')) // removendo as chaves
-                        ?.forEach((m: string) => {
+                    (ctt.match(new RegExp(`{{(${key}|${key}.*?)}}`, 'g')) || []) // regex pra encontrar placeholders
+                        .map(a => a.replace(new RegExp('{{|}}', 'g'), '')) // removendo as chaves
+                        .forEach((m: string) => {
                             let newStr = String(this.getValue(placeholders, m));
 
                             if (m.includes('.') && !!newStr) ctt = ctt.replace(`{{${m}}}`, newStr);
@@ -34,7 +34,7 @@ class LocalesStructure {
                         });
                 });
 
-                ctt.match(new RegExp('$emoji([a-z])', 'gi'))
+                (ctt.match(new RegExp('$emoji([a-z])', 'gi')) || [])
                     .map((m) => m.replace('$emoji(', '').replace(')', ''))
                     .forEach((m) => ctt = ctt.replace(m, getEmoji(m).mention));
 
@@ -46,7 +46,7 @@ class LocalesStructure {
                 : filtrar(content);
 
         } catch (e: any) {
-            console.log('LOCALES', String(e.stack.slice(512)), 31);
+            console.log('LOCALES', e.stack, 31);
             return str;
         }
     }

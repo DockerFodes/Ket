@@ -32,7 +32,7 @@ export default async function (ket: KetClient, postgres: PostgresClient) {
             }
 
             evaled = await eval(response.code);
-            console.info(evaled);
+            console.log(evaled);
         } catch (e) {
             console.log('TERMINAL CLIENT', e, 31);
         } finally {

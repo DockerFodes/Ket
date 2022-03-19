@@ -218,9 +218,9 @@ export function getContext({ ket, postgres, message, interaction, user, server, 
         command: command?.config,
         commandName,
         t,
-        noargs: {
+        noargs: !command?.config ? {} : {
             color: getColor('red'),
-            ...t('events:noargs', { command, user, t }),
+            ...t('events:noargs', { command: command?.config, user, t }),
             footer: t('events:embedTemplate.footer', { user: author })
         }
     } as CommandContext;;
@@ -229,7 +229,7 @@ export function getContext({ ket, postgres, message, interaction, user, server, 
 export async function infoEmbed(shardID: number, ket: KetClient) {
     let embed = {
         color: getColor('blue'),
-        title: `${getEmoji('carregando').mention} **Bot Status** ${getEmoji('carregando').mention}`,
+        title: `${getEmoji('connection').mention} **Bot Status** ${getEmoji('connection').mention}`,
         description: 'Bot Uptime 🗓️: ' + (ket.startTime === 0 ? 'Iniciando...' : duration(Date.now() - ket.startTime).format('dd[d] hh[h] mm[m] ss[s]')).encode('fix'),
         fields: [
             { name: 'Users 👥:', value: ket.allUsersCount.encode('cs'), inline: true },

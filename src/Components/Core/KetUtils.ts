@@ -72,9 +72,9 @@ export default class KetUtils {
                         : message.author.username,
                 avatarURL: message.author.dynamicAvatarURL('jpg'),
                 content:
-                    DEVS.includes(ctx.uID)
+                    (DEVS.includes(ctx.uID)
                         ? message.cleanContent
-                        : this.msgFilter(message.cleanContent),
+                        : this.msgFilter(message.cleanContent)) || '_ _',
                 embeds: [],
                 components: [],
                 file: [...(await this.getMediaBuffer(message, 0)), ...(await this.getMediaBuffer(message, 1))],

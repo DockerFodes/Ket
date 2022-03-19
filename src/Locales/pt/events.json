@@ -23,15 +23,15 @@
         "fields": [
             {
                 "name": "$emoji(negado) | Forma correta de usar esse comando:",
-                "value": "`{{user.prefix}}{{command.config.name}} {{t(`${command.config.name}.usage`)}}`"
+                "value": "`{{user.prefix}}{{command.name}} {{usage}}`"
             },
             {
                 "name": "Exemplo de uso:",
-                "value": "`{{user.prefix}}{{command.config.name}} {{t(`${command.config.name}.ex`)}}`"
+                "value": "`{{user.prefix}}{{command.name}} {{example}}`"
             },
             {
                 "name": "Sinônimos:",
-                "value": "`{{command.config.aliases.join('`, `')`"
+                "value": "`{{command.aliases.join('`, `')`"
             }
         ]
     },
