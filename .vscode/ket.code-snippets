@@ -2,20 +2,21 @@
     "clg": {
         "scope": "typescript",
         "prefix": "clg",
-        "body": "console.info($1)"
+        "body": "console.log($1)"
     },
     "Event": {
         "scope": "typescript",
         "prefix": "newKetEvent",
         "body": [
+            "import { PostgresClient } from \"../../Components/Typings/Database\";",
             "import KetClient from \"../../Main\";",
             "",
             "module.exports = class $1Event {",
             "    ket: KetClient;",
-            "    prisma: Prisma;",
-            "    constructor(ket: KetClient, prisma: Prisma) {",
+            "    postgres: PostgresClient;",
+            "    constructor(ket: KetClient, postgres: PostgresClient) {",
             "        this.ket = ket;",
-            "        this.prisma = prisma;",
+            "        this.postgres = postgres;",
             "    }",
             "    async on($2) {",
             "        $3",
