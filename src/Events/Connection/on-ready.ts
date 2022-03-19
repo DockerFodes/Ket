@@ -61,7 +61,6 @@ module.exports = class ReadyEvent {
  ◆ ▬▬▬▬▬▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬▬▬▬▬▬ ◆
   - Operante em ${this.ket.guilds.size} servidores com ${this.ket.allUsersCount} membros.`, 33);
         TerminalClient(this.ket, this.postgres);
-
         return;
     }
 }

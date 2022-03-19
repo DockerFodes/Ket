@@ -1,11 +1,10 @@
 {
     "name": "ketdiscordbot",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "description": "",
     "main": "build/Main.js",
     "packageManager": "yarn@3.1.1",
     "scripts": {
-        "postinstall": "npx prisma db push && npx prisma generate",
         "build": "npx typescript && cp -r -f -v src/Assets build/Assets",
         "start": "npm run build && npm run noCompile",
         "dev": "node --expose-gc --trace-warnings build/Main.js --dev",
@@ -36,7 +35,6 @@
     ],
     "dependencies": {
         "@discordjs/builders": "^0.11.0",
-        "@prisma/client": "^3.10.0",
         "axios": "^0.24.0",
         "canvas": "^2.9.0",
         "didyoumean": "^1.2.2",
@@ -47,7 +45,6 @@
         "moment-duration-format": "^2.3.2",
         "moment-timezone": "^0.5.33",
         "pg": "^8.7.3",
-        "prisma": "^3.10.0",
         "prompts": "^2.4.2"
     },
     "devDependencies": {
