@@ -10,9 +10,9 @@ module.exports = class ShardReadyEvent {
         console.log(`SHARD ${shardID}`, 'Conectada ao Discord', 34);
         this.ket.shardUptime.set(shardID, Date.now());
 
-        global.PROD
-            ? infoEmbed(shardID, this.ket)
-            : null;
+        if (global.PROD)
+            infoEmbed(shardID, this.ket);
+
         return;
     }
 }

@@ -134,17 +134,18 @@ export default class KetUtils {
                             ? "`⬑ - - Ver mensagem - - ⬏`"
                             : this.msgFilter(msg.cleanContent, 64);
 
-                    !msg ? null : msgObj.embeds = [{
-                        color: getColor('green'),
-                        timestamp: moment(msg.timestamp).format(),
-                        author: { name: msg.author.username, icon_url: msg.author.dynamicAvatarURL('jpg') },
-                        description: `${refAuthor?.banned
-                            ? '`mensagem de usuário banido`'
-                            : !ref
-                                ? refContent
-                                : `[${refContent}](https://discord.com/channels/${g.id}/${g.globalchat}/${ref.id})`}`,
-                        thumbnail: (msg.attachments[0] && !refAuthor?.banned ? { url: `${msg.attachments[0].url}?size=240` } : null)
-                    }]
+                    if (msg)
+                        msgObj.embeds = [{
+                            color: getColor('green'),
+                            timestamp: moment(msg.timestamp).format(),
+                            author: { name: msg.author.username, icon_url: msg.author.dynamicAvatarURL('jpg') },
+                            description: `${refAuthor?.banned
+                                ? '`mensagem de usuário banido`'
+                                : !ref
+                                    ? refContent
+                                    : `[${refContent}](https://discord.com/channels/${g.id}/${g.globalchat}/${ref.id})`}`,
+                            thumbnail: msg.attachments[0] && !refAuthor?.banned ? { url: `${msg.attachments[0].url}?size=240` } : null
+                        }]
                 }
 
                 if (msgObj.content?.length > 0 && g.lang && ctx.server.lang && g.lang !== ctx.server.lang)
@@ -174,10 +175,11 @@ export default class KetUtils {
 
         await Promise.all(sendAllChats);
         await this.postgres.globalchat.create(message.id, {
-            author: message.author.id,
-            guild: message.guildID,
+            author: ctx.uID,
+            guild: ctx.gID,
             editCount: 0,
-            messages: msgs
+            //@ts-ignore
+            messages: `{${msgs.join(',')}}`
         })
         return;
     }
@@ -188,17 +190,18 @@ export default class KetUtils {
             isUrl: RegExp = /(?:\b[a-z\d\b.-]*\s*(?:[://]+)(?:\s*[://]{2,}\s*)[^<>\s]*)|\b(?:(?:(?:[^\s!@#$%^&*()_=+[\]{}\|;:'",.<>/?]*)(?:\.|\.\s|\s\.|\s\.\s|@)+)+(?:url|gl|ly|app|ac|ad|aero|ae|af|ag|ai|al|am|an|ao|aq|arpa|ar|asia|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|biz|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|cat|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|coop|com|co|cr|cu|cv|cx|cy|cz|de|dj|dk|dm|do|dz|ec|edu|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|info|int|in|io|iq|ir|is|it|je|jm|jobs|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mobi|mo|mp|mq|mr|ms|mt|museum|mu|mv|mw|mx|my|mz|name|na|nc|net|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pro|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tl|tm|tn|to|tp|travel|tr|tt|tv|tw|tz|ua|ug|uk|um|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|xn--0zwm56d|xn--11b5bs3a9aj6g|xn--80akhbyknj4f|xn--9t4b11yi5a|xn--deba0ad|xn--g6w251d|xn--hgbk6aj7f53bba|xn--hlcj6aya9esc7a|xn--jxalpdlp|xn--kgbechtv|xn--zckzah|ye|yt|yu|za|zm|zw)|(?:(?:[0-9]|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.){3}(?:[0-9]|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5]))(?:[;/][^#?<>\s]*)?(?:\?[^#<>\s]*)?(?:#[^<>\s]*)?(?!\w)/g;
 
         while (content.includes('\u005c')) content = content.replace('\u005c', '');
-        content = content.replace(new RegExp('https://media.discordapp.net/', 'gi'), 'https://cdn.discordapp.com/')
-        ignoreEmojis ? content = content.replace(/<a?(:\w+:)[0-9]+>/g, "$1") : null;
+        content = content.replace(new RegExp('https://media.discordapp.net/attachments/', 'gi'), 'https://cdn.discordapp.com/attachments/');
 
-        content.match(isInvite)
-            ? content.match(isInvite)
-                .forEach(text => content = content.replace(text, ' `convite bloqueado` '))
-            : null;
-        content.match(isPishing) ?
-            content.match(isPishing)
-                .forEach(text => text.startsWith('https://media.discordapp.net/attachments/') || text.startsWith('https://cdn.discordapp.com/attachments/') ? null : content = content.replace(text, ' `possível link de pishing` '))
-            : null;
+        if (ignoreEmojis) content = content.replace(/<a?(:\w+:)[0-9]+>/g, "$1")
+
+        if (content.match(isInvite)) content.match(isInvite)
+            .forEach(text => content = content.replace(text, ' `convite bloqueado` '));
+
+        if (content.match(isPishing))
+            content.match(isPishing).forEach(text => {
+                if (text.startsWith('https://cdn.discordapp.com/attachments/')) return;
+                content = content.replace(text, ' `possível link de pishing` ');
+            })
 
         if (content.match(isUrl)) {
             content.split(' ').forEach(text => {
@@ -216,13 +219,13 @@ export default class KetUtils {
     async checkRateLimit(ctx: CommandContext, user: User) {
         !user.rateLimit ? user.rateLimit = 1 : user.rateLimit++;
 
-        (await this.postgres.globalchat.getAll()).slice(0, 9)
+        (await this.postgres.globalchat.getAll(10, { key: 'id', type: 'DESC' }))
             .filter(m => m.author === ctx.uID)
             .forEach(msg => {
                 let content = String(ctx.channel.messages.get(msg.id)?.content);
-                content.length > 998 ? user.rateLimit++ : null;
+                if (content.length > 498) user.rateLimit++;
                 //@ts-ignore
-                this.checkSimilarity(content, ctx.env.content) >= 0.9 ? user.rateLimit++ : null
+                if (this.checkSimilarity(content, ctx.env.content) >= 0.9) user.rateLimit++;
             })
 
         if (user.rateLimit >= 10) {
@@ -230,12 +233,13 @@ export default class KetUtils {
                 banned: `[ AUTO-MOD ] - Mal comportamento no chat global, timeout: ${Date.now() + user.rateLimit * 1000 * 60}`
             });
 
-            let userBl = await this.postgres.blacklist.find(ctx.uID);
-            if (userBl) userBl.warns < 3 ? await this.postgres.blacklist.update(ctx.uID, {
-                timeout: Date.now() + (user.rateLimit * 1000 * 60),
-                warns: userBl.warns + 1
-            }) : null;
-            else await this.postgres.blacklist.create(ctx.uID, {
+            let userBan = await this.postgres.blacklist.find(ctx.uID);
+            if (userBan) {
+                if (userBan.warns < 3) await this.postgres.blacklist.update(user.id, {
+                    timeout: Date.now() + user.rateLimit * 1000 * 60,
+                    warns: userBan.warns + 1
+                });
+            } else await this.postgres.blacklist.create(user.id, {
                 timeout: Date.now() + user.rateLimit * 1000 * 60
             })
 
@@ -262,7 +266,8 @@ export default class KetUtils {
                 method: 'get',
                 responseType: 'arraybuffer'
             })
-            !buffer ? null : files.push({
+
+            if (buffer) files.push({
                 file: buffer.data,
                 name: type === 0 ? media[i].filename : `${media[i].name}.${media[i].format_type === 1 ? 'png' : 'gif'}`
             });
@@ -302,8 +307,9 @@ export default class KetUtils {
             es: { name: 'Spanish', emoji: '🇪🇸' },
             pt: { name: 'Portuguese', emoji: '🇧🇷' }
         }
+        if (languages[lang]) return languages[lang];
 
-        return languages[lang] ? languages[lang] : null;
+        return;
     }
 
     async checkPermissions({ ctx = null, channel = null, command = null, notReply = null }) {
@@ -332,7 +338,7 @@ export default class KetUtils {
 
         if (missingPermissions[0]) {
             let content = ctx.t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') });
-            notReply ? null :
+            if (!notReply)
                 ctx.send({ content, embed: false, emoji: 'negado' })
                     .catch(async () => {
                         this.ket.send({ ctx: ctx.uID, content })
@@ -367,7 +373,7 @@ export default class KetUtils {
                 embeds: [{
                     color: getColor('red'),
                     thumbnail: { url: 'https://cdn.discordapp.com/attachments/788376558271201290/918721199029231716/error.gif' },
-                    description: ctx.t('events:error.description', { error })
+                    description: ctx.t('events:error.description', { error: error.message })
                 }],
                 flags: 64
             }

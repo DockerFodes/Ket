@@ -9,9 +9,13 @@ export default async () => {
         user: process.env.USER,
         host: process.env.HOST,
         port: Number(process.env.PORT),
-        ssl: process.env.SSL == 'false' ? false : { rejectUnauthorized: false }
+        ssl: process.env.SSL ? {
+            rejectUnauthorized: false,
+            requestCert: true
+        } : false
     });
-
+    //NODE_TLS_REJECT_UNAUTHORIZED=0
+    // PGSSLMODE=no-verify
     await postgres.connect()
         .then(() => {
             postgres.users = new table<userSchema>('users', 'id', postgres);

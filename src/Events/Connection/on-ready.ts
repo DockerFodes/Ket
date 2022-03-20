@@ -26,9 +26,8 @@ module.exports = class ReadyEvent {
         ],
             makeBackup = 0;
         setInterval(async () => {
-            global.PROD
-                ? infoEmbed(NaN, this.ket)
-                : null;
+            if (global.PROD)
+                infoEmbed(NaN, this.ket);
 
             let now = moment.tz(Date.now(), "America/Bahia").format('H')
             //@ts-ignore

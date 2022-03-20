@@ -23,10 +23,10 @@ module.exports = class MessageDeleteEvent {
         let guild = await this.postgres.servers.find(message.guildID);
         if (message.channel.id !== guild.globalchat || Date.now() > message.timestamp + (15 * 1000 * 60)) return;
 
-        let msgs = await this.postgres.globalchat.getAll(),
+        let msgs = await this.postgres.globalchat.getAll(500, { key: 'id', type: 'DESC' }),
             msg = msgs.find((m) => m.id === message.id || msg.messages.find((ms) => ms.includes(message.id)));
 
-        !msg ? null : msg.messages.forEach(async data => {
+        if (msg) msg.messages.forEach(async (data: string) => {
 
             let server = await this.postgres.servers.find(data.split('|')[1]),
                 channel = this.ket.guilds.get(server.id).channels.get(server.globalchat) as GuildTextableChannel,

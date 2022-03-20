@@ -199,11 +199,11 @@ export default class KetClient extends Client {
 
                 if (user && (user.lastCommand && user.lastCommand.userMsg === ctx.id) || target === 1)
                     botMsg = await ctx.channel.editMessage(user.lastCommand.botMsg, msgObj)
-                        .catch(async () => botMsg = ctx instanceof Message ? await ctx.channel.createMessage(msgObj, attachments) : null);
+                        .catch(async () => botMsg = await ctx.channel.createMessage(msgObj, attachments));
                 else botMsg = await ctx.channel.createMessage(msgObj, attachments)
 
                 user.lastCommand = {
-                    botMsg: botMsg ? botMsg.id : null,
+                    botMsg: botMsg ? botMsg.id : '',
                     userMsg: ctx.id
                 }
                 return botMsg;
@@ -348,7 +348,7 @@ async function main() {
         return console.info(`\x1B[${color}m${str}\x1B[0m`);
     }
     console.error = function () {
-        return console.log('ANTI-CRASH', 'ERRO GENÉRICO:', String(arguments['0'].stack).slice(0, 512), 31);
+        return console.log('ANTI-CRASH', 'ERRO GENÉRICO:', String(arguments['0'].stack ? arguments['0'].stack : arguments['0']).slice(0, 512), 31);
     }
 
     console.log('SHARD MANAGER', 'Iniciando fragmentação', 46);

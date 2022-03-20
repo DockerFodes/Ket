@@ -33,17 +33,18 @@ export default class DatabaseInteraction<T> {
     async create(index: string | string[], data?: Partial<T>, returnValue?: boolean): Promise<T | T[] | boolean> {
         if (!index) return false;
 
-        let values: string[] = [];
+        let values = [];
 
         if (data)
             Object.entries(data)
-                .forEach(([value]) => {
+                .forEach(([_key, value]) => {
                     value = String(value)
                         .replace(new RegExp(`'`, 'g'), `''`);
 
-                    typeof value === 'string' && !value.startsWith('$sql ')
+                    typeof value === 'string'
                         ? values.push(`'${value}'`)
-                        : values.push(value.replace('$sql ', ''));
+                        : values.push(value);
+                    return;
                 })
 
         let SQLString = `
@@ -53,18 +54,17 @@ export default class DatabaseInteraction<T> {
                 : ''}
                 )
             VALUES(
-                '${index}'${data
-                ? `, ${values.join(', ')}`
-                : ''}
+                '${index}'${data ? `, ${values.join(', ')}` : ''}
                 );
         `
         try {
             if (Array.isArray(index))
-                for (let i in index) await this.postgres.query(SQLString.replace(String(index), index[i]));
+                for (let i in index)
+                    await this.postgres.query(SQLString.replace(String(index), index[i]));
             else await this.postgres.query(SQLString);
 
             if (returnValue) return await this.postgres[this.tableName].find(index);
-            else return true;
+            return true;
         } catch (e) {
             console.log(`DATABASE/CREATE/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e}`, 41);
             return false;
@@ -78,9 +78,10 @@ export default class DatabaseInteraction<T> {
 
         Object.entries(data)
             .forEach(([key, value]) =>
-                typeof value === 'string' && !value.startsWith('$sql ')
-                    ? values.push(`"${key}" = '${value.replace(new RegExp(`'`, 'g'), `''`)}'`)
-                    : values.push(`"${key}" = ${String(value).replace('$sql ', '')}`));
+                values.push(`"${key}" = ${typeof value === 'string'
+                    ? `'${value.replace(new RegExp(`'`, 'g'), `''`)}'`
+                    : String(value)}`)
+            );
 
         let SQLString = `
         UPDATE "${this.tableName}" SET
@@ -89,11 +90,12 @@ export default class DatabaseInteraction<T> {
         `
         try {
             if (Array.isArray(index))
-                for (let i in index) await this.postgres.query(SQLString.replace(String(index), index[i]));
+                for (let i in index)
+                    await this.postgres.query(SQLString.replace(String(index), index[i]));
             else await this.postgres.query(SQLString);
 
             if (returnValue) return await this.postgres[this.tableName].find(index);
-            else return true;
+            return true;
         } catch (e) {
             console.log(`DATABASE/UPDATE/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e}`, 41);
             return false;
@@ -185,6 +187,7 @@ export default class DatabaseInteraction<T> {
                     ? data[property] = template[this.tableName][property]
                     : true
             )
+
         return data;
     }
 }

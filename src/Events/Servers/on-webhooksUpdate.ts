@@ -28,7 +28,7 @@ module.exports = class Event {
             this.ket.webhooks.set(wData.channelID, webhook)
         }
 
-        if (webhooks[1]) for (let i in webhooks) Number(i) === 0 ? null : this.ket.deleteWebhook(webhooks[i].id);
+        if (webhooks[1] && webhooks.shift()) for (let i in webhooks) this.ket.deleteWebhook(webhooks[i].id);
 
         if (data && (webhook?.name !== 'Ket' || webhook?.channel_id !== data.channel_id)) return this.ket.editWebhook(webhook.id, {
             name: 'Ket',

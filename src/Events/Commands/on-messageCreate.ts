@@ -57,7 +57,8 @@ module.exports = class MessageCreateEvent {
 
         new Promise(async (res, rej) => {
             try {
-                ctx.command.dontType ? null : await ctx.channel.sendTyping().catch(() => { });
+                if (!ctx.command.dontType)
+                    await ctx.channel.sendTyping().catch(() => { });
                 await command.execute(ctx);
                 res(this.KetUtils.sendCommandLog(ctx));
             } catch (error) {

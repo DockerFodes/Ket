@@ -38,8 +38,7 @@ export default async function run(ket: KetClient, postgres: PostgresClient) {
         });
 
         users.forEach((user: string) => !ket.users.has(user)
-            ? nonCached.push(user)
-            : null);
+            ? nonCached.push(user) : null);
 
         for (let i in nonCached) {
             await sleep(3_000);

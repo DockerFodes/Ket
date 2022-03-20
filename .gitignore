@@ -1,13 +1,22 @@
-# Pastas
-node_modules/
-build/
-migrations/
-src/Components/Prisma/migrations
-test/
-logs/
-
-# Arquivos
-package-lock.json
-.env
+# Settings
 application.yml
-Lavalink.jar
+*.env
+
+# Modules
+node_modules/
+*.yarn/
+build/
+dist/
+test/
+.pnp.cjs
+
+# Binaries
+*.exe
+*.jar
+*.bundle
+
+# Logs/Lockfiles
+*.log
+*lock.json
+*.lock*
+logs/

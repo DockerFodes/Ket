@@ -83,7 +83,7 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                     }
                 });
             case 'getinfo':
-                let data = await ctx.postgres.globalchat.getAll(),
+                let data = await ctx.postgres.globalchat.getAll(500, { key: 'id', type: 'DESC' }),
                     msg = data.find(m => msg.id === ctx.args[1] || m.messages.find((ms) => ms.includes(ctx.args[1])));
 
                 if (isNaN(Number(ctx.args[1])) || !ctx.args[1] || !msg)

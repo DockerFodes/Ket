@@ -64,13 +64,16 @@ module.exports = class InteractionCreateEvent {
 
         function getArgs(option) {
             if (!option.value) args.push(option.name);
-            else args.push(option.value)
-            return option?.options ? option.options.forEach(op => getArgs(op)) : null
+            else args.push(option.value);
+
+            if (option?.options) option.options.forEach(op => getArgs(op));
+
+            return;
         }
 
         new Promise(async (res, rej) => {
             try {
-                ctx.command.dontType ? null : await interaction.defer().catch(() => { });
+                if (!ctx.command.dontType) await interaction.defer().catch(() => { });
                 await command.execute(ctx);
                 res(this.KetUtils.sendCommandLog(ctx));
             } catch (error) {
