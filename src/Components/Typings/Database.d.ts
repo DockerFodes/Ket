@@ -1,4 +1,4 @@
-import pg from "pg";
+import type { Client, ClientBase } from "pg";
 
 interface dbTable<T> {
     create(index: string | string[], data?: Partial<T>, returnValue?: boolean): Promise<T | T[] | boolean>;
@@ -47,7 +47,7 @@ interface blacklistSchema {
     warns: number;
 }
 
-interface PostgresClient extends pg.Client {
+interface clientMethods {
     connect: () => Promise<boolean>;
     disconnect: () => Promise<boolean>;
     ready: boolean;
@@ -58,3 +58,5 @@ interface PostgresClient extends pg.Client {
     globalchat: dbTable<globalchatSchema>;
     blacklist: dbTable<blacklistSchema>;
 } 
+
+type PostgresClient =  clientMethods & Client; 

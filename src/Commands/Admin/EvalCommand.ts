@@ -42,7 +42,8 @@ module.exports = class EvalCommand extends CommandStructure {
     async execute(ctx: CommandContext) {
         const
             initialTime = Date.now(),
-            initialRamUsage = (process.memoryUsage().rss / 1024 / 1024).toFixed(2);
+            initialRamUsage = (process.memoryUsage().rss / 1024 / 1024).toFixed(2),
+            query = async (query: string) => (await ctx.postgres.query(query)).rows;
 
         let
             evaled,
