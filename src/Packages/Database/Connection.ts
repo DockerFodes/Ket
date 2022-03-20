@@ -31,13 +31,11 @@ export default async () => {
             console.log('DATABASE', 'Criando table users', 2);
             await postgres.query(`
             CREATE TABLE "users" (
-                "id" VARCHAR(20) NOT NULL,
+                "id" VARCHAR(20) NOT NULL PRIMARY KEY,
                 "prefix" VARCHAR(3),
                 "lang" VARCHAR(2),
                 "commands" INTEGER NOT NULL,
-                "banned" TEXT,
-            
-                CONSTRAINT "users_pkey" PRIMARY KEY ("id")
+                "banned" TEXT            
             );`)
         })
 
@@ -46,13 +44,11 @@ export default async () => {
             console.log('DATABASE', 'Criando table servers', 2);
             await postgres.query(`
             CREATE TABLE "servers" (
-                "id" VARCHAR(20) NOT NULL,
+                "id" VARCHAR(20) NOT NULL PRIMARY KEY,
                 "lang" VARCHAR(2),
                 "globalchat" VARCHAR(20),
                 "partner" BOOLEAN,
-                "banned" TEXT,
-            
-                CONSTRAINT "servers_pkey" PRIMARY KEY ("id")
+                "banned" TEXT
             );`)
         })
 
@@ -61,11 +57,9 @@ export default async () => {
             console.log('DATABASE', 'Criando table commands', 2);
             await postgres.query(`
             CREATE TABLE "commands" (
-                "name" TEXT NOT NULL,
+                "name" TEXT NOT NULL PRIMARY KEY,
                 "maintenance" BOOLEAN,
-                "reason" TEXT,
-            
-                CONSTRAINT "commands_pkey" PRIMARY KEY ("name")
+                "reason" TEXT
             );`)
         })
 
@@ -74,13 +68,11 @@ export default async () => {
             console.log('DATABASE', 'Criando table globalchat', 2);
             await postgres.query(`
             CREATE TABLE "globalchat" (
-                "id" VARCHAR(20) NOT NULL,
+                "id" VARCHAR(20) NOT NULL PRIMARY KEY,
                 "guild" VARCHAR(20) NOT NULL,
                 "author" VARCHAR(20) NOT NULL,
                 "editCount" INTEGER NOT NULL DEFAULT 0,
-                "messages" VARCHAR(40)[],
-            
-                CONSTRAINT "globalchat_pkey" PRIMARY KEY ("id")
+                "messages" VARCHAR(40)[]
             );`)
         })
 
@@ -89,11 +81,9 @@ export default async () => {
             console.log('DATABASE', 'Criando table blacklist', 2);
             await postgres.query(`
             CREATE TABLE "blacklist" (
-                "id" VARCHAR(20) NOT NULL,
+                "id" VARCHAR(20) NOT NULL PRIMARY KEY,
                 "timeout" INTEGER NOT NULL,
-                "warns" INTEGER NOT NULL DEFAULT 1,
-            
-                CONSTRAINT "blacklist_pkey" PRIMARY KEY ("id")
+                "warns" INTEGER NOT NULL DEFAULT 1
             );`)
         })
 

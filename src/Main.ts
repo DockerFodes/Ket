@@ -39,7 +39,7 @@ export default class KetClient extends Client {
         this.loadCommands(`${__dirname}/Commands`);
         this.events = new (EventHandler)(this, postgres);
         this.addListeners(`${__dirname}/Events/`);
-        await this.loadModules(`${__dirname}/Packages/`);
+        // await this.loadModules(`${__dirname}/Packages/`);
         super.connect()
         return;
     }

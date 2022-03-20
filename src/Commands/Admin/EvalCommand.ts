@@ -56,7 +56,7 @@ module.exports = class EvalCommand extends CommandStructure {
 
         function filtrar(content: unknown): string {
             return content = util.inspect(content)
-                .replace(new RegExp(`(${process.env.DISCORD_TOKEN}|${process.env.BETA_CLIENT_TOKEN}|${process.env.DATABASE_URL})`, 'gi'), 'censored key')
+                .replace(new RegExp(`(${process.env.DISCORD_TOKEN}|${process.env.BETA_CLIENT_TOKEN})`, 'gi'), 'censored key')
                 .replace(new RegExp('`', 'gi'), '\\`')
                 .slice(0, 3090);
         }

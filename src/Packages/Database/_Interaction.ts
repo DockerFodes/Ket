@@ -1,7 +1,7 @@
 import { Client } from "pg";
 import { DEFAULT_PREFIX, DEFAULT_LANG } from "../../JSON/settings.json";
 
-let template = {
+const template = {
     users: {
         prefix: DEFAULT_PREFIX,
         lang: DEFAULT_LANG,
@@ -11,7 +11,7 @@ let template = {
     servers: {
         lang: DEFAULT_LANG,
         globalchat: null,
-        partner: null,
+        partner: false,
         banned: false
     },
     blacklist: {
@@ -85,7 +85,7 @@ export default class DatabaseInteraction<T> {
         let SQLString = `
         UPDATE "${this.tableName}" SET
             ${values.join(`,\n`)}
-            WHERE ${this.primaryKey} = '${index}';
+            WHERE "${this.primaryKey}" = '${index}';
         `
         try {
             if (Array.isArray(index))
@@ -133,7 +133,7 @@ export default class DatabaseInteraction<T> {
 
         let SQLString = `
         DELETE FROM "${this.tableName}"
-        WHERE ${this.primaryKey} = '${index}';
+        WHERE "${this.primaryKey}" = '${index}';
         `;
 
         try {
@@ -170,6 +170,10 @@ export default class DatabaseInteraction<T> {
             console.log(`DATABASE/GETALL/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e}`, 41);
             return null;
         }
+    }
+
+    get size() {
+        return this.postgres.query('')
     }
 
     _resolveProperties(data) {

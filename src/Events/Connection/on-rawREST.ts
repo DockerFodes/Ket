@@ -8,7 +8,7 @@ module.exports = class RawRESTEvent {
         this.ket = ket;
     }
     async on(req: RawRESTRequest) {
-        if (req.resp.statusCode !== 429 && !req.resp.headers['x-ratelimit-bucket']) return;
+        if (req.resp.statusCode !== 429 || !req.resp.headers['x-ratelimit-bucket']) return;
 
         let res = req.resp.headers,
             duration = moment.duration(Number(res['x-ratelimit-reset-after']) * 1000)
