@@ -69,7 +69,7 @@ module.exports = class EvalCommand extends CommandStructure {
             embed
                 .setColor('green')
                 .setTitle('Retorno:')
-                .setDescription(filtrar(evaled), 'js');
+                .setDescription(filtrar(evaled) || 'Sem retorno.', 'js');
         } catch (e) {
             embed
                 .setColor('red')
