@@ -1,6 +1,6 @@
-import os, { type } from "os";
+import os from "os";
 import { exec } from "child_process";
-import { readFileSync, writeFileSync } from "fs";
+import { writeFileSync } from "fs";
 import { PostgresClient } from "../Typings/Database";
 import { duration } from "moment";
 import { resolve } from "path";
@@ -61,7 +61,7 @@ module.exports = class CLI {
                 options: c.data?.options ? [...c.data.options] : []
             })
         });
-        return console.info(commands.map(c => c.options))
+
         try {
             if (args[0]) await this.ket.bulkEditGuildCommands(args[0], commands)
             else await this.ket.bulkEditCommands(commands)
@@ -130,12 +130,20 @@ module.exports = class CLI {
                 if (!c.files.includes(c.files[b])) continue;
 
                 let filePath = resolve(`${dir}/${c.langs[a]}/${c.files[b]}`);
-                let defaultLocale = readFileSync(resolve(`${dir}/${c.defaultLang}/${c.files[b]}`));
-                let data = await Translator.translate(String(defaultLocale), c.langs[a], c.defaultLang);
-                writeFileSync(filePath, data.text);
+                let defaultLocale = require(resolve(`${dir}/${c.defaultLang}/${c.files[b]}`));
+
+                let translation = await getTranslation(defaultLocale, c.langs[a]);
+
+                return console.info(translation);
+                writeFileSync(filePath, String(translation));
                 return console.log('LOCALES', `Arquivo ${c.files[b]} foi traduzido`, 2)
             }
             console.log('LOCALES', `Idioma ${c.langs[a]} traduzido com sucesso`, 32);
+        }
+
+        async function getTranslation(defaultLocale: object, lang: string) {
+
+            return defaultLocale;
         }
     }
 }

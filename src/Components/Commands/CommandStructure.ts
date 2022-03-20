@@ -131,6 +131,7 @@ export class EmbedBuilder {
 
 export function getEmoji(emoji: string) {
     let emojis = {
+        connection: "<a:carregando2:783149182151950407>",
         autorizado: "<:autorizado:765952397595639828>",
         negado: "<:negado:765952453203984404>",
         cristal: "<a:cristal:789542971011104808>",
@@ -142,12 +143,13 @@ export function getEmoji(emoji: string) {
         idle: '<:idle:817023347723730944>',
         offline: '<:offline:817024931619274762>'
     };
+
     const emojiFilter = String(emojis[emoji]).replace('<a:', '').replace('<:', '').replace('>', '').trim().split(':')
     const emojiObj = {
         name: emojiFilter[0],
-        id: (emojiFilter[1] !== undefined) ? emojiFilter[1] : emojiFilter[0],
+        id: !emojiFilter[1] ? emojiFilter[1] : emojiFilter[0],
         mention: String(emojis[emoji]),
-        reaction: (emojiFilter[1] !== undefined) ? `${emojiFilter[0]}:${emojiFilter[1]}` : `${emojiFilter[0]}`
+        reaction: !emojiFilter[1] ? `${emojiFilter[0]}:${emojiFilter[1]}` : `${emojiFilter[0]}`
     }
     return emojiObj;
 }
@@ -220,7 +222,7 @@ export function getContext({ ket, postgres, message, interaction, user, server, 
         t,
         noargs: !command?.config ? {} : {
             color: getColor('red'),
-            ...t('events:noargs', { command: command?.config, user, t }),
+            ...t('noargs', { command: command?.config, user, t }),
             footer: t('events:embedTemplate.footer', { user: author })
         }
     } as CommandContext;;

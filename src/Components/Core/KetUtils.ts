@@ -33,7 +33,7 @@ export default class KetUtils {
             if (globalchat) this.ket.send({
                 ctx: ctx.uID, content: {
                     embeds: [{
-                        ...ctx.t('events:globalchat.welcome', { avatar: ctx.author.dynamicAvatarURL('jpg') }),
+                        ...ctx.t('globalchat.welcome', { avatar: ctx.author.dynamicAvatarURL('jpg') }),
                         color: getColor('green'),
                         image: { url: 'https://goyalankit.com/assets/img/el_gato2.gif' }
                     }]

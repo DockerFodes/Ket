@@ -1,6 +1,6 @@
 import CommandStructure, { CommandContext, getColor } from "../../Components/Commands/CommandStructure";
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { Message, User } from "eris";
+import { User } from "eris";
 import KetClient from "../../Main";
 import moment from "moment";
 
@@ -52,18 +52,19 @@ module.exports = class GlobalChatCommand extends CommandStructure {
         })
     }
     async execute(ctx: CommandContext) {
-        if (!ctx.args[0]) return await ctx.send({ content: 'no-args', emoji: 'negado' });
+        if (!ctx.args[0]) return await ctx.send({ content: ctx.noargs });
 
         switch (ctx.args[0].toLowerCase()) {
             case 'start':
                 let channel = await this.ket.findChannel(ctx.args[1]);
                 if (!channel) return await ctx.send({ emoji: 'negado', content: ctx.t('globalchat.channelNotFound') });
+
                 await ctx.postgres.servers.update(ctx.gID, {
                     globalchat: channel.id,
                     lang: ctx.args[2]
                 });
 
-                return ctx.send({
+                ctx.send({
                     emoji: 'autorizado', content: {
                         embeds: [{
                             color: getColor('green'),
@@ -71,10 +72,12 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                         }]
                     }
                 });
+                return;
+
             case 'stop':
                 await ctx.postgres.servers.update(ctx.gID, { globalchat: null });
 
-                return ctx.send({
+                ctx.send({
                     emoji: 'autorizado', content: {
                         embeds: [{
                             color: getColor('green'),
@@ -82,21 +85,21 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                         }]
                     }
                 });
-            case 'getinfo':
-                let data = await ctx.postgres.globalchat.getAll(500, { key: 'id', type: 'DESC' }),
-                    msg = data.find(m => msg.id === ctx.args[1] || m.messages.find((ms) => ms.includes(ctx.args[1])));
+                return;
 
-                if (isNaN(Number(ctx.args[1])) || !ctx.args[1] || !msg)
+            case 'getinfo':
+                let messages = await ctx.postgres.globalchat.getAll(500, { key: 'id', type: 'DESC' }),
+                    msg = messages.find(m => m.id === ctx.args[1] || m.messages.find((ms) => ms.includes(ctx.args[1])));
+
+                if (!msg || !ctx.args[1] || isNaN(Number(ctx.args[1])))
                     return ctx.send({ emoji: 'negado', content: ctx.t('globalchat.messageNotFound') });
 
-                let userData = await ctx.postgres.users.find(msg.author),
-                    user: User = await this.ket.findUser(userData.id),
-                    server = await ctx.postgres.servers.find(msg.guild),
-                    message = await this.ket.getMessage(server.globalchat, msg.id)
-                        .catch(() => { }) as Message<any>;
                 moment.locale(ctx.user.lang);
+                let userData = await ctx.postgres.users.find(msg.author),
+                    user = await this.ket.findUser(userData.id) as User,
+                    server = await ctx.postgres.servers.find(msg.guild);
 
-                return ctx.send({
+                ctx.send({
                     content: {
                         embeds: [{
                             thumbnail: { url: user.dynamicAvatarURL('jpg') },
@@ -105,13 +108,15 @@ module.exports = class GlobalChatCommand extends CommandStructure {
                                 msg, user,
                                 messages: msg.messages,
                                 guild: this.ket.guilds.get(server.id),
-                                timestamp: moment.utc(message?.timestamp || Date.now()).format('LLLL'),
                                 isBanned: userData.banned ? 'BANNED' : 'not banned',
-                                messagesCount: data.filter(msg => msg.author === user.id).length
+                                messagesCount: messages.filter(msg => msg.author === user.id).length
                             })
                         }]
                     }
                 })
+                return;
         }
+
+        return;
     }
 }

@@ -9,7 +9,7 @@ const
     Eris = require('eris'),
     fs = require('fs'),
     util = require('util'),
-    translate = require("../../Components/Core/Translator"),
+    translator = require("../../Components/Core/Translator"),
     moment = require("moment"),
     path = require('path');
 

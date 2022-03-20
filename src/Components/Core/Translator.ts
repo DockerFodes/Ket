@@ -113,6 +113,7 @@ class TranslateAPI {
             "zu": "Zulu"
         }
     }
+
     public async translate(content: string, to: string = 'en', from: string = 'auto') {
         content = encodeURI(content);
         from = this.getISO(from);
