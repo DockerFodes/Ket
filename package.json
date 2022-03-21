@@ -1,13 +1,13 @@
 {
     "name": "ket",
-    "version": "0.1.6",
+    "version": "0.1.7",
     "description": "",
     "main": "build/Main.js",
     "packageManager": "yarn@3.2.0",
     "scripts": {
-        "build": "yarn tsc && cp -r -f -v src/Assets build/Assets",
-        "start": "npm run build && npm run noCompile",
-        "dev": "npm run noCompile --dev",
+        "build": "npx yarn tsc && cp -r -f -v src/Assets build/Assets",
+        "start": "npx yarn build && npx yarn noCompile",
+        "dev": "npx yarn noCompile --dev",
         "noCompile": "node --expose-gc --trace-warnings build/Main.js ",
         "ts-mode": "ts-node-dev --ignore-watch ./ src/Main.ts"
     },

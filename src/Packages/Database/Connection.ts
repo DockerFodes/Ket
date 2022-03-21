@@ -1,5 +1,5 @@
-import { Client } from "pg";
 import { blacklistSchema, commandSchema, globalchatSchema, serverSchema, userSchema } from "../../Components/Typings/Database";
+import { Client } from "pg";
 import table from "./_Interaction";
 
 export default async () => {
@@ -8,14 +8,8 @@ export default async () => {
         password: process.env.PASSWORD,
         user: process.env.USER,
         host: process.env.HOST,
-        port: Number(process.env.PORT),
-        ssl: process.env.SSL ? {
-            rejectUnauthorized: false,
-            requestCert: true
-        } : false
+        port: Number(process.env.PORT)
     });
-    //NODE_TLS_REJECT_UNAUTHORIZED=0
-    // PGSSLMODE=no-verify
     await postgres.connect()
         .then(() => {
             postgres.users = new table<userSchema>('users', 'id', postgres);
@@ -25,7 +19,7 @@ export default async () => {
             postgres.blacklist = new table<blacklistSchema>('blacklist', 'id', postgres);
             postgres.tables = ['users', 'servers', 'commands', 'globalchat', 'blacklist'];
 
-            console.log('DATABASE', '√ Banco de dados operante', 32);
+            console.log('DATABASE', '√ Banco de dados operante ', 32);
         })
         .catch((error) => console.log('DATABASE', `x Não foi possível realizar conexão ao banco de dados: ${error}`, 41))
 
