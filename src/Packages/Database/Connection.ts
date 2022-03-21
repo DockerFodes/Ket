@@ -22,16 +22,17 @@ export default async () => {
 
     await postgres.connect()
         .then(async () => {
-
             console.log('DATABASE', '√ Banco de dados operante ', 32);
+
+            postgres.users = new table<userSchema>('users', 'id', postgres);
+            postgres.servers = new table<serverSchema>('servers', 'id', postgres);
+            postgres.commands = new table<commandSchema>('commands', 'name', postgres);
+            postgres.globalchat = new table<globalchatSchema>('globalchat', 'id', postgres);
+            postgres.blacklist = new table<blacklistSchema>('blacklist', 'id', postgres);
+            postgres.tables = ['users', 'servers', 'commands', 'globalchat', 'blacklist'];
+
         })
-        .catch((error) => console.log('DATABASE', `x Não foi possível realizar conexão ao banco de dados: ${error}`, 41));
-    postgres.users = new table<userSchema>('users', 'id', postgres);
-    postgres.servers = new table<serverSchema>('servers', 'id', postgres);
-    postgres.commands = new table<commandSchema>('commands', 'name', postgres);
-    postgres.globalchat = new table<globalchatSchema>('globalchat', 'id', postgres);
-    postgres.blacklist = new table<blacklistSchema>('blacklist', 'id', postgres);
-    postgres.tables = ['users', 'servers', 'commands', 'globalchat', 'blacklist'];
+        .catch((error) => console.log('DATABASE', `x Não foi possível realizar conexão ao banco de dados: ${error.stack}`, 41));
 
     /* DATABASE TESTS */
     await postgres.query(`SELECT id FROM public.users;`)
