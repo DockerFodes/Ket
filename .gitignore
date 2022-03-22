@@ -4,19 +4,19 @@ application.yml
 
 # Modules
 node_modules/
-*.yarn/
+.yarn/*
+.pnp.*
 build/
-dist/
 test/
-.pnp.cjs
+dist/
 
 # Binaries
 *.exe
 *.jar
 *.bundle
 
-# Logs/Lockfiles
-*.log
+# Logs / Lokefiles
 *lock.json
-*.lock*
+*.lock
+*.log
 logs/

@@ -8,7 +8,7 @@
 ### `1 -` 🛠️ Download and install the necessary tools to get started
 If you want to run Ket on your machine, you'll need to:
 - [NodeJS](https://nodejs.org/pt-br/)
-> ⚠️ Recommended version: 14.18.3
+> ⚠️ Recommended version: 14.19.1
 - [PostgreSQL](https://www.postgresql.org/download/)
 > ⚠️ Recommended version: 13 or higher
 - [Lavalink](https://ci.fredboat.com/viewLog.html?buildId=lastSuccessful&buildTypeId=Lavalink_Build&tab=artifacts&guest=1)
@@ -23,14 +23,12 @@ git clone https://github.com/KetDiscordBot/Ket
 ```
 
 ### `3 -` 🧰 Install the necessary dependencies to run the project:
+> ⚠️ If you don't have yarn installed, install corepack before continuing: "`npm i -g corepack`"
 ```bash
 cd Ket
-npm install
+yarn install
 ```
-> ⚠️ It may be necessary to install a package separately:
-```bash
-npm install -g typescript
-```
+
 ### `4 -` 🌿 Preparing the environment
 - Rename the file "`.env.example`" to "`.env`"
 - Replace or fill in "`.env`" and "`settings.json`" settings
@@ -42,9 +40,9 @@ To get started, just type:
 # Starting Lavalink:
 java -jar Lavalink.jar # Watch out! Lavalink can consume a lot of RAM
 # in a separate terminal:
-npm start
+yarn start
 ```
-> ⚠️ To skip compilation use `npm run noCompile`, but you need to build the project first
+> ⚠️ To skip compilation use `yarn noCompile`, but you need to build the project first
 
 - - - -
 
