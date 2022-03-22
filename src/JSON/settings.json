@@ -1,42 +1,38 @@
 {
+            //      BOT SETTINGS
     "DEFAULT_PREFIX": ",",
     "DEFAULT_LANG": "pt",
-    "DEVS": [
-        "340626138076282900",
-        "568493382884917258",
-        "733418202704642078"
-    ],
-    "TRUSTED_BOTS": [
-        "777938917117919255",
-        "789123515882012683",
-        "737044809650274325",
-        "297153970613387264"
-    ],
+    "DEVS": [ "340626138076282900", "568493382884917258", "733418202704642078" ], // Users who can access eval and other functionality
+    "TRUSTED_BOTS": [ "777938917117919255", "789123515882012683", "737044809650274325", "297153970613387264" ], // Bots that can interact/use commands
+
+            //      CHANNELS SETTINGS
     "guilds": {
-        "support": "810125751441162240",
-        "devs": "761424522259202108",
-        "dmCategory": "946200165746892862"
+        "support": "810125751441162240", // Support server
+        "devs": "761424522259202108", // DEVS server
+        "dmCategory": "946200165746892862" // Category to create DMs chats
     },
     "channels": {
-        "guildCreate": "927782637106524181",
-        "guildDelete": "948468411510448189",
-        "databaseBackup": "918991789304725575",
-        "errorLogs": "916745097712922685",
-        "commandLogs": "916745050162098186",
-        "suggestionsLogs": "835893819765030922",
+        "guildCreate": "927782637106524181", // Guild join logs
+        "guildDelete": "948468411510448189", // Guild leave logs
+        "databaseBackup": "918991789304725575", // Chat to send database backups
+        "errorLogs": "916745097712922685", // Chat to report bugs
+        "commandLogs": "916745050162098186", // Chat to send command logs
+        "suggestionsLogs": "835893819765030922", // Chat to send suggestions
         "homeInteractions": [
-            "846729978467844097",
+            "846729978467844097", 
             "933814361611456632"
         ],
-        "homeWelcome": "852154624222691358"
+        "homeWelcome": "852154624222691358" // Support server channel for sending welcome messages
     },
-    "statusMsg": {
+    "statusMsg": { // this can be empty
         "id": "",
         "channel": "945859498378133585"
     },
+
+            //      GLOBALCHAT SETTINGS
     "globalchat": {
-        "editLimit": 3,
-        "allowedLinks": [
+        "editLimit": 3, // Limit to edit messages in global chat
+        "allowedLinks": [ // Allowed Links on global chat
             "https://media.discordapp.net/attachments/",
             "https://cdn.discordapp.com/attachments/",
             "https://tenor.com/view",
@@ -57,6 +53,8 @@
             "https://spotify.com"
         ]
     },
+
+            //      CLIENT SETTINGS
     "CLIENT_OPTIONS": {
         "allowedMentions": {
             "everyone": false,
