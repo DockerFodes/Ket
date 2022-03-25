@@ -47,7 +47,7 @@ module.exports = class CLI {
 
     async compile() {
         console.log('COMPILER', 'Compilando arquivos', 2);
-        exec('tsc', (_command, _stdout, stderr) => console.log('COMPILER', stderr ? stderr : 'Arquivos compilados', stderr ? 41 : 32));
+        exec('yarn tsc', (_command, _stdout, stderr) => console.log('COMPILER', stderr ? stderr : 'Arquivos compilados', stderr ? 41 : 32));
     }
 
     async deploy(args: string[]) {

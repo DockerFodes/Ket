@@ -363,6 +363,8 @@ async function main() {
     process
         .on('SIGINT', async () => {
             console.log('CLIENT', 'Encerrando...', 33);
+            await postgres.end();
+            console.log('DATABASE', 'Banco de dados desconectado', 32)
             ket.editStatus('dnd', { name: 'Encerrando...', type: 0 });
             process.exit();
         })
