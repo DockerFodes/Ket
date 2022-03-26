@@ -333,10 +333,10 @@ export default class KetUtils {
         }
 
         missingPermissions = ctx.command.permissions.bot
-            .filter((perm) => !ctx.me.permissions.has(perm))
-            .map(value => ctx.t(`permissions:${value}`));
-
-        if (missingPermissions[0]) {
+            ?.filter((perm) => !ctx.me.permissions.has(perm))
+            ?.map(value => ctx.t(`permissions:${value}`));
+        console.log(missingPermissions)
+        if (missingPermissions && missingPermissions[0]) {
             let content = ctx.t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') });
             if (!notReply)
                 ctx.send({ content, embed: false, emoji: 'negado' })
@@ -397,9 +397,8 @@ export default class KetUtils {
     }
 
     async commandNotFound(ctx, commandName: string) {
-        let totalCommands: string[] = [];
-        this.ket.commands.forEach((cmd: any) => totalCommands.push(cmd.config.name))
-        ctx.command = this.ket.commands.get(this.findResult(commandName, totalCommands))
+        let commands = this.ket.commands.map(c => c.name)
+        ctx.command = this.ket.commands.get(this.findResult(commandName, commands))
         if (!ctx.command) return false;
         return ctx.command;
     }

@@ -24,20 +24,21 @@ module.exports = class MessageCreateEvent {
         let server = await this.postgres.servers.find(message.guildID, true),
             user = await this.postgres.users.find(message.author.id),
             t = getT(user?.lang || DEFAULT_LANG),
-            ctx = getContext({ ket: this.ket, postgres: this.postgres, message, server, user, t });
+            ctx = getContext({ ket: this.ket, message, server, user, t });
 
         if (user?.banned) return;
         if (server.banned) return ctx.guild.leave();
         if (server.globalchat && ctx.cID === server.globalchat) this.KetUtils.sendGlobalChat(ctx);
 
-        const prefixRegex = new RegExp(`^(${String(user?.prefix || DEFAULT_PREFIX).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}|<@!?${this.ket.user.id}>)( )*`, 'gi')
+        const prefixRegex = new RegExp(`^(${String(user?.prefix || DEFAULT_PREFIX)
+            .replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}|<@!?${this.ket.user.id}>)( )*`, 'gi')
         if (!message.content.match(prefixRegex)) return;
         let args: string[] = message.content.replace(prefixRegex, '').trim().split(/ /g),
             commandName: string | null = args.shift().toLowerCase(),
             command = this.ket.commands.get(commandName) || this.ket.commands.get(this.ket.aliases.get(commandName));
 
         if (!command && (command = await this.KetUtils.commandNotFound(ctx, commandName)) === false) return;
-        ctx = getContext({ ket: this.ket, postgres: this.postgres, user, server, message, args, command, commandName, t })
+        ctx = getContext({ ket: this.ket, user, server, message, args, command, commandName, t })
 
         await this.KetUtils.checkCache(ctx);
         ctx.user = await this.KetUtils.checkUserGuildData(ctx);

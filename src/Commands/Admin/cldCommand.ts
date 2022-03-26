@@ -1,40 +1,31 @@
-import KetClient from "../../Main";
+import CommandStructure, { CommandContext, EmbedBuilder, getEmoji } from '../../Components/Commands/CommandStructure';
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { execSync } from "child_process";
-import CommandStructure, { CommandContext, EmbedBuilder, getEmoji } from '../../Components/Commands/CommandStructure';
 import { duration } from "moment";
 
 module.exports = class CldCommand extends CommandStructure {
-    constructor(ket: KetClient) {
-        super(ket, {
-            name: 'cld',
-            aliases: [],
-            category: 'admin',
-            cooldown: 1,
-            permissions: {
-                user: [],
-                bot: [],
-                onlyDevs: true
-            },
-            access: {
-                DM: true,
-                Threads: true
-            },
-            dontType: false,
-            testCommand: ['node -v'],
-            data: new SlashCommandBuilder()
-                .addStringOption(option =>
-                    option.setName('command')
-                        .setDescription('A command to be executed.')
-                        .setRequired(true)
-                )
-        })
-    }
+    cooldown = 1;
+    permissions = {
+        onlyDevs: true
+    };
+    access = {
+        DM: true,
+        Threads: true
+    };
+    testCommand = ['node -v'];
+    dir = __filename;
+    slash = new SlashCommandBuilder()
+        .addStringOption(option =>
+            option.setName('command')
+                .setDescription('A command to be executed.')
+                .setRequired(true)
+        )
+
     async execute(ctx: CommandContext) {
         const
             initialTime = Date.now(),
             initialRamUsage = (process.memoryUsage().rss / 1024 / 1024).toFixed(2),
-            query = async (query: string) => (await ctx.postgres.query(query)).rows;
+            query = async (query: string) => (await this.postgres.query(query)).rows;
 
         let embed = new EmbedBuilder();
 

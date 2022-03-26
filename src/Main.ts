@@ -1,7 +1,7 @@
 import { Channel, Client, ClientOptions, Collection, CommandInteraction, Guild, GuildChannel, Member, Message, TextableChannel, User } from "eris";
 import { KetSendContent, KetSendFunction } from "./Components/Typings/Modules";
 import { getEmoji, getColor } from './Components/Commands/CommandStructure';
-import { PostgresClient } from "./Components/Typings/Modules";
+import { PostgresClient, CommandConfig } from "./Components/Typings/Modules";
 import { CLIENT_OPTIONS } from "./JSON/settings.json";
 import { DEFAULT_LANG } from "./JSON/settings.json";
 import { tz } from "moment-timezone";
@@ -31,7 +31,7 @@ export default class KetClient extends Client {
     public async boot() {
         await this.loadLocales(`${__dirname}/Locales/`);
         postgres = await ConnectDB();
-        this.loadCommands(`${__dirname}/Commands`);
+        this.loadCommands(`${__dirname}/Commands`, postgres);
         this.events = new (EventHandler)(this, postgres);
         this.addListeners(`${__dirname}/Events/`);
         // await this.loadModules(`${__dirname}/Packages/`);
@@ -39,18 +39,48 @@ export default class KetClient extends Client {
         return;
     }
 
-    public async loadCommands(path: string) {
+    public async loadCommands(path: string, postgres: PostgresClient) {
         const categories = readdirSync(path);
         for (const a in categories) {
             const files = readdirSync(`${path}/${categories[a]}/`);
             for (const b in files) {
                 try {
-                    const comando = new (await import(`${path}/${categories[a]}/${files[b]}`)).default(this);
-                    comando.config.dir = `${path}/${categories[a]}/${files[b]}`;
-                    this.commands.set(comando.config.name, comando);
-                    comando.config.aliases.forEach((aliase: string) => this.aliases.set(aliase, comando.config.name));
-                } catch (e) {
-                    console.log(files[b], e, 31)
+                    let command = new (require(`${path}/${categories[a]}/${files[b]}`))(this, postgres);
+
+                    let splitDir = String(command.dir).includes('\\')
+                        ? String(command.dir).split('\\')
+                        : String(command.dir).split('/')
+
+                    command = {
+                        name: String(command.name || splitDir.pop().split('Command')[0]).toLowerCase(),
+                        aliases: command.aliases
+                            ? command.aliases.map((aliase: string) => String(aliase).toLowerCase())
+                            : [],
+                        cooldown: Number(command.cooldown || 3),
+                        category: String(command.category || splitDir[splitDir.length - 1]).toLowerCase(),
+                        permissions: {
+                            user: command?.permissions?.user || [],
+                            bot: command?.permissions?.bot || [],
+                            onlyDevs: command?.permissions?.onlyDevs || false
+                        },
+                        access: {
+                            DM: command?.access?.DM || false,
+                            Threads: command?.access?.Threads || false
+                        },
+                        dontType: command.dontType || false,
+                        testCommand: command.testCommand || [],
+                        slash: command.slash,
+                        dir: command.dir,
+                        ket: this,
+                        postgres: postgres,
+                        execute: command.execute
+                    } as CommandConfig
+
+                    console.info(command.name, command.category,);
+                    this.commands.set(command.name, command);
+                    command.aliases.forEach((aliase: string) => this.aliases.set(aliase, command.name));
+                } catch (e: any) {
+                    console.log(files[b].split('.')[0], e.stack, 31)
                     return false;
                 }
             }
@@ -121,17 +151,16 @@ export default class KetClient extends Client {
         }
     }
 
-    public async reloadCommand(commandName: string) {
+    public async reloadCommand(commandName: string, postgres: PostgresClient) {
         const comando = this.commands.get(commandName) || this.commands.get(this.aliases.get(commandName));
         if (!comando) return 'Comando não encontrado';
-        comando.config.aliases.forEach((aliase: string) => this.aliases.delete(aliase));
-        this.commands.delete(comando.config.name);
-        delete require.cache[require.resolve(comando.config.dir)];
+        comando.aliases.forEach((aliase: string) => this.aliases.delete(aliase));
+        this.commands.delete(comando.name);
+        delete require.cache[require.resolve(comando.dir)];
         try {
-            const command = new (require(comando.config.dir))(this);
-            command.config.dir = comando.config.dir;
-            this.commands.set(command.config.name, command);
-            command.config.aliases.forEach((aliase: string) => this.aliases.set(aliase, command.config.name));
+            const command = new (require(comando.dir))(this, postgres);
+            this.commands.set(command.name, command);
+            command.aliases.forEach((aliase: string) => this.aliases.set(aliase, command.name));
             return true;
         } catch (e) {
             return e;

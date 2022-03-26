@@ -1,34 +1,35 @@
-import KetClient from "../../Main";
-import settings, { statusMsg } from "../../JSON/settings.json";
 import { CommandInteraction, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage, EmbedOptions, Guild, GuildTextableChannel, Member, Message, Shard, User } from "eris";
-import { duration } from "moment";
 import { CommandConfig, CommandContextFunc } from "../Typings/Modules";
+import settings, { statusMsg } from "../../JSON/settings.json";
 import { PostgresClient } from "../Typings/Modules";
+import KetClient from "../../Main";
+import { duration } from "moment";
 
-export default class CommandStructure {
-    ket: KetClient;
-    config: object;
-
-    constructor(ket: KetClient, config) {
-        this.config = {
-            name: config.name,
-            aliases: config.aliases || [],
-            cooldown: config.cooldown || 3,
-            permissions: config.permissions || {
-                user: [],
-                bot: [],
-                onlyDevs: false
-            },
-            access: config.access || {
-                DM: false,
-                Threads: false
-            },
-            dontType: config.dontType || false,
-            testCommand: config.testCommand || [],
-            data: config.data
-        }
-        this.ket = ket;
+export default abstract class CommandStructure {
+    name?: string;
+    aliases?: string[];
+    category?: string;
+    cooldown?: number;
+    permissions?: {
+        user?: string[];
+        bot?: string[];
+        onlyDevs?: boolean;
     }
+    access?: {
+        DM?: boolean;
+        Threads?: boolean;
+    }
+    dontType?: boolean;
+    testCommand?: string[];
+    slash?: any;
+    dir: string;
+    config?: any;
+
+    constructor(public ket: KetClient, public postgres: PostgresClient) {
+        this.ket = ket;
+        this.postgres = postgres;
+    }
+    abstract execute(ctx: CommandContext): Promise<void>;
 }
 
 export class EmbedBuilder {
@@ -174,8 +175,6 @@ export function getColor(color: string, toNumber = true) {
 }
 
 export class CommandContext {
-    postgres: PostgresClient;
-    config: any;
     env: Message<any> | CommandInteraction<any>;
     send: Function;
     user: any;
@@ -196,12 +195,11 @@ export class CommandContext {
     t: Function;
 }
 
-export function getContext({ ket, postgres, message, interaction, user, server, args, command, commandName, t }: CommandContextFunc) {
+export function getContext({ ket, message, interaction, user, server, args, command, commandName, t }: CommandContextFunc) {
     let env = message ? message : interaction,
         author = message ? message.author : interaction.user || interaction.member.user
 
     return {
-        postgres,
         config: settings,
         env,
         send: (args) => (args.ctx = env) && ket.send(args),
@@ -217,12 +215,12 @@ export function getContext({ ket, postgres, message, interaction, user, server, 
         shard: env.channel.guild.shard,
         channel: env.channel,
         cID: env.channel.id,
-        command: command?.config,
+        command,
         commandName,
         t,
-        noargs: !command?.config ? {} : {
+        noargs: !command ? {} : {
             color: getColor('red'),
-            ...t('noargs', { command: command?.config, user, t }),
+            ...t('noargs', { command, user, t }),
             footer: t('events:embedTemplate.footer', { user: author })
         }
     } as CommandContext;;

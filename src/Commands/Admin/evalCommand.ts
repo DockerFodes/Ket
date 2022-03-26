@@ -1,8 +1,7 @@
+import CommandStructure, { EmbedBuilder, getEmoji, getColor, CommandContext } from "../../Components/Commands/CommandStructure";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { duration } from "moment";
-import CommandStructure, { EmbedBuilder, getEmoji, getColor, CommandContext } from "../../Components/Commands/CommandStructure";
 import KetUtils from "../../Components/Core/KetUtils";
-import KetClient from "../../Main";
 
 const
     axios = require('axios'),
@@ -14,36 +13,31 @@ const
     path = require('path');
 
 module.exports = class EvalCommand extends CommandStructure {
-    utils: any;
-    constructor(ket: KetClient) {
-        super(ket, {
-            name: 'eval',
-            aliases: ['e'],
-            cooldown: 1,
-            permissions: {
-                user: [],
-                bot: [],
-                onlyDevs: true
-            },
-            access: {
-                DM: true,
-                Threads: true
-            },
-            dontType: true,
-            testCommand: ['ctx.channel.createMessage("alow")'],
-            data: new SlashCommandBuilder().addStringOption(option =>
-                option.setName("code")
-                    .setDescription("Some code.")
-                    .setRequired(true)
-            )
-        })
-        this.utils = new (KetUtils)(this.ket);
+    aliases = ['e']
+    cooldown = 1
+    permissions = {
+        onlyDevs: true
+    };
+    access = {
+        DM: true,
+        Threads: true
     }
+    dontType = true;
+    testCommand: ['ctx.channel.createMessage("alow")'];
+    dir = __filename;
+    slash = new SlashCommandBuilder().addStringOption(option =>
+        option.setName("code")
+            .setDescription("Some code.")
+            .setRequired(true)
+    )
+
     async execute(ctx: CommandContext) {
         const
             initialTime = Date.now(),
             initialRamUsage = (process.memoryUsage().rss / 1024 / 1024).toFixed(2),
-            query = async (query: string) => (await ctx.postgres.query(query)).rows;
+            query = async (query: string) => (await this.postgres.query(query)).rows,
+            utils = new KetUtils(this.ket, this.postgres);
+
 
         let
             evaled,

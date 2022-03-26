@@ -53,8 +53,7 @@ module.exports = class CLI {
     async deploy(args: string[]) {
         let commands = [],
             t = getT('en')
-        await this.ket.commands.forEach(command => {
-            let c = command.config;
+        await this.ket.commands.forEach(c => {
             commands.push({
                 name: c.name,
                 description: `[${c.category}] - ${t(`${c.name}.description`)}`,
@@ -100,9 +99,9 @@ module.exports = class CLI {
     }
 
     async reload(args: string[]) {
-        if (args[0] === '*') return this.ket.commands.forEach(command => this.ket.reloadCommand(command.config.name));
+        if (args[0] === '*') return this.ket.commands.forEach(command => this.ket.reloadCommand(command.name, this.postgres));
         else {
-            let data = await this.ket.reloadCommand(args[0]);
+            let data = await this.ket.reloadCommand(args[0], this.postgres);
             if (data === true) return console.log('RELOADER', `Comando ${args[0]} recarregado`, 42);
             console.log('RELOADER', data);
         }

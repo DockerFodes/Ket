@@ -113,7 +113,6 @@ declare module 'canvas' {
 
 export interface CommandContextFunc {
     ket: KetClient;
-    postgres: PostgresClient;
     message?: Message<any>;
     interaction?: CommandInteraction<any>;
     user: userSchema;
@@ -125,8 +124,6 @@ export interface CommandContextFunc {
 }
 
 interface CommandContext {
-    postgres: PostgresClient;
-    config: any;
     env: Message<any> | CommandInteraction<any>;
     send: Function;
     user: userSchema;
@@ -152,22 +149,24 @@ interface KetSendContent extends AdvancedMessageContent {
 }
 
 export interface CommandConfig {
-    name: string;
-    aliases: string[];
-    cooldown: number;
-    permissions: {
-        user: string[];
-        bot: string[];
-        onlyDevs: boolean;
+    name?: string;
+    aliases?: string[];
+    category?: string;
+    cooldown?: number;
+    permissions?: {
+        user?: string[];
+        bot?: string[];
+        onlyDevs?: boolean;
     }
-    access: {
-        DM: boolean;
-        Threads: boolean;
+    access?: {
+        DM?: boolean;
+        Threads?: boolean;
     }
-    dontType: boolean;
-    testCommand: string[];
-    data: any;
-    config: CommandConfig;
+    dontType?: boolean;
+    testCommand?: string[];
+    slash?: any;
+    dir: string;
+    config?: any;
 }
 
 export interface KetSendFunction {

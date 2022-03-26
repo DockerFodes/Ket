@@ -33,7 +33,7 @@ module.exports = class InteractionCreateEvent {
         let server = await this.postgres.servers.find(interaction.guildID, true),
             user = await this.postgres.users.find(interaction.member.id),
             t = getT(user.lang),
-            ctx = getContext({ ket: this.ket, postgres: this.postgres, interaction, server, user, t });
+            ctx = getContext({ ket: this.ket, interaction, server, user, t });
 
         if (user.banned) return;
         if (server.banned) return ctx.guild.leave();
@@ -44,7 +44,7 @@ module.exports = class InteractionCreateEvent {
 
         if (!command && (command = await this.KetUtils.commandNotFound(ctx, commandName)) === false) return;
         interaction.data?.options?.forEach((option: CommandClientOptions) => getArgs(option));
-        ctx = getContext({ ket: this.ket, postgres: this.postgres, user, server, interaction, args, command, commandName, t })
+        ctx = getContext({ ket: this.ket, user, server, interaction, args, command, commandName, t })
 
         await this.KetUtils.checkCache(ctx);
         ctx.user = await this.KetUtils.checkUserGuildData(ctx);
