@@ -45,7 +45,7 @@ class LocalesStructure {
                 ? JSON.parse(filtrar(JSON.stringify(content)))
                 : filtrar(content);
 
-        } catch (e: any) {
+        } catch (e) {
             console.log('LOCALES', e.stack, 31);
             return str;
         }

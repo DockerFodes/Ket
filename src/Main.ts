@@ -76,10 +76,10 @@ export default class KetClient extends Client {
                         execute: command.execute
                     } as CommandConfig
 
-                    console.info(command.name, command.category,);
                     this.commands.set(command.name, command);
+                    await postgres.commands.find(command.name, true);
                     command.aliases.forEach((aliase: string) => this.aliases.set(aliase, command.name));
-                } catch (e: any) {
+                } catch (e) {
                     console.log(files[b].split('.')[0], e.stack, 31)
                     return false;
                 }

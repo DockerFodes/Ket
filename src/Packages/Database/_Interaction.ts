@@ -66,7 +66,7 @@ export default class DatabaseInteraction<T> {
             if (returnValue) return await this.postgres[this.tableName].find(index);
             return true;
         } catch (e) {
-            console.log(`DATABASE/CREATE/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e}`, 41);
+            console.log(`DATABASE/CREATE/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e.stack}`, 41);
             return false;
         }
     }
@@ -97,7 +97,7 @@ export default class DatabaseInteraction<T> {
             if (returnValue) return await this.postgres[this.tableName].find(index);
             return true;
         } catch (e) {
-            console.log(`DATABASE/UPDATE/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e}`, 41);
+            console.log(`DATABASE/UPDATE/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e.stack}`, 41);
             return false;
         }
     }
@@ -121,7 +121,7 @@ export default class DatabaseInteraction<T> {
                 );
             else search = this._resolveProperties((await this.postgres.query(SQLString)).rows[0]);
         } catch (e) {
-            console.log(`DATABASE/FIND/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e}`, 41);
+            console.log(`DATABASE/FIND/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e.stack}`, 41);
             search = false;
         }
 
@@ -145,7 +145,7 @@ export default class DatabaseInteraction<T> {
 
             return true;
         } catch (e) {
-            console.log(`DATABASE/DELETE/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e}`, 41);
+            console.log(`DATABASE/DELETE/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e.stack}`, 41);
             return false;
         }
     }
@@ -169,14 +169,23 @@ export default class DatabaseInteraction<T> {
 
             return resolveProperties ? resolvedData : data;
         } catch (e) {
-            console.log(`DATABASE/GETALL/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e}`, 41);
+            console.log(`DATABASE/GETALL/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e.stack}`, 41);
             return null;
         }
     }
 
     async rowsCount() {
-        return (await this.postgres.query(`SELECT COUNT(${this.primaryKey}) FROM ${this.tableName}`))
-            .rows[0].count;
+        const SQLString = `
+        SELECT
+            COUNT(${this.primaryKey})
+            FROM ${this.tableName};
+        `
+        try {
+            return (await this.postgres.query(SQLString))
+                .rows[0].count;
+        } catch (e) {
+            console.log(`DATABASE/ROWSCOUNT/${this.tableName}`, `SQL: ${SQLString}\nErro: ${e.stack}`, 41);
+        }
     }
 
     _resolveProperties(data) {
@@ -184,7 +193,7 @@ export default class DatabaseInteraction<T> {
 
         Object.entries(data)
             .forEach(([property, value]) =>
-                !value && template[this.tableName][property]
+                !value && template[this.tableName] && template[this.tableName][property]
                     ? data[property] = template[this.tableName][property]
                     : true
             )

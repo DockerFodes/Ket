@@ -15,4 +15,9 @@ interface String {
     encode(lang: string): string;
 }
 
+interface Error {
+    stack: string;
+    message: string
+}
+
 async function sleep(timeout: number): Promise<boolean | void>;
