@@ -1,4 +1,4 @@
-import { PostgresClient } from "../../Components/Typings/Database";
+import { PostgresClient } from "../../Components/Typings/Modules";
 import { infoEmbed } from "../../Components/Commands/CommandStructure";
 import BackupAndCacheController from "../../Packages/Database/_BackupAndCC";
 import TerminalClient from "../../Components/CLI/TerminalClient";

@@ -3,7 +3,7 @@ import settings, { statusMsg } from "../../JSON/settings.json";
 import { CommandInteraction, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage, EmbedOptions, Guild, GuildTextableChannel, Member, Message, Shard, User } from "eris";
 import { duration } from "moment";
 import { CommandConfig, CommandContextFunc } from "../Typings/Modules";
-import { PostgresClient } from "../Typings/Database";
+import { PostgresClient } from "../Typings/Modules";
 
 export default class CommandStructure {
     ket: KetClient;

@@ -1,5 +1,5 @@
 import KetClient from "../../Main";
-import { PostgresClient } from "../Typings/Database";
+import { PostgresClient } from "../Typings/Modules";
 
 export default class EventHandler {
     ket: KetClient;

@@ -1,4 +1,4 @@
-import { PostgresClient } from "../Typings/Database";
+import { PostgresClient } from "../Typings/Modules";
 import KetClient from "../../Main";
 import prompts from "prompts";
 

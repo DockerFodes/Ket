@@ -1,32 +1,27 @@
 import { Channel, Client, ClientOptions, Collection, CommandInteraction, Guild, GuildChannel, Member, Message, TextableChannel, User } from "eris";
 import { KetSendContent, KetSendFunction } from "./Components/Typings/Modules";
 import { getEmoji, getColor } from './Components/Commands/CommandStructure';
-import { PostgresClient } from "./Components/Typings/Database";
+import { PostgresClient } from "./Components/Typings/Modules";
 import { CLIENT_OPTIONS } from "./JSON/settings.json";
 import { DEFAULT_LANG } from "./JSON/settings.json";
-import { readdirSync } from "fs";
-import ConnectDB from "./Packages/Database/Connection";
-// import { Manager } from "erela.js";
 import { tz } from "moment-timezone";
+import { Manager } from "erela.js";
+import { readdirSync } from "fs";
 import EventHandler from "./Components/Core/EventHandler";
-import moment from "moment";
+import ConnectDB from "./Packages/Database/Connection";
 import duration from "moment-duration-format";
-import getT from "./Components/Core/LocalesStructure";
+import moment from "moment";
 let postgres: PostgresClient;
 
 export default class KetClient extends Client {
     constructor(token: string, options: ClientOptions) {
         super(token, options);
 
-        // this.erela = new Manager({
-        //     send: (id, payload) => this.guilds.get(id) ? this.guilds.get(id).shard.sendWS(payload.op, payload.d) : null
-        // })
-        this.rootDir = __dirname;
+        this.erela = new Manager({
+            send: (id, payload) => this.guilds.get(id) ? this.guilds.get(id).shard.sendWS(payload.op, payload.d) : null
+        });
         this.users = new Collection(User, CLIENT_OPTIONS.cacheLimit.users);
-        this.commands = new Map();
-        this.aliases = new Map();
-        this.webhooks = new Map();
-        this.shardUptime = new Map();
+        this.rootDir = __dirname;
     }
 
     public get allUsersCount() {
@@ -44,24 +39,24 @@ export default class KetClient extends Client {
         return;
     }
 
-    public loadCommands(path: string) {
-        try {
-            let categories = readdirSync(path);
-            for (let a in categories) {
-                let files = readdirSync(`${path}/${categories[a]}/`);
-                for (let b in files) {
-                    const comando = new (require(`${path}/${categories[a]}/${files[b]}`))(this);
+    public async loadCommands(path: string) {
+        const categories = readdirSync(path);
+        for (const a in categories) {
+            const files = readdirSync(`${path}/${categories[a]}/`);
+            for (const b in files) {
+                try {
+                    const comando = new (await import(`${path}/${categories[a]}/${files[b]}`)).default(this);
                     comando.config.dir = `${path}/${categories[a]}/${files[b]}`;
                     this.commands.set(comando.config.name, comando);
                     comando.config.aliases.forEach((aliase: string) => this.aliases.set(aliase, comando.config.name));
+                } catch (e) {
+                    console.log(files[b], e, 31)
+                    return false;
                 }
             }
-            console.log('COMMANDS', `${this.commands.size} Comandos carregados`, 2);
-            return true;
-        } catch (e) {
-            console.log('COMMANDS', e, 31)
-            return false;
         }
+        console.log('COMMANDS', `${this.commands.size} Comandos carregados`, 2);
+        return true;
     }
 
     public async loadLocales(path: string) {

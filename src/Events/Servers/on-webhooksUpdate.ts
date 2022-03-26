@@ -1,5 +1,5 @@
 import { GuildChannel, WebhookData } from "eris";
-import { PostgresClient } from "../../Components/Typings/Database";
+import { PostgresClient } from "../../Components/Typings/Modules";
 import KetClient from "../../Main";
 
 module.exports = class Event {

@@ -1,4 +1,4 @@
-import { PostgresClient } from "../../Components/Typings/Database";
+import { PostgresClient } from "../../Components/Typings/Modules";
 import { Guild, User } from "eris";
 import { channels } from "../../JSON/settings.json";
 import { getColor } from "../../Components/Commands/CommandStructure";

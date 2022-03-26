@@ -1,6 +1,6 @@
 import { TRUSTED_BOTS, DEVS, guilds, DEFAULT_PREFIX, DEFAULT_LANG } from "../../JSON/settings.json";
 import { getContext, getColor } from "../../Components/Commands/CommandStructure";
-import { PostgresClient } from "../../Components/Typings/Database";
+import { PostgresClient } from "../../Components/Typings/Modules";
 import { Message } from "eris";
 import KetClient from "../../Main";
 import KetUtils from "../../Components/Core/KetUtils";

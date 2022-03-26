@@ -174,8 +174,9 @@ export default class DatabaseInteraction<T> {
         }
     }
 
-    get size() {
-        return this.postgres.query('')
+    async rowsCount() {
+        return (await this.postgres.query(`SELECT COUNT(${this.primaryKey}) FROM ${this.tableName}`))
+            .rows[0].count;
     }
 
     _resolveProperties(data) {

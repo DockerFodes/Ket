@@ -1,6 +1,6 @@
 import { GuildChannel, Message, User } from "eris";
 import { globalchat, guilds } from "../../JSON/settings.json";
-import { PostgresClient } from "../../Components/Typings/Database";
+import { PostgresClient } from "../../Components/Typings/Modules";
 import KetUtils from "../../Components/Core/KetUtils";
 import KetClient from "../../Main";
 

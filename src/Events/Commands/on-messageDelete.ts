@@ -1,5 +1,5 @@
 import { GuildTextableChannel, Message, User } from "eris";
-import { PostgresClient } from "../../Components/Typings/Database";
+import { PostgresClient } from "../../Components/Typings/Modules";
 import { guilds } from "../../JSON/settings.json";
 import KetClient from "../../Main";
 

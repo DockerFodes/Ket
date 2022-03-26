@@ -1,35 +1,84 @@
+import type { Message, Member, User, FileContent, Webhook, Guild, Shard, TextableChannel, GuildTextableChannel, AdvancedMessageContent, MessageContent } from "eris";
+import type { dbTable, userSchema, serverSchema, commandSchema, globalchatSchema, blacklistSchema } from "./Database";
 import type { CanvasRenderingContext2D, Image, CanvasImageData, CommandInteraction } from "canvas";
-import type { Message, Member, User, FileContent, Client, Webhook, Guild, Shard, TextableChannel, GuildTextableChannel, AdvancedMessageContent, MessageContent } from "eris";
-import type { dbTable, userSchema, serverSchema, commandSchema, globalchatSchema, blacklistSchema, PostgresClient } from "./Database";
-import type { ESMap } from "typescript";
 import type { Manager } from "erela.js";
-import pg from "pg";
-import type KetClient from "../../Main.ts";
+import type { ESMap } from "typescript";
 import type EventHandler from "../Core/EventHandler";
+import type KetClient from "../../Main.ts";
+import type pg from "pg";
+
+interface dbTable<T> {
+    async create(index: string | string[], data?: Partial<T>, returnValue?: boolean): Promise<T | T[] | boolean>;
+    async update(index: string | string[], data: Partial<T>, createIfNull?: boolean, returnValue?: boolean): Promise<T | T[] | boolean>;
+    async find(index: string | string[], createIfNull?: boolean, key?: string): Promise<T>;
+    async delete(index: string | string[]): Promise<boolean>;
+    async getAll(limit?: number, orderBy?: { key: string, type: string }, resolveProperties?: boolean): Promise<T[]>;
+}
+
+interface userSchema {
+    id: string;
+    prefix?: string;
+    lang?: string;
+    commands: number;
+    banned?: string;
+}
+
+interface serverSchema {
+    id: string;
+    lang?: string;
+    globalchat?: string;
+    partner?: boolean;
+    banned?: string;
+}
+
+interface commandSchema {
+    name: string;
+    maintenance?: boolean;
+    reason?: string;
+}
+
+interface globalchatSchema {
+    id: string;
+    guild: string;
+    author: string;
+    editCount: number;
+    messages: string[];
+}
+
+interface blacklistSchema {
+    id: string;
+    timeout: number;
+    warns: number;
+}
+
+interface clientMethods {
+    end: () => Promise<void>;
+    ready: boolean;
+    tables: string[];
+    users: dbTable<userSchema>;
+    servers: dbTable<serverSchema>,
+    commands: dbTable<commandSchema>;
+    globalchat: dbTable<globalchatSchema>;
+    blacklist: dbTable<blacklistSchema>;
+}
 
 declare module 'pg' {
-    interface Client extends PostgresClient {
-        connect: () => Promise<boolean>;
-        disconnect: () => Promise<boolean>;
-        ready: boolean;
-        tables: string[];
-        users: dbTable<userSchema>;
-        servers: dbTable<serverSchema>,
-        commands: dbTable<commandSchema>;
-        globalchat: dbTable<globalchatSchema>;
-        blacklist: dbTable<blacklistSchema>;
+    interface Client extends clientMethods {
+        build: () => Promise<clientMethods>;
     }
 }
+
+export type PostgresClient = pg.Client & clientMethods;
 
 declare module 'eris' {
     interface Client extends KetClient {
         _token: string;
         events: EventHandler;
-        commands: ESMap<string, any>;
-        aliases: ESMap<string, string>;
-        webhooks: ESMap<string, Webhook>;
+        commands: Collection<string, any>;
+        aliases: Collection<string, string>;
+        webhooks: Collection<string, Webhook>;
         erela: Manager;
-        shardUptime: ESMap<string | number, number>;
+        shardUptime: Collection<string | number, number>;
         rootDir: string;
     }
 

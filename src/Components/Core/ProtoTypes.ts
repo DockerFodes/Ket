@@ -1,20 +1,59 @@
+import { blacklistSchema, commandSchema, globalchatSchema, serverSchema, userSchema } from "../../Components/Typings/Modules";
 import { CanvasRenderingContext2D, createCanvas, Image } from "canvas";
-import { Member, Message, User } from "eris";
-import moment from 'moment';
-import axios from "axios";
+import Eris, { Collection, Member, Message, User } from "eris";
+import table from "../../Packages/Database/_Interaction";
+// import moment from 'moment';
+// import axios from "axios";
+import pg from "pg";
 
-export default function start() {
+export default function () {
 
-	/* message.deleteAfter(5) */
+	/*		message.deleteAfter(5)		*/
+	/*		message.cleanContent		*/
 	delete Message.prototype.deleteAfter;
-	Object.defineProperty(Message.prototype, 'deleteAfter', {
-		value: async function (time: number) {
-			await sleep(time);
-			this.delete().catch(() => { });
+	delete Message.prototype.cleanContent
+
+	Object.defineProperties(Message.prototype, {
+		deleteAfter: {
+			value: async function (time: number) {
+				await sleep(time);
+				this.delete().catch(() => { });
+			}
+		},
+		cleanContent: {
+			get() {
+				let cleanContent = this.content || ""
+				cleanContent = cleanContent.replace(new RegExp(`<@!?${this.author.id}>`, "g"), `@\u200b${this.author.username}`);
+				if (this.mentions) {
+					this.mentions.forEach((mention) => {
+						if (this.channel.guild) {
+							const member = this.channel.guild.members.get(mention.id);
+							if (member && member.nick)
+								cleanContent = cleanContent.replace(new RegExp(`<@!?${mention.id}>`, "g"), `@\u200b${member.username}`);
+						}
+						cleanContent = cleanContent.replace(new RegExp(`<@!?${mention.id}>`, "g"), "@\u200b" + mention.username);
+					});
+				}
+
+				if (this.channel.guild && this.roleMentions) {
+					for (const roleID of this.roleMentions) {
+						const role = this.channel.guild.roles.get(roleID);
+						cleanContent = cleanContent.replace(new RegExp(`<@&${roleID}>`, "g"), `@\u200b${role ? role.name : "deleted-role"}`);
+					}
+				}
+
+				this.channelMentions.forEach((id) => {
+					const channel = this._client.getChannel(id);
+					if (channel && channel.name)
+						cleanContent = cleanContent.replace(`<#${channel.id}>`, `#${channel.name ? channel.name : 'deleted-channel'}`);
+				});
+
+				return cleanContent;
+			}
 		}
 	})
 
-	/* 'let ket = new KetClient()'.encode('js') */
+	/*		'let ket = new KetClient()'.encode('js')		*/
 	delete String.prototype.encode;
 	Object.defineProperty(String.prototype, 'encode', {
 		value: function (lang: string) {
@@ -22,70 +61,29 @@ export default function start() {
 		}
 	})
 
-	delete Message.prototype.cleanContent
-	Object.defineProperty(Message.prototype, 'cleanContent', {
-		get() {
-			let cleanContent = this.content || ""
-			cleanContent = cleanContent.replace(new RegExp(`<@!?${this.author.id}>`, "g"), `@\u200b${this.author.username}`);
-			if (this.mentions) {
-				this.mentions.forEach((mention) => {
-					if (this.channel.guild) {
-						const member = this.channel.guild.members.get(mention.id);
-						if (member && member.nick)
-							cleanContent = cleanContent.replace(new RegExp(`<@!?${mention.id}>`, "g"), `@\u200b${member.username}`);
-					}
-					cleanContent = cleanContent.replace(new RegExp(`<@!?${mention.id}>`, "g"), "@\u200b" + mention.username);
-				});
-			}
+	/*		member.mute()		*/
+	// delete Member.prototype.mute;
+	// Object.defineProperty(Member.prototype, 'mute', {
+	// 	value: async function mutar(time: string, reason: string | null) {
+	// 		let data = await axios({
+	// 			"url": `https://${this.user._client.requestHandler.options.domain}${this.user._client.requestHandler.options.baseURL}/guilds/${this.guild.id}/members/${this.id}`,
+	// 			"headers": {
+	// 				"authorization": this.user._client._token,
+	// 				"x-audit-log-reason": reason,
+	// 				"content-type": "application/json"
+	// 			},
+	// 			data: {
+	// 				"communication_disabled_until": moment(time).format()
+	// 			},
+	// 			"method": "PATCH"
+	// 		})
+	// 		if (data.status < 200 || data.status > 300)
+	// 			throw new Error(`DiscordRESTError:\nStatus Code: ${data.status}\n${data.statusText}`);
+	// 		else return true;
+	// 	}
+	// })
 
-			if (this.channel.guild && this.roleMentions) {
-				for (const roleID of this.roleMentions) {
-					const role = this.channel.guild.roles.get(roleID);
-					cleanContent = cleanContent.replace(new RegExp(`<@&${roleID}>`, "g"), `@\u200b${role ? role.name : "deleted-role"}`);
-				}
-			}
-
-			this.channelMentions.forEach((id) => {
-				const channel = this._client.getChannel(id);
-				if (channel && channel.name)
-					cleanContent = cleanContent.replace(`<#${channel.id}>`, `#${channel.name ? channel.name : 'deleted-channel'}`);
-			});
-
-			return cleanContent;
-		}
-	})
-
-	delete Member.prototype.mute;
-	Object.defineProperty(Member.prototype, 'mute', {
-		value: async function mutar(args: string, reason: string | null) {
-			let regex: RegExp = /([0-9]+)( |)(h|m|s)/gi,
-				time: number = Date.now();
-			args.match(regex).forEach(t => {
-				let bah = Number(t.replace(/[a-z]+/gi, ''))
-				if (isNaN(bah)) return;
-				if (t.endsWith('h')) return time += bah * 60 * 60 * 1_000;
-				if (t.endsWith('m')) return time += bah * 60 * 1_000;
-				if (t.endsWith('s')) return time += bah * 1_000;
-			})
-			let data = await axios({
-				"url": `https://${this.user._client.requestHandler.options.domain}${this.user._client.requestHandler.options.baseURL}/guilds/${this.guild.id}/members/${this.id}`,
-				"headers": {
-					"authorization": this.user._client._token,
-					"x-audit-log-reason": reason,
-					"content-type": "application/json"
-				},
-				data: {
-					"communication_disabled_until": moment(time).format()
-				},
-				"method": "PATCH"
-			})
-			if (data.status < 200 || data.status > 300)
-				throw new Error(`DiscordRESTError:\nStatus Code: ${data.status}\n${data.statusText}`);
-			else return true;
-		}
-	})
-
-	/* user.tag */
+	/*		user.tag		*/
 	delete User.prototype.tag;
 	Object.defineProperty(User.prototype, "tag", {
 		get() {
@@ -93,12 +91,48 @@ export default function start() {
 		}
 	});
 
+	/*		PostgresClient		*/
+	let tables = ['users', 'servers', 'commands', 'globalchat', 'blacklist'];
+	for (let i in tables) delete pg.Client.prototype[tables[i]];
+	Object.defineProperty(pg.Client.prototype, 'build', {
+		value: async function () {
+			Object.defineProperties(pg.Client.prototype, {
+				users: {
+					value: new table<userSchema>('users', 'id', this)
+				},
+				servers: {
+					value: new table<serverSchema>('servers', 'id', this)
+				},
+				commands: {
+					value: new table<commandSchema>('commands', 'name', this)
+				},
+				globalchat: {
+					value: new table<globalchatSchema>('globalchat', 'id', this)
+				},
+				blacklist: {
+					value: new table<blacklistSchema>('blacklist', 'id', this)
+				},
+				tables: { value: tables }
+			})
+			await this.connect();
+			return;
+		}
+	})
+
+	/*		ErisClient		*/
+	Object.defineProperties(Eris.Client.prototype, {
+		commands: { value: new Collection(null, 150) },
+		aliases: { value: new Collection(null, 300) },
+		webhooks: { value: new Collection(null, 50) },
+		shardUptime: { value: new Collection(null, 10) }
+	})
+
 	/** Canvas Structures **/
 	delete CanvasRenderingContext2D.prototype.roundRect;
 	Object.defineProperty(CanvasRenderingContext2D.prototype, 'roundRect', {
 		value: function roundRect(x: number, y: number, width: number, height: number, radius, fill, stroke: boolean) {
-			if (typeof stroke === "undefined") stroke = true;
-			if (typeof radius === "undefined") radius = 5;
+			if (!stroke) stroke = true;
+			if (!radius) radius = 5;
 			if (typeof radius === "number")
 				radius = { tl: radius, tr: radius, br: radius, bl: radius };
 			else {

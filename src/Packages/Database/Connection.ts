@@ -1,9 +1,8 @@
-import { blacklistSchema, commandSchema, globalchatSchema, serverSchema, userSchema } from "../../Components/Typings/Database";
 import { Client } from "pg";
-import table from "./_Interaction";
+import { PostgresClient } from "../../Components/Typings/Modules";
 
 export default async () => {
-    let postgres = new Client({
+    let postgres: PostgresClient = new Client({
         database: process.env.DATABASE,
         password: process.env.PASSWORD,
         user: process.env.USER,
@@ -11,27 +10,9 @@ export default async () => {
         port: Number(process.env.PORT),
         ssl: process.env.SSL === 'false' ? false : { rejectUnauthorized: false }
     });
-    console.log({
-        database: process.env.DATABASE,
-        password: process.env.PASSWORD,
-        user: process.env.USER,
-        host: process.env.HOST,
-        port: Number(process.env.PORT),
-        ssl: process.env.SSL === 'false' ? false : { rejectUnauthorized: false }
-    })
 
-    await postgres.connect()
-        .then(async () => {
-            console.log('DATABASE', '√ Banco de dados operante ', 32);
-
-            postgres.users = new table<userSchema>('users', 'id', postgres);
-            postgres.servers = new table<serverSchema>('servers', 'id', postgres);
-            postgres.commands = new table<commandSchema>('commands', 'name', postgres);
-            postgres.globalchat = new table<globalchatSchema>('globalchat', 'id', postgres);
-            postgres.blacklist = new table<blacklistSchema>('blacklist', 'id', postgres);
-            postgres.tables = ['users', 'servers', 'commands', 'globalchat', 'blacklist'];
-
-        })
+    await postgres.build()
+        .then(async () => console.log('DATABASE', '√ Banco de dados operante ', 32))
         .catch((error) => console.log('DATABASE', `x Não foi possível realizar conexão ao banco de dados: ${error.stack}`, 41));
 
     /* DATABASE TESTS */

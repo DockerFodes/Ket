@@ -1,7 +1,7 @@
 import { CommandClientOptions, CommandInteraction, ComponentInteraction } from "eris";
 import { getContext, getColor } from "../../Components/Commands/CommandStructure";
 import { channels, DEVS } from "../../JSON/settings.json";
-import { PostgresClient } from "../../Components/Typings/Database";
+import { PostgresClient } from "../../Components/Typings/Modules";
 import KetClient from "../../Main";
 import KetUtils from "../../Components/Core/KetUtils";
 import homeInteractions from "../../Packages/Home/_homeInteractions";

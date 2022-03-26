@@ -8,7 +8,7 @@
         "scope": "typescript",
         "prefix": "newKetEvent",
         "body": [
-            "import { PostgresClient } from \"../../Components/Typings/Database\";",
+            "import { PostgresClient } from \"../../Components/Typings/Modules\";",
             "import KetClient from \"../../Main\";",
             "",
             "module.exports = class $1Event {",

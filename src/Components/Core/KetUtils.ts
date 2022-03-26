@@ -1,7 +1,7 @@
 import { getEmoji, getColor, EmbedBuilder, CommandContext } from '../Commands/CommandStructure';
 import { ComponentInteraction, Message, User } from "eris";
 import { DEVS, channels, globalchat } from "../../JSON/settings.json";
-import { PostgresClient } from '../Typings/Database';
+import { PostgresClient } from '../Typings/Modules';
 import Translator from "./Translator";
 import DidYouMean from "didyoumean";
 import KetClient from "../../Main";

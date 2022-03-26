@@ -1,7 +1,7 @@
 import os from "os";
 import { exec } from "child_process";
 import { writeFileSync } from "fs";
-import { PostgresClient } from "../Typings/Database";
+import { PostgresClient } from "../Typings/Modules";
 import { duration } from "moment";
 import { resolve } from "path";
 import Translator from "../Core/Translator";

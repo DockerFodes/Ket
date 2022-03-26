@@ -1,9 +1,9 @@
-import KetClient from "../../Main";
-import { channels } from "../../JSON/settings.json";
+import { PostgresClient } from "../../Components/Typings/Modules";
 import { getColor } from "../../Components/Commands/CommandStructure";
-import { PostgresClient } from "../../Components/Typings/Database";
+import { channels } from "../../JSON/settings.json";
+import KetClient from "../../Main";
 
-export default async function run(ket: KetClient, postgres: PostgresClient) {
+export default async function (ket: KetClient, postgres: PostgresClient) {
     if (!global.PROD) return;
     await sleep(30_000);
 
