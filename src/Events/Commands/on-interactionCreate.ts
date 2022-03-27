@@ -1,24 +1,15 @@
 import { CommandClientOptions, CommandInteraction, ComponentInteraction } from "eris";
 import { getContext, getColor } from "../../Components/Commands/CommandStructure";
 import { channels, DEVS } from "../../JSON/settings.json";
-import { PostgresClient } from "../../Components/Typings/Modules";
-import KetClient from "../../Main";
-import KetUtils from "../../Components/Core/KetUtils";
 import homeInteractions from "../../Packages/Home/_homeInteractions";
 import DMexec from "../../Packages/Home/_DMClient";
 import getT from "../../Components/Core/LocalesStructure";
+import Event from "../../Components/Classes/Event";
 
+module.exports = class InteractionCreate extends Event {
+    public dir = __filename;
 
-module.exports = class InteractionCreateEvent {
-    ket: KetClient;
-    postgres: PostgresClient;
-    KetUtils: any;
-    constructor(ket: KetClient, postgres: PostgresClient) {
-        this.ket = ket;
-        this.postgres = postgres;
-        this.KetUtils = new (KetUtils)(this.ket, this.postgres);
-    }
-    async on(interaction) {
+    async on(interaction: CommandInteraction<any> | ComponentInteraction<any>) {
         if (interaction instanceof ComponentInteraction) {
             if (channels.homeInteractions.includes(interaction.channel.id))
                 return homeInteractions(interaction);

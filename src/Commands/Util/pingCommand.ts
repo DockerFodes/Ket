@@ -1,6 +1,7 @@
-import CommandStructure, { CommandContext } from "../../Components/Commands/CommandStructure"
+import Command from "../../Components/Classes/Command";
+import { CommandContext } from "../../Components/Commands/CommandStructure"
 
-module.exports = class PingCommand extends CommandStructure {
+module.exports = class PingCommand extends Command {
     access = {
         DM: true,
         Threads: true

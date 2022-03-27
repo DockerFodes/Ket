@@ -1,16 +1,11 @@
-import { PostgresClient } from "../../Components/Typings/Modules";
 import { getColor } from "../../Components/Commands/CommandStructure";
 import { channels } from "../../JSON/settings.json";
 import { Guild, User } from "eris";
-import KetClient from "../../Main";
+import Event from "../../Components/Classes/Event";
 
-module.exports = class guildCreateEvent {
-    ket: KetClient;
-    postgres: PostgresClient;
-    constructor(ket: KetClient, postgres: PostgresClient) {
-        this.ket = ket;
-        this.postgres = postgres;
-    }
+module.exports = class guildCreate extends Event {
+    public dir = __filename;
+
     async on(guild: Guild) {
         this.ket.send({
             ctx: channels.guildCreate, emoji: 'autorizado', content: {

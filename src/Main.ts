@@ -1,7 +1,7 @@
 import { Channel, Client, ClientOptions, Collection, CommandInteraction, Guild, GuildChannel, Member, Message, TextableChannel, User } from "eris";
 import { KetSendContent, KetSendFunction } from "./Components/Typings/Modules";
 import { getEmoji, getColor } from './Components/Commands/CommandStructure';
-import { PostgresClient, CommandConfig } from "./Components/Typings/Modules";
+import { PostgresClient } from "./Components/Typings/Modules";
 import { CLIENT_OPTIONS } from "./JSON/settings.json";
 import { DEFAULT_LANG } from "./JSON/settings.json";
 import { tz } from "moment-timezone";
@@ -29,13 +29,13 @@ export default class KetClient extends Client {
     }
 
     public async boot() {
-        await this.loadLocales(`${__dirname}/Locales/`);
+        await this.loadLocales(`${__dirname}/Locales`);
         postgres = await ConnectDB();
         this.loadCommands(`${__dirname}/Commands`, postgres);
         this.events = new (EventHandler)(this, postgres);
-        this.addListeners(`${__dirname}/Events/`);
-        // await this.loadModules(`${__dirname}/Packages/`);
-        super.connect()
+        this.addListeners(`${__dirname}/Events`);
+        // await this.loadModules(`${__dirname}/Packages`);
+        super.connect();
         return;
     }
 
@@ -49,7 +49,7 @@ export default class KetClient extends Client {
 
                     let splitDir = String(command.dir).includes('\\')
                         ? String(command.dir).split('\\')
-                        : String(command.dir).split('/')
+                        : String(command.dir).split('/');
 
                     command = {
                         name: String(command.name || splitDir.pop().split('Command')[0]).toLowerCase(),
@@ -121,9 +121,8 @@ export default class KetClient extends Client {
                 let files = readdirSync(`${path}/${categories[a]}/`);
                 for (let b in files) {
                     if (files[b].startsWith('_')) continue;
-                    let eventName = files[b].split(".")[0].replace('on-', ''),
-                        eventPath = `${path}/${categories[a]}/${files[b]}`;
-                    this.events.add(eventName, eventPath, categories[a] === 'Music' ? 1 : 0);
+
+                    this.events.add(`${path}/${categories[a]}/${files[b]}`);
                 }
             }
             console.log('EVENTS', `${this.events.size} Listeners adicionados`, 2);
@@ -357,7 +356,7 @@ async function main() {
     console.log = function () {
         let args = [...arguments];
 
-        if (typeof args[args.length - 1] !== 'number') {
+        if (typeof args[args.length - 1] !== 'number' && args[1]) {
             console.info(eval(args.map((_a, index) => `args[${index}]`).join(', ')));
             return sendWebhook(eval(args.map((_a, index) => `args[${index}]`).join(', ')));
         }

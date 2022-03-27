@@ -1,13 +1,13 @@
 import { Node } from "erela.js";
-import KetClient from "../../Main";
+import Event from "../../Components/Classes/Event";
 
-module.exports = class nodeDestroyEvent {
-    ket: KetClient;
-    constructor(ket: KetClient) {
-        this.ket = ket;
-    }
+module.exports = class nodeDestroy extends Event {
+    public type = 1;
+    public dir = __filename;
+
     async on(node: Node) {
-        console.log(`ERELA / ${node.options.identifier}`, 'Destruído', 31);
+        console.log(`ERELA/${node.options.identifier}`, 'Destruído', 31);
+
         return;
     }
 }

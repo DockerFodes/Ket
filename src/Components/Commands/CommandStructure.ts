@@ -1,36 +1,8 @@
 import { CommandInteraction, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage, EmbedOptions, Guild, GuildTextableChannel, Member, Message, Shard, User } from "eris";
-import { CommandConfig, CommandContextFunc } from "../Typings/Modules";
+import { CommandContextFunc } from "../Typings/Modules";
 import settings, { statusMsg } from "../../JSON/settings.json";
-import { PostgresClient } from "../Typings/Modules";
 import KetClient from "../../Main";
 import { duration } from "moment";
-
-export default abstract class CommandStructure {
-    name?: string;
-    aliases?: string[];
-    category?: string;
-    cooldown?: number;
-    permissions?: {
-        user?: string[];
-        bot?: string[];
-        onlyDevs?: boolean;
-    }
-    access?: {
-        DM?: boolean;
-        Threads?: boolean;
-    }
-    dontType?: boolean;
-    testCommand?: string[];
-    slash?: any;
-    dir: string;
-    config?: any;
-
-    constructor(public ket: KetClient, public postgres: PostgresClient) {
-        this.ket = ket;
-        this.postgres = postgres;
-    }
-    abstract execute(ctx: CommandContext): Promise<void>;
-}
 
 export class EmbedBuilder {
     fields: EmbedField[];

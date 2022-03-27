@@ -1,9 +1,10 @@
-import CommandStructure, { CommandContext, getColor } from "../../Components/Commands/CommandStructure";
+import { CommandContext, getColor } from "../../Components/Commands/CommandStructure";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { User } from "eris";
+import Command from "../../Components/Classes/Command";
 import moment from "moment";
 
-module.exports = class GlobalChatCommand extends CommandStructure {
+module.exports = class GlobalChatCommand extends Command {
     aliases = ['chatglobal', 'global'];
     dir = __filename;
     slash = new SlashCommandBuilder()

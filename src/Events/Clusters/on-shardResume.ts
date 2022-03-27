@@ -1,10 +1,8 @@
-import KetClient from "../../Main";
+import Event from "../../Components/Classes/Event";
 
-module.exports = class ShardResumeEvent {
-    ket: KetClient;
-    constructor(ket: KetClient) {
-        this.ket = ket;
-    }
+module.exports = class ShardResume extends Event {
+    public dir = __filename;
+
     async on(shardID: number) {
         this.ket.emit('shardReady', shardID);
         return;

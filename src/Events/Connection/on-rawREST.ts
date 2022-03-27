@@ -1,12 +1,10 @@
 import { RawRESTRequest } from "eris";
-import KetClient from "../../Main";
+import Event from "../../Components/Classes/Event";
 import moment from 'moment';
 
-module.exports = class RawRESTEvent {
-    ket: KetClient;
-    constructor(ket: KetClient) {
-        this.ket = ket;
-    }
+module.exports = class RawREST extends Event {
+    public dir = __filename;
+
     async on(req: RawRESTRequest) {
         if (req.resp.statusCode !== 429 || !req.resp.headers['x-ratelimit-bucket']) return;
 

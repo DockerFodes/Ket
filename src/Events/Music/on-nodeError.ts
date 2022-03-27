@@ -1,13 +1,13 @@
 import { Node } from "erela.js";
-import KetClient from "../../Main";
+import Event from "../../Components/Classes/Event";
 
-module.exports = class nodeErrorEvent {
-    ket: KetClient;
-    constructor(ket: KetClient) {
-        this.ket = ket;
-    }
+module.exports = class nodeError extends Event {
+    public type = 1;
+    public dir = __filename;
+
     async on(node: Node, error: Error) {
-        console.log(`ERELA / ${node.options.identifier}`, error, 31);
+        console.log(`ERELA/${node.options.identifier}`, error, 31);
+
         return;
     }
 }

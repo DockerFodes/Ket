@@ -1,23 +1,20 @@
 import { GuildTextableChannel, Message, User } from "eris";
-import { PostgresClient } from "../../Components/Typings/Modules";
 import { guilds } from "../../JSON/settings.json";
-import KetClient from "../../Main";
+import Event from "../../Components/Classes/Event";
 
-module.exports = class MessageDeleteEvent {
-    ket: KetClient;
-    postgres: PostgresClient;
-    constructor(ket: KetClient, postgres: PostgresClient) {
-        this.ket = ket;
-        this.postgres = postgres;
-    }
+module.exports = class MessageDelete extends Event {
+    public dir = __filename;
+
     async on(message: Message<any>) {
         if (message.author?.bot) return;
 
         if (message.channel?.parentID === guilds.dmCategory) {
             let DMChannel = (await (await this.ket.findUser(message.channel.topic, false) as User).getDMChannel());
 
-            return (await this.ket.findMessage(DMChannel, { content: message.content, limit: 25 })).delete()
+            (await this.ket.findMessage(DMChannel, { content: message.content, limit: 25 })).delete()
                 .catch((e) => this.ket.send({ ctx: message.channel, content: `Não foi possível \`apagar\` a mensagem\n\n\`\`\`js\n${e}\`\`\`` }))
+
+            return;
         }
 
         let guild = await this.postgres.servers.find(message.guildID);

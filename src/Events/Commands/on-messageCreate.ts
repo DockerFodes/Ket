@@ -1,21 +1,13 @@
 import { TRUSTED_BOTS, DEVS, guilds, DEFAULT_PREFIX, DEFAULT_LANG } from "../../JSON/settings.json";
 import { getContext, getColor } from "../../Components/Commands/CommandStructure";
-import { PostgresClient } from "../../Components/Typings/Modules";
 import { Message } from "eris";
-import KetClient from "../../Main";
-import KetUtils from "../../Components/Core/KetUtils";
-import DMexec from "../../Packages/Home/_DMClient";
 import getT from "../../Components/Core/LocalesStructure";
+import DMexec from "../../Packages/Home/_DMClient";
+import Event from "../../Components/Classes/Event";
 
-module.exports = class MessageCreateEvent {
-    ket: KetClient;
-    postgres: PostgresClient;
-    KetUtils;
-    constructor(ket: KetClient, postgres: PostgresClient) {
-        this.ket = ket;
-        this.postgres = postgres;
-        this.KetUtils = new (KetUtils)(this.ket, this.postgres);
-    }
+module.exports = class MessageCreate extends Event {
+    public dir = __filename;
+
     async on(message: Message<any>) {
         if (message.author?.bot && !TRUSTED_BOTS.includes(message.author.id)) return;
         if (!message.guildID || message.channel.type === 1 || message.channel.parentID === guilds.dmCategory)

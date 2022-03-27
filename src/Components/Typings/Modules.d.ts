@@ -148,27 +148,6 @@ interface KetSendContent extends AdvancedMessageContent {
     files?: FileContent[];
 }
 
-export interface CommandConfig {
-    name?: string;
-    aliases?: string[];
-    category?: string;
-    cooldown?: number;
-    permissions?: {
-        user?: string[];
-        bot?: string[];
-        onlyDevs?: boolean;
-    }
-    access?: {
-        DM?: boolean;
-        Threads?: boolean;
-    }
-    dontType?: boolean;
-    testCommand?: string[];
-    slash?: any;
-    dir: string;
-    config?: any;
-}
-
 export interface KetSendFunction {
     ctx: Message<any> | CommandInteraction<any> | CommandContext | string;
     content: KetSendContent | string;

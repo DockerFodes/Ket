@@ -1,18 +1,10 @@
 import { GuildChannel, Message, User } from "eris";
 import { globalchat, guilds } from "../../JSON/settings.json";
-import { PostgresClient } from "../../Components/Typings/Modules";
-import KetUtils from "../../Components/Core/KetUtils";
-import KetClient from "../../Main";
+import Event from "../../Components/Classes/Event";
 
-module.exports = class MessageUpdateEvent {
-    ket: KetClient;
-    postgres: PostgresClient;
-    KetUtils: any;
-    constructor(ket: KetClient, postgres: PostgresClient) {
-        this.ket = ket;
-        this.postgres = postgres;
-        this.KetUtils = new (KetUtils)(this.ket, this.postgres);
-    }
+module.exports = class MessageUpdate extends Event {
+    public dir = __filename;
+
     async on(newMsg: Message<any>, oldMsg: Message) {
         if ((String(oldMsg?.content).trim() === String(newMsg?.content).trim() && !newMsg.editedTimestamp) || newMsg.author?.bot) return;
 
@@ -28,7 +20,10 @@ module.exports = class MessageUpdateEvent {
 
         const guild = await this.postgres.servers.find(newMsg.guildID)
 
-        if (newMsg.channel.id !== guild.globalchat) return this.ket.emit("messageCreate", newMsg);
+        if (newMsg.channel.id !== guild.globalchat) {
+            this.ket.emit("messageCreate", newMsg);
+            return;
+        }
 
         const user = await this.postgres.users.find(newMsg.author.id),
             msg = await this.postgres.globalchat.find(newMsg.id);

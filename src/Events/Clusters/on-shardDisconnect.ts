@@ -1,11 +1,9 @@
+import Event from "../../Components/Classes/Event";
 import { infoEmbed } from "../../Components/Commands/CommandStructure";
-import KetClient from "../../Main";
 
-module.exports = class ShardDisconnect {
-    ket: KetClient;
-    constructor(ket: KetClient) {
-        this.ket = ket;
-    }
+module.exports = class ShardDisconnect extends Event {
+    public dir = __filename;
+
     async on(error: string, shardID: number) {
         console.log(`SHARD ${shardID}`, `Reiniciando: ${error}`, 31);
         this.ket.shardUptime.set(shardID, NaN);

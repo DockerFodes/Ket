@@ -8,6 +8,7 @@
         "build": "echo Building application... && yarn tsc && cp -r -f src/Assets build/Assets && echo Application built successfully!",
         "start": "yarn build && echo Starting... && yarn noCompile",
         "dev": "yarn noCompile --dev",
+        "nodemon": "nodemon build/Main.js --dev",
         "noCompile": "yarn node --expose-gc --trace-warnings build/Main.js ",
         "ts-mode": "ts-node --ignore-watch ./ src/Main.ts"
     },

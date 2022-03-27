@@ -1,19 +1,15 @@
-import { PostgresClient } from "../../Components/Typings/Modules";
 import { infoEmbed } from "../../Components/Commands/CommandStructure";
 import BackupAndCacheController from "../../Packages/Database/_BackupAndCC";
 import TerminalClient from "../../Components/CLI/TerminalClient";
-import KetClient from "../../Main";
+import Event from "../../Components/Classes/Event";
 import moment from "moment";
 
-module.exports = class ReadyEvent {
-    ket: KetClient;
-    postgres: PostgresClient;
-    constructor(ket: KetClient, postgres: PostgresClient) {
-        this.ket = ket;
-        this.postgres = postgres;
-    }
+module.exports = class Ready extends Event {
+    public type = -1;
+    public dir = __filename;
+
     async on() {
-        // this.ket.erela.init(this.ket.user.id);
+        this.ket.erela.init(this.ket.user.id);
 
         let status = [
             { name: 'no vasco', type: 0 },

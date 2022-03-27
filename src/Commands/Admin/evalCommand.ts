@@ -1,7 +1,8 @@
-import CommandStructure, { EmbedBuilder, getEmoji, getColor, CommandContext } from "../../Components/Commands/CommandStructure";
+import { EmbedBuilder, getEmoji, getColor, CommandContext } from "../../Components/Commands/CommandStructure";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { duration } from "moment";
 import KetUtils from "../../Components/Core/KetUtils";
+import Command from "../../Components/Classes/Command";
 
 const
     axios = require('axios'),
@@ -12,7 +13,7 @@ const
     moment = require("moment"),
     path = require('path');
 
-module.exports = class EvalCommand extends CommandStructure {
+module.exports = class EvalCommand extends Command {
     aliases = ['e']
     cooldown = 1
     permissions = {

@@ -1,14 +1,9 @@
 import { GuildChannel, WebhookData } from "eris";
-import { PostgresClient } from "../../Components/Typings/Modules";
-import KetClient from "../../Main";
+import Event from "../../Components/Classes/Event";
 
-module.exports = class Event {
-    ket: KetClient;
-    postgres: PostgresClient;
-    constructor(ket: KetClient, postgres: PostgresClient) {
-        this.ket = ket;
-        this.postgres = postgres;
-    }
+module.exports = class webhooksUpdate extends Event {
+    public dir = __filename;
+
     async on(wData: WebhookData) {
         if (!(await this.postgres.servers.find(wData.channelID, false, 'globalchat'))) return;
 
@@ -28,12 +23,14 @@ module.exports = class Event {
             this.ket.webhooks.set(wData.channelID, webhook)
         }
 
-        if (webhooks[1] && webhooks.shift()) for (let i in webhooks) this.ket.deleteWebhook(webhooks[i].id);
+        if (webhooks[1] && webhooks.shift())
+            for (let i in webhooks) this.ket.deleteWebhook(webhooks[i].id);
 
-        if (data && (webhook?.name !== 'Ket' || webhook?.channel_id !== data.channel_id)) return this.ket.editWebhook(webhook.id, {
-            name: 'Ket',
-            channelID: wData.channelID
-        }, webhook.token)
+        if (data && (webhook?.name !== 'Ket' || webhook?.channel_id !== data.channel_id))
+            this.ket.editWebhook(webhook.id, {
+                name: 'Ket',
+                channelID: wData.channelID
+            }, webhook.token)
 
         return;
     }

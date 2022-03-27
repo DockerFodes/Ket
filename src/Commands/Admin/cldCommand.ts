@@ -1,9 +1,10 @@
-import CommandStructure, { CommandContext, EmbedBuilder, getEmoji } from '../../Components/Commands/CommandStructure';
+import { CommandContext, EmbedBuilder, getEmoji } from '../../Components/Commands/CommandStructure';
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { execSync } from "child_process";
 import { duration } from "moment";
+import Command from '../../Components/Classes/Command';
 
-module.exports = class CldCommand extends CommandStructure {
+module.exports = class CldCommand extends Command {
     cooldown = 1;
     permissions = {
         onlyDevs: true
