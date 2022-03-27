@@ -1,4 +1,5 @@
 import { infoEmbed } from "../../Components/Commands/CommandStructure";
+import { ENABLE_LAVALINK } from "../../JSON/settings.json";
 import BackupAndCacheController from "../../Packages/Database/_BackupAndCC";
 import TerminalClient from "../../Components/CLI/TerminalClient";
 import Event from "../../Components/Classes/Event";
@@ -9,7 +10,7 @@ module.exports = class Ready extends Event {
     public dir = __filename;
 
     async on() {
-        this.ket.erela.init(this.ket.user.id);
+        if (ENABLE_LAVALINK) this.ket.erela.init(this.ket.user.id);
 
         let status = [
             { name: 'no vasco', type: 0 },
@@ -56,6 +57,7 @@ module.exports = class Ready extends Event {
  ◆ ▬▬▬▬▬▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬▬▬▬▬▬ ◆
   - Operante em ${this.ket.guilds.size} servidores com ${this.ket.allUsersCount} membros.`, 33);
         TerminalClient(this.ket, this.postgres);
+
         return;
     }
 }

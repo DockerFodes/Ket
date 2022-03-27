@@ -1,5 +1,5 @@
-import Command from "../../Components/Classes/Command";
 import { CommandContext } from "../../Components/Commands/CommandStructure"
+import Command from "../../Components/Classes/Command";
 
 module.exports = class PingCommand extends Command {
     access = {

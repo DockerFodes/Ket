@@ -335,8 +335,8 @@ export default class KetUtils {
         missingPermissions = ctx.command.permissions.bot
             ?.filter((perm) => !ctx.me.permissions.has(perm))
             ?.map(value => ctx.t(`permissions:${value}`));
-        console.log(missingPermissions)
-        if (missingPermissions && missingPermissions[0]) {
+
+            if (missingPermissions && missingPermissions[0]) {
             let content = ctx.t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') });
             if (!notReply)
                 ctx.send({ content, embed: false, emoji: 'negado' })

@@ -15,6 +15,8 @@ export default class EventHandler {
     add(dir: string) {
         const event = new (require(dir))(this.ket, this.postgres);
 
+        if (event.disabled) return;
+
         let splitDir = String(dir).includes('\\')
             ? String(dir).replace(/(\\)/g, '/').split('/')
             : String(dir).split('/');
@@ -45,25 +47,30 @@ export default class EventHandler {
         return;
     }
     execute(name: string, args: any[]) {
-        return this.events.filter(e => e.name === name).forEach((event) => {
+        this.events.filter(e => e.name === name).forEach((event) => {
             try {
-                if (global.PROD) return event.on(...args);
+                if (global.PROD) event.on(...args);
                 else {
                     delete require.cache[require.resolve(event.dir)];
-                    return new (require(event.dir))(this.ket, this.postgres).on(...args);
+                    new (require(event.dir))(this.ket, this.postgres).on(...args);
                 }
             } catch (error: any) {
-                return console.log(`EVENTS/${event.name}`, 'ERRO GENÉRICO:', String(error.stack).slice(0, 256), 31)
+                console.log(`EVENTS/${event.name}`, 'ERRO GENÉRICO:', String(error.stack).slice(0, 256), 31)
             }
+
+            return;
         })
+
+        return;
     }
     remove(name: string) {
         if (!this.events.find(e => e.name === name)[0]) return false;
         delete this.events[this.events.findIndex(e => e.name === name)];
+
         return true;
     }
 
     get size() {
-        return this.events.length
+        return this.events.length;
     }
 }

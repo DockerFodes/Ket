@@ -1,6 +1,6 @@
 import { PostgresClient } from "../Typings/Modules";
-import KetClient from "../../Main";
 import ketUtils from "../Core/KetUtils";
+import KetClient from "../../Main";
 
 export default abstract class Event {
     name?: string;

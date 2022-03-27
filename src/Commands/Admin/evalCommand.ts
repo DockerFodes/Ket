@@ -1,8 +1,8 @@
 import { EmbedBuilder, getEmoji, getColor, CommandContext } from "../../Components/Commands/CommandStructure";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { duration } from "moment";
-import KetUtils from "../../Components/Core/KetUtils";
 import Command from "../../Components/Classes/Command";
+import KetUtils from "../../Components/Core/KetUtils";
 
 const
     axios = require('axios'),

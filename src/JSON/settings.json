@@ -4,7 +4,7 @@
     "DEFAULT_LANG": "pt",
     "DEVS": [ "340626138076282900", "568493382884917258", "733418202704642078" ], // Users who can access eval and other functionality
     "TRUSTED_BOTS": [ "777938917117919255", "789123515882012683", "737044809650274325", "297153970613387264" ], // Bots that can interact/use commands
-
+    "ENABLE_LAVALINK": false, // "true" if lavalink should be enabled
             //      CHANNELS SETTINGS
     "guilds": {
         "support": "810125751441162240", // Support server

@@ -1,12 +1,12 @@
-import os from "os";
+import { PostgresClient } from "../Typings/Modules";
 import { exec } from "child_process";
 import { writeFileSync } from "fs";
-import { PostgresClient } from "../Typings/Modules";
 import { duration } from "moment";
 import { resolve } from "path";
 import Translator from "../Core/Translator";
-import KetClient from "../../Main";
 import getT from "../Core/LocalesStructure";
+import KetClient from "../../Main";
+import os from "os";
 
 module.exports = class CLI {
     commands: { name: string, aliase: string | string[] }[]
