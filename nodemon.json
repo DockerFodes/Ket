@@ -1,0 +1,15 @@
+{
+    "delay": 500,
+    "ignore": [
+        ".git",
+        ".yarn/",
+        "README.md",
+        "node_modules/",
+        "build/"
+    ],
+    "watch": [
+        "src"
+    ],
+    "exec": "yarn dev",
+    "ext": "js"
+}

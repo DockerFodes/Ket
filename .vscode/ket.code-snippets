@@ -2,24 +2,41 @@
     "clg": {
         "scope": "typescript",
         "prefix": "clg",
-        "body": "console.log($1)"
+        "body": "console.info($1)"
     },
     "Event": {
         "scope": "typescript",
-        "prefix": "newKetEvent",
+        "prefix": "newEvent",
         "body": [
-            "import { PostgresClient } from \"../../Components/Typings/Modules\";",
-            "import KetClient from \"../../Main\";",
+            "import Event from \"../../Components/Classes/Event\";",
             "",
-            "module.exports = class $1Event {",
-            "    ket: KetClient;",
-            "    postgres: PostgresClient;",
-            "    constructor(ket: KetClient, postgres: PostgresClient) {",
-            "        this.ket = ket;",
-            "        this.postgres = postgres;",
-            "    }",
-            "    async on($2) {",
+            "module.exports = class $1 extends Event {",
+            "    public dir = __filename;",
+            "",
+            "    public async on($2) {",
             "        $3",
+            "",
+            "       return;",
+            "    }",
+            "}"
+        ]
+    },
+    "Command": {
+        "scope": "typescript",
+        "prefix": "newCommand",
+        "body": [
+            "import { CommandContext } from \"../../Components/Commands/CommandStructure\";",
+            "import { SlashCommandBuilder } from \"@discordjs/builders\";",
+            "import Command from \"../../Components/Classes/Command\";",
+            "",
+            "module.exports = class $1 extends Command {",
+            "    public testCommand: [];",
+            "    public dir = __filename;",
+            "",
+            "    public async execute(ctx: CommandContext) {",
+            "        $2",
+            "",
+            "        return;",
             "    }",
             "}"
         ]
