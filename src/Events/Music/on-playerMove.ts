@@ -7,7 +7,7 @@ module.exports = class playerMove extends Event {
     public dir = __filename;
     public disabled = !ENABLE_LAVALINK;
 
-    async on(player: Player, _oldChannel: string, newChannel: string) {
+    public async on(player: Player, _oldChannel: string, newChannel: string) {
         if (!newChannel) return player.destroy();
 
         this.ket.send({ ctx: player.textChannel, content: 'Eu vou ficar contigo até o fim dos tempos <3' });

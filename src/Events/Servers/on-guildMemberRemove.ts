@@ -4,7 +4,7 @@ module.exports = class guildMemberRemove extends Event {
     public disabled = true;
     public dir = __filename;
 
-    async on() {
+    public async on() {
         return;
     }
 }

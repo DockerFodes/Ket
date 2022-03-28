@@ -1,11 +1,11 @@
-import { GuildChannel, Message, User } from "eris";
 import { globalchat, guilds } from "../../JSON/settings.json";
+import { GuildChannel, Message, User } from "eris";
 import Event from "../../Components/Classes/Event";
 
 module.exports = class MessageUpdate extends Event {
     public dir = __filename;
 
-    async on(newMsg: Message<any>, oldMsg: Message) {
+    public async on(newMsg: Message<any>, oldMsg: Message) {
         if ((String(oldMsg?.content).trim() === String(newMsg?.content).trim() && !newMsg.editedTimestamp) || newMsg.author?.bot) return;
 
         if (newMsg.channel.parentID === guilds.dmCategory) {

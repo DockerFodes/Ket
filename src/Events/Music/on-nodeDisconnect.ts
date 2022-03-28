@@ -7,7 +7,7 @@ module.exports = class nodeDisconnect extends Event {
     public dir = __filename;
     public disabled = !ENABLE_LAVALINK;
 
-    async on(node: Node) {
+    public async on(node: Node) {
         console.log(`ERELA/${node.options.identifier}`, 'Desconectado', 31);
 
         return;

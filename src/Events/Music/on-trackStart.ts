@@ -8,7 +8,7 @@ module.exports = class trackStart extends Event {
     public dir = __filename;
     public disabled = !ENABLE_LAVALINK;
 
-    async on(player: Player, track: Track) {
+    public async on(player: Player, track: Track) {
         let msg = await this.ket.send({ ctx: player.textChannel, content: 'Iniciando música' }) as Message;
         await sleep(track.duration);
         msg.delete().catch(() => { });

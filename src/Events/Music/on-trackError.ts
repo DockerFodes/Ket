@@ -7,7 +7,7 @@ module.exports = class trackError extends Event {
     public dir = __filename;
     public disabled = !ENABLE_LAVALINK;
 
-    async on(player: Player) {
+    public async on(player: Player) {
         this.ket.send({ ctx: player.textChannel, content: `Houve um erro ao reproduzir essa música.` });
         console.log(`ERELA/${player.node.options.identifier}`, 'Errorrrrr');
 

@@ -2,14 +2,14 @@ import { CommandClientOptions, CommandInteraction, ComponentInteraction } from "
 import { getContext, getColor } from "../../Components/Commands/CommandStructure";
 import { channels, DEVS } from "../../JSON/settings.json";
 import homeInteractions from "../../Packages/Home/_homeInteractions";
-import DMexec from "../../Packages/Home/_DMClient";
 import getT from "../../Components/Core/LocalesStructure";
+import DMexec from "../../Packages/Home/_DMClient";
 import Event from "../../Components/Classes/Event";
 
 module.exports = class InteractionCreate extends Event {
     public dir = __filename;
 
-    async on(interaction: CommandInteraction<any> | ComponentInteraction<any>) {
+    public async on(interaction: CommandInteraction<any> | ComponentInteraction<any>) {
         if (interaction instanceof ComponentInteraction) {
             if (channels.homeInteractions.includes(interaction.channel.id))
                 return homeInteractions(interaction);
@@ -64,14 +64,18 @@ module.exports = class InteractionCreate extends Event {
 
         new Promise(async (res, rej) => {
             try {
-                if (!ctx.command.dontType) await interaction.defer().catch(() => { });
+                await interaction.defer(ctx.command.dontType ? 64 : 0)
+                    .catch(() => { });
+
                 await command.execute(ctx);
                 res(this.KetUtils.sendCommandLog(ctx));
             } catch (error) {
                 res(this.KetUtils.CommandError(ctx, error));
             }
+
             return;
         })
+
         return;
     }
 }

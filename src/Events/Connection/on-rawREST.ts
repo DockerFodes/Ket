@@ -5,7 +5,7 @@ import moment from 'moment';
 module.exports = class RawREST extends Event {
     public dir = __filename;
 
-    async on(req: RawRESTRequest) {
+    public async on(req: RawRESTRequest) {
         if (req.resp.statusCode !== 429 || !req.resp.headers['x-ratelimit-bucket']) return;
 
         let res = req.resp.headers,

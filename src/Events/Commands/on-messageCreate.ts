@@ -8,7 +8,7 @@ import Event from "../../Components/Classes/Event";
 module.exports = class MessageCreate extends Event {
     public dir = __filename;
 
-    async on(message: Message<any>) {
+    public async on(message: Message<any>) {
         if (message.author?.bot && !TRUSTED_BOTS.includes(message.author.id)) return;
         if (!message.guildID || message.channel.type === 1 || message.channel.parentID === guilds.dmCategory)
             return DMexec(message, this.ket, message.channel.parentID === guilds.dmCategory);
@@ -50,15 +50,18 @@ module.exports = class MessageCreate extends Event {
 
         new Promise(async (res, rej) => {
             try {
-                if (!ctx.command.dontType)
-                    await ctx.channel.sendTyping().catch(() => { });
+                if (!ctx.command.dontType) await ctx.channel.sendTyping()
+                    .catch(() => { });
+
                 await command.execute(ctx);
                 res(this.KetUtils.sendCommandLog(ctx));
             } catch (error) {
                 res(this.KetUtils.CommandError(ctx, error));
             }
+
             return;
         })
+
         return;
     }
 }

@@ -7,7 +7,7 @@ module.exports = class nodeError extends Event {
     public dir = __filename;
     public disabled = !ENABLE_LAVALINK;
 
-    async on(node: Node, error: Error) {
+    public async on(node: Node, error: Error) {
         console.log(`ERELA/${node.options.identifier}`, error, 31);
 
         return;

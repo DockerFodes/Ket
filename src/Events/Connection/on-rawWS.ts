@@ -6,8 +6,9 @@ module.exports = class rawWS extends Event {
     public dir = __filename;
     public disabled = !ENABLE_LAVALINK;
 
-    async on(packet: VoicePacket) {
+    public async on(packet: VoicePacket) {
         if (this.ket.erela) this.ket.erela.updateVoiceState(packet);
+
         return;
     }
 }

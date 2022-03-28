@@ -7,7 +7,7 @@ module.exports = class queueEnd extends Event {
     public dir = __filename;
     public disabled = !ENABLE_LAVALINK;
 
-    async on(player: Player) {
+    public async on(player: Player) {
         this.ket.send({ ctx: player.textChannel, content: 'playlist finalizada' });
 
         return;

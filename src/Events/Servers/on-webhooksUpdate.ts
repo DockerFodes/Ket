@@ -4,7 +4,7 @@ import Event from "../../Components/Classes/Event";
 module.exports = class webhooksUpdate extends Event {
     public dir = __filename;
 
-    async on(wData: WebhookData) {
+    public async on(wData: WebhookData) {
         if (!(await this.postgres.servers.find(wData.channelID, false, 'globalchat'))) return;
 
         let data = this.ket.webhooks.get(wData.channelID),

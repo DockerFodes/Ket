@@ -9,7 +9,7 @@ module.exports = class Ready extends Event {
     public type = -1;
     public dir = __filename;
 
-    async on() {
+    public async on() {
         if (ENABLE_LAVALINK) this.ket.erela.init(this.ket.user.id);
 
         let status = [
@@ -49,6 +49,7 @@ module.exports = class Ready extends Event {
             this.ket.users
                 .filter(user => user.rateLimit > 0)
                 .forEach(u => u.rateLimit--);
+
             return;
         }, 5000);
 

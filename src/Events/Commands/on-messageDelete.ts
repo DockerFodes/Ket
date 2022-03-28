@@ -5,7 +5,7 @@ import Event from "../../Components/Classes/Event";
 module.exports = class MessageDelete extends Event {
     public dir = __filename;
 
-    async on(message: Message<any>) {
+    public async on(message: Message<any>) {
         if (message.author?.bot) return;
 
         if (message.channel?.parentID === guilds.dmCategory) {
@@ -59,6 +59,7 @@ module.exports = class MessageDelete extends Event {
                         : null
                 )
         })
+
         return;
     }
 }
