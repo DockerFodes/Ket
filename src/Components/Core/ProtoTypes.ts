@@ -57,7 +57,7 @@ export default function () {
 	delete String.prototype.encode;
 	Object.defineProperty(String.prototype, 'encode', {
 		value: function (lang: string) {
-			return '```' + lang + '\n' + String(this) + '```'
+			return '```' + lang + '\n' + String(this) + '```';
 		}
 	})
 

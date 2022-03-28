@@ -34,9 +34,13 @@ class LocalesStructure {
                         });
                 });
 
-                (ctt.match(new RegExp('$emoji([a-z])', 'gi')) || [])
-                    .map((m) => m.replace('$emoji(', '').replace(')', ''))
-                    .forEach((m) => ctt = ctt.replace(m, getEmoji(m).mention));
+                (ctt.match(new RegExp('#emoji\\([a-z]*\\)', 'gi')) || [])
+                    .forEach((m) =>
+                        ctt = ctt
+                            .replace(m, getEmoji(
+                                m.replace('#emoji(', '').replace(')', '')
+                            ).mention)
+                    );
 
                 return ctt;
             }
@@ -46,7 +50,6 @@ class LocalesStructure {
                 : filtrar(content);
 
         } catch (e) {
-            console.log('LOCALES', e.stack, 31);
             return str;
         }
     }

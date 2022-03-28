@@ -3,10 +3,10 @@
         "thumbnail": {
             "url": "https://cdn.discordapp.com/attachments/788376558271201290/816183379435192330/noargs.thumb.gif"
         },
-        "title": "$emoji(hum) Tem algo errado aqui $emoji(hum)",
+        "title": "#emoji(hum) Tem algo errado aqui #emoji(hum)",
         "fields": [
             {
-                "name": "$emoji(negado) | Forma correta de usar esse comando:",
+                "name": "#emoji(negado) | Forma correta de usar esse comando:",
                 "value": "`{{user.prefix}}{{command.name}} {{usage}}`"
             },
             {
@@ -15,7 +15,7 @@
             },
             {
                 "name": "Sinônimos:",
-                "value": "`{{command.aliases.join('`, `')`"
+                "value": "`{{aliases}}`"
             }
         ]
     },

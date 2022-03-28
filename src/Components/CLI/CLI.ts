@@ -30,12 +30,12 @@ module.exports = class CLI {
         ]
     }
     public checkCommand(cmd: string) {
-        cmd = cmd.replace('.', '')
+        cmd = String(cmd).replace('.', '')
         return this.commands.find(c => c.name === cmd || c.aliase === cmd) ? true : false;
     }
 
     exec(cmd: string, args: string[]) {
-        cmd = cmd.replace('.', '')
+        cmd = String(cmd).replace('.', '');
         let command = this.commands.find(c => c.name === cmd || c.aliase === cmd);
         if (!command) return false;
         return this[command.name](args);

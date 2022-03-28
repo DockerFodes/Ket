@@ -105,6 +105,7 @@ export class EmbedBuilder {
 export function getEmoji(emoji: string) {
     let emojis = {
         connection: "<a:carregando2:783149182151950407>",
+        hum: "<:hum:788481381323636747>",
         autorizado: "<:autorizado:765952397595639828>",
         negado: "<:negado:765952453203984404>",
         cristal: "<a:cristal:789542971011104808>",
@@ -169,7 +170,7 @@ export class CommandContext {
 
 export function getContext({ ket, message, interaction, user, server, args, command, commandName, t }: CommandContextFunc) {
     let env = message ? message : interaction,
-        author = message ? message.author : interaction.user || interaction.member.user
+        author: User = message ? message.author : interaction.user || interaction.member.user
 
     return {
         config: settings,
@@ -192,10 +193,10 @@ export function getContext({ ket, message, interaction, user, server, args, comm
         t,
         noargs: !command ? {} : {
             color: getColor('red'),
-            ...t('noargs', { command, user, t }),
-            footer: t('events:embedTemplate.footer', { user: author })
+            ...t('noargs', { command, user, t, aliases: command.aliases.join('`, `') }),
+            footer: t('events:embedTemplate.footer', { user, avatar: author.dynamicAvatarURL('jpg') })
         }
-    } as CommandContext;;
+    } as CommandContext;
 }
 
 export async function infoEmbed(shardID: number, ket: KetClient) {

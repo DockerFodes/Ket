@@ -329,10 +329,10 @@ export default class KetUtils {
                 }
             })
 
-            return false
+            return false;
         }
 
-        missingPermissions = ctx.command.permissions.bot
+        missingPermissions = ctx.command.permissions?.bot
             ?.filter((perm) => !ctx.me.permissions.has(perm))
             ?.map(value => ctx.t(`permissions:${value}`));
 

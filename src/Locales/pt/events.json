@@ -4,11 +4,11 @@
     "embedTemplate": {
         "author": {
             "name": "{{user.tag}}",
-            "icon_url": "{{user.dynamicAvatarURL('jpg')}}"
+            "icon_url": "{{avatar}}"
         },
         "footer": {
-            "text": "📌 Use {{prefix}}ajuda para ver mais informações",
-            "icon_url": "{{user.dynamicAvatarURL('jpg')}}"
+            "text": "📌 Use {{user.prefix}}ajuda para ver mais informações",
+            "icon_url": "{{avatar}}"
         }
     },
     "error": {
