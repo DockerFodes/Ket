@@ -4,10 +4,10 @@ import { User } from "eris";
 import Command from "../../Components/Classes/Command";
 import moment from "moment";
 
-module.exports = class GlobalChatCommand extends Command {
-    aliases = ['chatglobal', 'global'];
-    dir = __filename;
-    slash = new SlashCommandBuilder()
+module.exports = class GlobalChat extends Command {
+    public aliases = ['chatglobal', 'global', 'gc'];
+    public dir = __filename;
+    public slash = new SlashCommandBuilder()
         .addSubcommand(c =>
             c.setName('start')
                 .setDescription('Start global chat on an existing channel')
@@ -35,7 +35,7 @@ module.exports = class GlobalChatCommand extends Command {
                 )
         )
 
-    async execute(ctx: CommandContext) {
+    public async execute(ctx: CommandContext) {
         if (!ctx.args[0]) return await ctx.send({ content: ctx.noargs });
 
         switch (ctx.args[0].toLowerCase()) {
@@ -56,8 +56,8 @@ module.exports = class GlobalChatCommand extends Command {
                         }]
                     }
                 });
-                return;
 
+                return;
             case 'stop':
                 await this.postgres.servers.update(ctx.gID, { globalchat: null });
 
@@ -69,8 +69,8 @@ module.exports = class GlobalChatCommand extends Command {
                         }]
                     }
                 });
-                return;
 
+                return;
             case 'getinfo':
                 let messages = await this.postgres.globalchat.getAll(500, { key: 'id', type: 'DESC' }),
                     msg = messages.find(m => m.id === ctx.args[1] || m.messages.find((ms) => ms.includes(ctx.args[1])));
@@ -98,6 +98,7 @@ module.exports = class GlobalChatCommand extends Command {
                         }]
                     }
                 })
+
                 return;
         }
 

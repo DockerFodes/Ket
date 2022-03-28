@@ -4,8 +4,8 @@ interface CommandConfig {
     category?: string;
     cooldown?: number;
     permissions?: {
-        user?: string[];
-        bot?: string[];
+        user?: permissions[];
+        bot?: permissions[];
         onlyDevs?: boolean;
     }
     access?: {
@@ -30,3 +30,53 @@ interface EventConfig {
     postgres: any;
     on: any;
 }
+
+type permissions = 'createInstantInvite' |
+    'kickMembers' |
+    'banMembers' |
+    'administrator' |
+    'manageChannels' |
+    'manageGuild' |
+    'addReactions' |
+    'viewAuditLog' |
+    'voicePrioritySpeaker' |
+    'voiceStream' |
+    'stream' |
+    'viewChannel' |
+    'readMessages' |
+    'sendMessages' |
+    'sendTTSMessages' |
+    'manageMessages' |
+    'embedLinks' |
+    'attachFiles' |
+    'readMessageHistory' |
+    'mentionEveryone' |
+    'useExternalEmojis' |
+    'externalEmojis' |
+    'viewGuildInsights' |
+    'voiceConnect' |
+    'voiceSpeak' |
+    'voiceMuteMembers' |
+    'voiceDeafenMembers' |
+    'voiceMoveMembers' |
+    'voiceUseVAD' |
+    'changeNickname' |
+    'manageNicknames' |
+    'manageRoles' |
+    'manageWebhooks' |
+    'manageEmojisAndStickers' |
+    'manageEmojis' |
+    'useApplicationCommands' |
+    'useSlashCommands' |
+    'voiceRequestToSpeak' |
+    'manageEvents' |
+    'manageThreads' |
+    'createPublicThreads' |
+    'createPrivateThreads' |
+    'useExternalStickers' |
+    'sendMessagesInThreads' |
+    'startEmbeddedActivities' |
+    'allGuild' |
+    'allText' |
+    'allVoice' |
+    'all'

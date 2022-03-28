@@ -4,50 +4,71 @@ import { execSync } from "child_process";
 import { duration } from "moment";
 import Command from '../../Components/Classes/Command';
 
-module.exports = class CldCommand extends Command {
-    cooldown = 1;
-    permissions = {
+module.exports = class Cld extends Command {
+    public cooldown = 1;
+    public permissions = {
         onlyDevs: true
     };
-    access = {
+    public access = {
         DM: true,
         Threads: true
     };
-    testCommand = ['node -v'];
-    dir = __filename;
-    slash = new SlashCommandBuilder()
+    public testCommand = ['node -v'];
+    public dir = __filename;
+    public slash = new SlashCommandBuilder()
         .addStringOption(option =>
             option.setName('command')
                 .setDescription('A command to be executed.')
                 .setRequired(true)
         )
 
-    async execute(ctx: CommandContext) {
+    public async execute(ctx: CommandContext) {
         const
             initialTime = Date.now(),
-            initialRamUsage = (process.memoryUsage().rss / 1024 / 1024).toFixed(2),
-            query = async (query: string) => (await this.postgres.query(query)).rows;
+            initialRamUsage = (process.memoryUsage().rss / 1024 / 1024).toFixed(2);
 
-        let embed = new EmbedBuilder();
+        let embed = new EmbedBuilder(),
+            res: Buffer;
+
+        function filtrar(content: unknown): string {
+            return content = !content
+                ? '- Sem retorno.'.encode('diff')
+                : String(content)
+                    .replace(new RegExp(
+                        `(${process.env.DISCORD_TOKEN}|${process.env.BETA_CLIENT_TOKEN}|${process.env.DATABASE}|${process.env.PASSWORD}|${process.env.USER}|${process.env.HOST})`,
+                        'gi'), 'censored key')
+                    .replace(new RegExp('`', 'gi'), '\\`')
+                    .slice(0, 3080)
+                    .encode('bash');
+        }
 
         try {
-            let data: Buffer = execSync(ctx.args.join(' '));
+            res = execSync(ctx.args.join(' '));
+
             embed
-                .setTitle('Só sucexo bb')
                 .setColor('green')
-                .setDescription(String(data) || 'Sem retorno.', 'fix');
+                .setTitle('Retorno:')
+                .setDescription(filtrar(res));
         } catch (e) {
             embed
-                .setTitle('Ih deu merda viado')
                 .setColor('red')
-                .setDescription(String(e), 'fix');
+                .setTitle('Erro:')
+                .setDescription(filtrar(e));
         }
         embed
-            .addField("⏰ runtime: ", duration(Date.now() - initialTime).format('dd[d] hh[h] mm[m] ss[s] S[ms]').encode('fix'), true)
-            .addField("🎞️ Ram usage: ", `- ${initialRamUsage}/${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)}MB`.encode('diff'), true)
-            .addField(`${getEmoji('cristal').mention} Shard id: `, `# ${ctx.shard.id}/${this.ket.shards.size}`.encode('md'), true);
+            .addField("⏰ Duration: ",
+                duration(Date.now() - initialTime)
+                    .format('dd[d] hh[h] mm[m] ss[s] S[ms]')
+                    .encode('fix'), true)
+            .addField("🎞️ Ram increase: ",
+                `- ${initialRamUsage}/${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)}MB`
+                    .encode('diff'), true)
+            .addField(`${getEmoji('cristal').mention} ShardID: `,
+                `# ${ctx.shard.id}/${this.ket.shards.size}`
+                    .encode('md'), true);
 
         ctx.send({ content: { embeds: [embed.build()] } });
+
         return;
     }
 }
