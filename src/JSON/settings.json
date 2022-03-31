@@ -9,15 +9,15 @@
     "guilds": {
         "support": "810125751441162240", // Support server
         "devs": "761424522259202108", // DEVS server
-        "dmCategory": "946200165746892862" // Category to create DMs chats
+        "dmCategory": "959184207035383839" // Category to create DMs chats
     },
     "channels": {
-        "guildCreate": "927782637106524181", // Guild join logs
-        "guildDelete": "948468411510448189", // Guild leave logs
+        "guildCreate": "807703722041147433", // Guild join logs
+        "guildDelete": "807703737522323487", // Guild leave logs
         "databaseBackup": "918991789304725575", // Chat to send database backups
         "errorLogs": "916745097712922685", // Chat to report bugs
         "commandLogs": "916745050162098186", // Chat to send command logs
-        "suggestionsLogs": "835893819765030922", // Chat to send suggestions
+        "suggestionsLogs": "948469294369480734", // Chat to send suggestions
         "homeInteractions": [
             "846729978467844097", 
             "933814361611456632"

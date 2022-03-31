@@ -193,7 +193,7 @@ export function getContext({ ket, message, interaction, user, server, args, comm
         t,
         noargs: !command ? {} : {
             color: getColor('red'),
-            ...t('noargs', { command, user, t, aliases: command.aliases.join('`, `') }),
+            ...t('noargs', { command, user, t, aliases: command?.aliases?.join('`, `') }),
             footer: t('events:embedTemplate.footer', { user, avatar: author.dynamicAvatarURL('jpg') })
         }
     } as CommandContext;

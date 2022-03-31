@@ -256,7 +256,7 @@ export default class KetClient extends Client {
 
         if (ctx instanceof Message) {
             let args = ctx.content.split(' ')[argsPosition];
-            if (!args && ctx.mentions) return checkType(ctx.author);
+            if (!args && !ctx.mentions) return checkType(ctx.author);
 
             if (ctx.mentions) user = ctx.mentions[0];
             else if (!isNaN(Number(args))) user = await this.getRESTUser(args);
