@@ -1,7 +1,7 @@
 import { getEmoji, getColor, EmbedBuilder, CommandContext } from '../Commands/CommandStructure';
-import { ComponentInteraction, Message, User } from "eris";
+import { Attachment, ComponentInteraction, GuildTextableChannel, Message, StickerItems, TextableChannel, User } from "eris";
 import { DEVS, channels, globalchat } from "../../JSON/settings.json";
-import { PostgresClient } from '../Typings/Modules';
+import { PostgresClient, serverSchema, userSchema } from '../Typings/Modules';
 import Translator from "./Translator";
 import DidYouMean from "didyoumean";
 import KetClient from "../../Main";
@@ -17,15 +17,27 @@ export default class KetUtils {
     }
 
     async checkCache(ctx: CommandContext) {
-        if (!this.ket.users.has(ctx.uID)) await this.ket.getRESTUser(ctx.uID);
-        if (!this.ket.guilds.has(ctx.gID)) await this.ket.getRESTGuild(ctx.gID);
-        if (!ctx.guild.members.has(ctx.uID)) await this.ket.getRESTGuildMember(ctx.gID, ctx.uID);
-        if (!ctx.guild.channels.has(ctx.cID)) await this.ket.getRESTChannel(ctx.cID);
+        if (!this.ket.users.has(ctx.uID)) await this.ket.findUser(ctx.uID);
+
+        if (!this.ket.guilds.has(ctx.gID)) {
+            let guild = await this.ket.getRESTGuild(ctx.gID);
+            this.ket.guilds.add(guild);
+        };
+
+        if (!ctx.guild.members.has(ctx.uID)) {
+            let member = await this.ket.getRESTGuildMember(ctx.gID, ctx.uID);
+            ctx.guild.members.add(member);
+        }
+        if (!ctx.guild.channels.has(ctx.cID)) {
+            let channel = await this.ket.getRESTChannel(ctx.cID) as GuildTextableChannel;
+            ctx.guild.channels.add(channel)
+        }
+
         return;
     }
 
     async checkUserGuildData(ctx: CommandContext, globalchat: boolean = false) {
-        let user: any = await this.postgres.users.find(ctx.uID);
+        let user: userSchema = await this.postgres.users.find(ctx.uID);
 
         if (!user) {
             user = await this.postgres.users.create(ctx.uID, null, true);
@@ -38,38 +50,39 @@ export default class KetUtils {
                         image: { url: 'https://goyalankit.com/assets/img/el_gato2.gif' }
                     }]
                 }
-            })
-                .catch(() => { });
+            }).catch(() => { });
         }
 
         return user;
     }
 
-    async sendGlobalChat(ctx: any) {
-        let command = {
+    async sendGlobalChat(ctx: CommandContext) {
+        let command: CommandConfig = {
             permissions: { bot: ['manageChannels', 'manageWebhooks', 'manageMessages'] },
-            access: { Threads: false }
+            access: { Threads: false },
+            dir: null
         };
 
         await this.checkUserGuildData(ctx, true);
         await this.checkCache(ctx);
+
         if (
-            (ctx.uID === this.ket.user.id && ctx.env.content.startsWith(getEmoji('negado').mention))
-            || await this.checkPermissions({ ctx, command }) === false || ctx.channel.nsfw
+            (ctx.uID === this.ket.user.id && (ctx.env as Message).content.startsWith(getEmoji('negado').mention))
+            || !(await this.checkPermissions({ ctx, command }))
             || ctx.author.bot && ctx.uID !== this.ket.user.id
-        )
-            return;
+            || ctx.channel.nsfw
+        ) return;
 
         let
-            message = ctx.env,
+            message = ctx.env as Message,
             user = this.ket.users.get(ctx.uID),
             guilds = (await this.postgres.servers.getAll())
-                .filter(guild => guild.globalchat && guild.globalchat != message.channel.id),
+                .filter((guild: serverSchema) => guild.globalchat && guild.globalchat != message.channel.id),
+            username = message.member.nick
+                ? `${message.author.username} (${message.member.nick})`.slice(0, 32)
+                : message.author.username,
             msgObj = {
-                username:
-                    message.member.nick
-                        ? `${message.author.username} (${message.member.nick})`.slice(0, 32)
-                        : message.author.username,
+                username,
                 avatarURL: message.author.dynamicAvatarURL('jpg'),
                 content:
                     (DEVS.includes(ctx.uID)
@@ -78,74 +91,72 @@ export default class KetUtils {
                 embeds: [],
                 components: [],
                 file: [...(await this.getMediaBuffer(message, 0)), ...(await this.getMediaBuffer(message, 1))],
-                wait: true,
                 allowedMentions: {
                     everyone: false,
                     roles: false,
                     users: false
-                }
+                },
+                wait: true
             },
-            msg,
+            refMsg: Message,
             msgs: string[] = [];
 
-        if (await this.checkRateLimit(ctx, user) === false) return;
+        if (!(await this.checkRateLimit(ctx, user))) return;
 
         if (message.messageReference)
-            msg = await message.channel.messages.has(message.messageReference.messageID)
-                ? message.channel.messages.get(message.messageReference.messageID)
-                : this.ket.findMessage(message.channel, { id: message.messageReference.messageID });
+            refMsg = await this.ket.findMessage(message.channel, { id: message.messageReference.messageID });
 
         if (message.author.bot && message?.embeds)
             msgObj.embeds = [message.embeds[0]]
 
-        const sendAllChats = guilds.map(g => {
+        const sendAllChats = guilds.map((g: serverSchema) => {
             return new Promise(async (res, rej) => {
                 let
-                    channel: any = this.ket.guilds.get(g.id)?.channels.get(g.globalchat),
+                    channel = this.ket.guilds.get(g.id)?.channels.get(g.globalchat) as GuildTextableChannel,
                     webhook = this.ket.webhooks.get(channel?.id);
 
-                if (!channel || channel?.nsfw || await this.checkPermissions({ ctx, command, channel, notReply: true }) === false)
+                if (!channel || channel?.nsfw || !(await this.checkPermissions({ ctx, command, channel, notReply: true })))
                     return;
 
                 if (!webhook) {
                     webhook = (await this.ket.getChannelWebhooks(g.globalchat))
                         .find((w) => w.name === 'Ket' && w.user.id === this.ket.user.id);
 
-                    if (!webhook) webhook = await channel.createWebhook({ name: 'Ket', options: { type: 1 } })
-                        .catch(() => { });
+                    if (!webhook)
+                        webhook = await channel.createWebhook({
+                            name: 'Ket', avatar: this.ket.user.dynamicAvatarURL('png')
+                        }).catch(() => { });
 
-                    this.ket.webhooks.delete(channel.id);
-                    this.ket.webhooks.set(channel.id, webhook);
+                    this.ket.webhooks.update(webhook);
                 }
 
                 if (!webhook) return;
 
-                if (message.messageReference && !message.author.bot) {
-                    let ref = channel.messages.find(m =>
-                        m?.author.username === msg?.author.username
-                        && this.msgFilter(m?.cleanContent, 1990, true) === this.msgFilter(msg?.cleanContent, 1990, true)
-                        && m?.timestamp - msg?.timestamp < 1000
-                        && (msg.attachments[0]
-                            ? m.attachments[0].name === msg.attachments[0].name
+                if (refMsg && !message.author.bot) {
+                    let ref = channel.messages.find(msg =>
+                        msg?.author.username === username
+                        && this.msgFilter(msg?.cleanContent, 1990, true) === this.msgFilter(refMsg?.cleanContent, 1990, true)
+                        && msg?.timestamp - refMsg?.timestamp < 1000
+                        && (refMsg.attachments[0]
+                            ? msg.attachments[0].filename === refMsg.attachments[0].filename
                             : true)
                     ),
-                        refAuthor = await this.postgres.users.find(msg?.author.id),
-                        refContent = this.msgFilter(msg.cleanContent, 64).length === 0
+                        refAuthor = await this.postgres.users.find(refMsg?.author.id),
+                        refContent = this.msgFilter(refMsg.cleanContent, 64).length === 0
                             ? "`⬑ - - Ver mensagem - - ⬏`"
-                            : this.msgFilter(msg.cleanContent, 64);
+                            : this.msgFilter(refMsg.cleanContent, 64);
 
-                    if (msg)
-                        msgObj.embeds = [{
-                            color: getColor('green'),
-                            timestamp: moment(msg.timestamp).format(),
-                            author: { name: msg.author.username, icon_url: msg.author.dynamicAvatarURL('jpg') },
-                            description: `${refAuthor?.banned
-                                ? '`mensagem de usuário banido`'
-                                : !ref
-                                    ? refContent
-                                    : `[${refContent}](https://discord.com/channels/${g.id}/${g.globalchat}/${ref.id})`}`,
-                            thumbnail: msg.attachments[0] && !refAuthor?.banned ? { url: `${msg.attachments[0].url}?size=240` } : null
-                        }]
+                    msgObj.embeds = [{
+                        color: getColor('green'),
+                        timestamp: moment(refMsg.timestamp).format(),
+                        author: { name: refMsg.author.username, icon_url: refMsg.author.dynamicAvatarURL('jpg') },
+                        description: `${refAuthor?.banned
+                            ? '`mensagem de usuário banido`'
+                            : !ref
+                                ? refContent
+                                : `[${refContent}](https://discord.com/channels/${g.id}/${g.globalchat}/${ref.id})`}`,
+                        thumbnail: refMsg.attachments[0] && !refAuthor?.banned ? { url: `${refMsg.attachments[0].url}?size=240` } : null
+                    }]
                 }
 
                 if (msgObj.content?.length > 0 && g.lang && ctx.server.lang && g.lang !== ctx.server.lang)
@@ -153,7 +164,7 @@ export default class KetUtils {
                         type: 1,
                         components: [{
                             type: 2,
-                            label: `Traduzir de ${Translator.getLanguage(ctx.server.lang)}`,
+                            label: `Translate from ${Translator.getLanguage(ctx.server.lang)}`,
                             emoji: { name: this.getLangFromIso(ctx.server.lang).emoji },
                             style: 2,
                             custom_id: `translate/${message.id}/${ctx.server.lang}/${g.lang}`
@@ -169,6 +180,7 @@ export default class KetUtils {
                     await sleep(Date.now() - rateLimit.reset + this.ket.requestHandler.options.ratelimiterOffset);
 
                 res(send());
+
                 return;
             })
         })
@@ -181,6 +193,7 @@ export default class KetUtils {
             //@ts-ignore
             messages: `{${msgs.join(',')}}`
         })
+
         return;
     }
 
@@ -195,23 +208,24 @@ export default class KetUtils {
         if (ignoreEmojis) content = content.replace(/<a?(:\w+:)[0-9]+>/g, "$1")
 
         if (content.match(isInvite)) content.match(isInvite)
-            .forEach(text => content = content.replace(text, ' `convite bloqueado` '));
+            .forEach(text => content = content.replace(text, ' `blocked invite` '));
 
-        if (content.match(isPishing))
-            content.match(isPishing).forEach(text => {
+        if (content.match(isPishing)) content.match(isPishing)
+            .forEach(text => {
                 if (text.startsWith('https://cdn.discordapp.com/attachments/')) return;
-                content = content.replace(text, ' `possível link de pishing` ');
+
+                content = content.replace(text, ' `possible phishing link` ');
             })
 
-        if (content.match(isUrl)) {
-            content.split(' ').forEach(text => {
+        if (content.match(isUrl)) content
+            .split(' ').forEach(text => {
                 if (!content.match(text)) return;
+
                 for (let i in globalchat.allowedLinks)
                     if (text.replace('www.', '').startsWith(globalchat.allowedLinks[i])) return;
 
-                return content = content.replace(text, ' `link bloqueado` ');
+                return content = content.replace(text, ' `blocked link` ');
             })
-        }
 
         return content.length > maxLength ? `${content.substring(0, maxLength)}...` : content
     }
@@ -223,17 +237,18 @@ export default class KetUtils {
             .filter(m => m.author === ctx.uID)
             .forEach(msg => {
                 let content = String(ctx.channel.messages.get(msg.id)?.content);
+
+                if (content.length === 0) return;
                 if (content.length > 498) user.rateLimit++;
-                //@ts-ignore
-                if (this.checkSimilarity(content, ctx.env.content) >= 0.9) user.rateLimit++;
+                if (this.checkSimilarity(content, (ctx.env as Message).content) >= 0.9) user.rateLimit++;
             })
 
         if (user.rateLimit >= 10) {
             await this.postgres.users.update(ctx.uID, {
-                banned: `[ AUTO-MOD ] - Mal comportamento no chat global, timeout: ${Date.now() + user.rateLimit * 1000 * 60}`
+                banned: `[ AUTO-MOD ] - Mal comportamento no chat global`
             });
-
             let userBan = await this.postgres.blacklist.find(ctx.uID);
+
             if (userBan) {
                 if (userBan.warns < 3) await this.postgres.blacklist.update(user.id, {
                     timeout: Date.now() + user.rateLimit * 1000 * 60,
@@ -252,24 +267,29 @@ export default class KetUtils {
                     }]
                 }
             });
+
             return false;
-        } else return true;
+        }
+
+        return true;
     }
 
     async getMediaBuffer(message: Message<any>, type: 0 | 1 = 0) {
-        let media: any = type === 0 ? message.attachments : message.stickerItems,
+        let media: Attachment[] | StickerItems[] = type === 0 ? message.attachments : message.stickerItems,
             files = [];
 
         for (let i in media) {
             let buffer = await axios({
-                url: type === 0 ? media[i].url : `https://media.discordapp.net/stickers/${media[i].id}.png?size=240`,
+                url: type === 0 ? (media[i] as Attachment).url : `https://media.discordapp.net/stickers/${media[i].id}.png?size=240`,
                 method: 'get',
                 responseType: 'arraybuffer'
             })
 
             if (buffer) files.push({
                 file: buffer.data,
-                name: type === 0 ? media[i].filename : `${media[i].name}.${media[i].format_type === 1 ? 'png' : 'gif'}`
+                name: type === 0
+                    ? (media[i] as Attachment).filename
+                    : `${(media[i] as StickerItems).name}.${(media[i] as StickerItems).format_type === 1 ? 'png' : 'gif'}`
             });
         }
 
@@ -278,6 +298,7 @@ export default class KetUtils {
 
     async translateMsg(interaction: ComponentInteraction) {
         await interaction.defer(64).catch(() => { });
+
         let interactionData = interaction.data.custom_id.split('/'),
             data = await Translator.translate(interaction.message.content, interactionData[3], interactionData[2])
                 .then(data => data.text)
@@ -312,10 +333,11 @@ export default class KetUtils {
         return;
     }
 
-    async checkPermissions({ ctx = null, channel = null, command = null, notReply = null }) {
-        let missingPermissions: string[] = [];
-        channel ? ctx.channel = channel : null;
+    async checkPermissions({ ctx = null, channel = null, command = null, notReply = null }: { ctx: CommandContext, channel?: GuildTextableChannel | null, command?: CommandConfig, notReply?: boolean }) {
         command ? ctx.command = command : null;
+        channel ? ctx.channel = channel : null;
+        let missingPermissions: permissions[] = ['viewChannel', 'readMessageHistory', 'sendMessages', 'embedLinks', 'useExternalEmojis', ...ctx.command.permissions?.bot];
+
         if (!ctx.channel) return false;
 
         if ([10, 11, 12].includes(ctx.channel.type) && !ctx.command.access.Threads) {
@@ -332,16 +354,27 @@ export default class KetUtils {
             return false;
         }
 
-        missingPermissions = ctx.command.permissions?.bot
-            ?.filter((perm) => !ctx.me.permissions.has(perm))
-            ?.map(value => ctx.t(`permissions:${value}`));
+        if (ctx.command.permissions?.onlyDevs && !DEVS.includes(ctx.uID))
+            return ctx.send({
+                emoji: 'negado', content: {
+                    embeds: [{
+                        color: getColor('red'),
+                        description: ctx.t('events:isDev')
+                    }]
+                }
+            })
 
-            if (missingPermissions && missingPermissions[0]) {
+        missingPermissions = missingPermissions
+            ?.filter((perm: permissions) => !ctx.me.permissions.has(perm))
+            ?.map((value: string) => ctx.t(`permissions:${value}`));
+
+        if (missingPermissions[0]) {
             let content = ctx.t('permissions:missingPerms', { missingPerms: missingPermissions.join(', ') });
+
             if (!notReply)
                 ctx.send({ content, embed: false, emoji: 'negado' })
                     .catch(async () => {
-                        this.ket.send({ ctx: ctx.uID, content })
+                        this.ket.send({ ctx: ctx.uID, content, emoji: 'negado' })
                             .catch(() => {
                                 if (ctx.me.permissions.has('changeNickname'))
                                     ctx.me.edit({ nick: "pls give me some permission" })
@@ -350,17 +383,20 @@ export default class KetUtils {
                     });
 
             return false;
-        } else return true;
+
+        }
+
+        return true;
     }
 
     async sendCommandLog(ctx: CommandContext) {
-        let user = await this.postgres.users.find(ctx.uID),
-            embed = new EmbedBuilder()
-                .setColor('green')
-                .setTitle(user.prefix + ctx.commandName)
-                .addField('Servidor:', `# ${ctx.guild?.name} (ID: ${ctx.gID})`, false, 'cs')
-                .addField('Autor:', `${ctx.author.tag} (ID: ${ctx.author.id})`, false, 'fix')
-                .addField('Argumentos:', `- ${!ctx.args[0] ? 'Nenhum argumento foi usado neste comando' : ctx.args.join(' ')}`, false, 'diff');
+        let embed = new EmbedBuilder()
+            .setColor('green')
+            .setTitle(ctx.user.prefix + ctx.commandName)
+            .addField('Servidor:', `# ${ctx.guild.name} (ID: ${ctx.gID})`, false, 'cs')
+            .addField('Autor:', `${ctx.author.tag} (ID: ${ctx.author.id})`, false, 'fix')
+            .addField('Argumentos:', `- ${!ctx.args[0] ? 'Nenhum argumento foi usado neste comando' : ctx.args.join(' ')}`, false, 'diff');
+
         this.ket.send({ ctx: channels.commandLogs, content: { embeds: [embed.build()] } });
 
         return;
@@ -393,13 +429,15 @@ export default class KetUtils {
                 }]
             }
         })
+
         return;
     }
 
-    async commandNotFound(ctx, commandName: string) {
-        let commands = this.ket.commands.map(c => c.name)
+    async commandNotFound(ctx: CommandContext, commandName: string) {
+        let commands = this.ket.commands.map((c: CommandConfig) => c.name)
         ctx.command = this.ket.commands.get(this.findResult(commandName, commands))
         if (!ctx.command) return false;
+
         return ctx.command;
     }
 
@@ -413,9 +451,10 @@ export default class KetUtils {
         }
 
         DidYouMean.threshold = 0.8;
-        let result: string = String(DidYouMean(entrada, mapa));
+        let result = DidYouMean(entrada, mapa);
         if (!result) result = Algorithm2(entrada, mapa);
-        return result;
+
+        return String(result);
     }
 
     checkSimilarity(str1: string, str2: string) {

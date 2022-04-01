@@ -3,10 +3,10 @@
         "thumbnail": {
             "url": "https://cdn.discordapp.com/attachments/788376558271201290/816183379435192330/noargs.thumb.gif"
         },
-        "title": "#emoji(hum) Tem algo errado aqui #emoji(hum)",
+        "title": "emoji(hum) Tem algo errado aqui emoji(hum)",
         "fields": [
             {
-                "name": "#emoji(negado) | Forma correta de usar esse comando:",
+                "name": "emoji(negado) | Forma correta de usar esse comando:",
                 "value": "`{{user.prefix}}{{command.name}} {{usage}}`"
             },
             {
@@ -19,6 +19,8 @@
             }
         ]
     },
+
+    "FUN": "",
     "globalchat": {
         "channelNotFound": "Canal não encontrado! Tente mencionar algum chat ou copiar o ID.",
         "messageNotFound": "Não consegui encontrar essa mensagem :(**\n\nTalvez ela não seja do chat global ou é antiga demais, apenas as últimas 500 mensagens são encontráveis.** ",
@@ -75,6 +77,32 @@
                 "icon_url": "{{avatar}}",
                 "text": "Divirta-se ;)"
             }
+        }
+    },
+    "userfake": {},
+
+    "UTILS": "",
+    "ping": {
+        "calculating": "emoji(connection) Calculando o tempo de resposta...",
+        "ping": {
+            "title": "Ping (uim)! 🐧",
+            "fields": [
+                {
+                    "name": "Tempo de resposta:",
+                    "value": "```fix\n[{{responsePing}}ms]```",
+                    "inline": true
+                },
+                {
+                    "name": "Banco de dados:",
+                    "value": "```diff\n- [{{dbPing}}ms]```",
+                    "inline": true
+                },
+                {
+                    "name": "Discord:",
+                    "value": "```md\n# [{{ket.requestHandler.latencyRef.latency}}ms]```",
+                    "inline": true
+                }
+            ]
         }
     }
 }

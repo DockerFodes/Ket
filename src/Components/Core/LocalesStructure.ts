@@ -20,9 +20,8 @@ class LocalesStructure {
             if (!JSON_DATA || !content) return str;
 
             const filtrar = (ctt: string) => {
-                if (!placeholders) return ctt;
 
-                Object.entries(placeholders).forEach(([key, value]) => {
+                if (placeholders) Object.entries(placeholders).forEach(([key, value]) => {
 
                     (ctt.match(new RegExp(`{{(${key}|${key}.*?)}}`, 'g')) || []) // regex pra encontrar placeholders
                         .map(a => a.replace(new RegExp('{{|}}', 'g'), '')) // removendo as chaves
@@ -34,11 +33,11 @@ class LocalesStructure {
                         });
                 });
 
-                (ctt.match(new RegExp('#emoji\\([a-z]*\\)', 'gi')) || [])
+                (ctt.match(new RegExp('emoji\\([a-z]*\\)', 'gi')) || [])
                     .forEach((m) =>
                         ctt = ctt
                             .replace(m, getEmoji(
-                                m.replace('#emoji(', '').replace(')', '')
+                                m.replace('emoji(', '').replace(')', '')
                             ).mention)
                     );
 

@@ -1,4 +1,4 @@
-import { Channel, Client, ClientOptions, Collection, CommandInteraction, Guild, GuildChannel, Member, Message, TextableChannel, User } from "eris";
+import { Channel, Client, ClientOptions, Collection, CommandClientOptions, CommandInteraction, Guild, GuildChannel, Member, Message, TextableChannel, User } from "eris";
 import { KetSendContent, KetSendFunction } from "./Components/Typings/Modules";
 import { getEmoji, getColor } from './Components/Commands/CommandStructure';
 import { PostgresClient } from "./Components/Typings/Modules";
@@ -99,11 +99,11 @@ export default class KetClient extends Client {
         }
 
         try {
-            config.files = readdirSync(`${path}/${config.defaultLang}/`);
+            config.files = readdirSync(`${path}/${DEFAULT_LANG}/`);
             for (let a in config.langs)
                 for (let b in config.files) {
                     if (!config.filesMetadata[config.langs[a]]) config.filesMetadata[config.langs[a]] = {};
-                    config.filesMetadata[config.langs[a]][config.files[b].split('.json')[0]] = (await import(`${path}/${config.langs[a]}/${config.files[b]}`));
+                    config.filesMetadata[config.langs[a]][config.files[b].split('.json')[0]] = require(`${path}/${config.langs[a]}/${config.files[b]}`);
                 }
 
             console.log('LOCALES', `${config.langs.length} Locales carregados`, 36);
@@ -162,8 +162,38 @@ export default class KetClient extends Client {
 
         try {
             const command = new (require(comando.dir))(this, postgres);
-            this.commands.set(command.name, command);
-            command.aliases?.forEach((aliase: string) => this.aliases.set(aliase, command.name));
+
+            let splitDir = String(command.dir).includes('\\')
+                ? String(command.dir).split('\\')
+                : String(command.dir).split('/');
+
+            const Command = {
+                name: String(command.name || splitDir.pop().split('Command')[0]).toLowerCase(),
+                aliases: command.aliases
+                    ? command.aliases.map((aliase: string) => String(aliase).toLowerCase())
+                    : [],
+                cooldown: Number(command.cooldown || 3),
+                category: String(command.category || splitDir[splitDir.length - 1]).toLowerCase(),
+                permissions: {
+                    user: command?.permissions?.user || [],
+                    bot: command?.permissions?.bot || [],
+                    onlyDevs: command?.permissions?.onlyDevs || false
+                },
+                access: {
+                    DM: command?.access?.DM || false,
+                    Threads: command?.access?.Threads || false
+                },
+                dontType: command.dontType || false,
+                testCommand: command.testCommand || [],
+                slash: command.slash,
+                dir: command.dir,
+                ket: this,
+                postgres: postgres,
+                execute: command.execute
+            } as CommandConfig
+
+            this.commands.set(Command.name, Command);
+            Command.aliases?.forEach((aliase: string) => this.aliases.set(aliase, Command.name));
 
             return true;
         } catch (e) {
@@ -235,6 +265,7 @@ export default class KetClient extends Client {
             }
 
             if (ctx instanceof CommandInteraction) {
+                console.info(target);
                 switch (target) {
                     case 0: return ctx.createMessage(msgObj, attachments);
                     case 1: return ctx.editOriginalMessage(msgObj);
@@ -247,12 +278,14 @@ export default class KetClient extends Client {
     }
 
     public async findUser(ctx?: Message<any> | CommandInteraction<any> | string, returnMember: boolean = false, argsPosition: number = 0): Promise<any> {
-        let user: User | Member;
-        let checkType = (user: User | Member) => {
-            if (typeof ctx !== 'string' && user instanceof User && returnMember) user = ctx.channel.guild.members.get(user.id);
-            if (user instanceof Member && !returnMember) user = this.users.get(user.id);
-            return user;
-        }
+        let user: User | Member,
+            checkType = (user: User | Member) => {
+                if (typeof ctx !== 'string' && user instanceof User && returnMember) user = ctx.channel.guild.members.get(user.id);
+                if (user instanceof Member && !returnMember) user = this.users.get(user.id);
+                if (this.users.has(user.id)) this.users.add(user instanceof User ? user : user.user);
+
+                return user;
+            }
 
         if (ctx instanceof Message) {
             let args = ctx.content.split(' ')[argsPosition];
@@ -277,7 +310,38 @@ export default class KetClient extends Client {
         }
 
         if (ctx instanceof CommandInteraction) {
+            let args: string[] | string = [];
+            ctx.data?.options?.forEach((option) => getArgs(option));
+            args = args[argsPosition] as string;
 
+            if (args) {
+                if (!isNaN(Number(args))) user = await this.getRESTUser(args);
+                else if (ctx.guildID) {
+                    let cleanMsg = filtrar(args);
+
+                    user = ctx.channel.guild.members.find((m: Member) =>
+                        filtrar(m.username) === cleanMsg ||
+                        filtrar(m.nick) === cleanMsg ||
+                        filtrar(m.username).startsWith(cleanMsg) ||
+                        filtrar(m.nick).startsWith(cleanMsg) ||
+                        filtrar(m.username).includes(cleanMsg) ||
+                        filtrar(m.nick).includes(cleanMsg)
+                    );
+
+                    if (!user) user = (await this.searchGuildMembers(ctx.guildID, cleanMsg, 1))[0]
+                    if (!user) return checkType(ctx.member || ctx.user);
+                }
+
+            } else return checkType(ctx.member || ctx.user);
+
+            function getArgs(option) {
+                if (!option.value) (args as string[]).push(option.name);
+                else (args as string[]).push(option.value);
+
+                if (option?.options) option.options.forEach(op => getArgs(op));
+
+                return;
+            }
         }
 
         if (typeof ctx === 'string')
