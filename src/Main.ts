@@ -265,7 +265,6 @@ export default class KetClient extends Client {
             }
 
             if (ctx instanceof CommandInteraction) {
-                console.info(target);
                 switch (target) {
                     case 0: return ctx.createMessage(msgObj, attachments);
                     case 1: return ctx.editOriginalMessage(msgObj);
