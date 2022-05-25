@@ -1,4 +1,4 @@
-import { Channel, Client, ClientOptions, Collection, CommandClientOptions, CommandInteraction, Guild, GuildChannel, Member, Message, TextableChannel, User } from "eris";
+import { Channel, Client, ClientOptions, Collection, CommandInteraction, Guild, GuildChannel, Member, Message, TextableChannel, User } from "eris";
 import { KetSendContent, KetSendFunction } from "./Components/Typings/Modules";
 import { getEmoji, getColor } from './Components/Commands/CommandStructure';
 import { PostgresClient } from "./Components/Typings/Modules";
@@ -18,14 +18,20 @@ export default class KetClient extends Client {
         super(token, options);
 
         this.erela = new Manager({
-            send: (id, payload) => this.guilds.get(id) ? this.guilds.get(id).shard.sendWS(payload.op, payload.d) : null
+            send: (id, payload) => this.guilds.get(id)
+                ? this.guilds.get(id).shard.sendWS(payload.op, payload.d)
+                : null
         });
         this.users = new Collection(User, CLIENT_OPTIONS.cacheLimit.users);
         this.rootDir = __dirname;
     }
 
     public get allUsersCount() {
-        return Number(this.guilds.map(g => g.memberCount).reduce((acc, crt) => acc + crt) - this.guilds.size).toLocaleString('pt')
+        return Number(
+            this.guilds
+                .map(g => g.memberCount)
+                .reduce((acc, crt) => acc + crt) - this.guilds.size
+        ).toLocaleString('pt')
     }
 
     public async boot() {
