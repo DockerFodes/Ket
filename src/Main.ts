@@ -1,17 +1,18 @@
+console.clear();
 import { Channel, Client, ClientOptions, Collection, CommandInteraction, Guild, GuildChannel, Member, Message, TextableChannel, User } from "eris";
 import { KetSendContent, KetSendFunction } from "./Components/Typings/Modules";
 import { getEmoji, getColor } from './Components/Commands/CommandStructure';
 import { PostgresClient } from "./Components/Typings/Modules";
 import { CLIENT_OPTIONS } from "./JSON/settings.json";
 import { DEFAULT_LANG } from "./JSON/settings.json";
-import { tz } from "moment-timezone";
 import { Manager } from "erela.js";
 import { readdirSync } from "fs";
 import EventHandler from "./Components/Core/EventHandler";
+import ProtoTypes from "./Components/Core/ProtoTypes";
 import ConnectDB from "./Packages/Database/Connection";
-import duration from "moment-duration-format";
-import moment from "moment";
 let postgres: PostgresClient;
+
+ProtoTypes();
 
 export default class KetClient extends Client {
     constructor(token: string, options: ClientOptions) {
@@ -22,15 +23,14 @@ export default class KetClient extends Client {
                 ? this.guilds.get(id).shard.sendWS(payload.op, payload.d)
                 : null
         });
-        this.users = new Collection(User, CLIENT_OPTIONS.cacheLimit.users);
+        // this.users = new Collection(User, CLIENT_OPTIONS.cacheLimit.users);
         this.rootDir = __dirname;
     }
 
     public get allUsersCount() {
         return Number(
             this.guilds
-                .map(g => g.memberCount)
-                .reduce((acc, crt) => acc + crt) - this.guilds.size
+                .reduce((acc, value) => acc + value.memberCount, 0) - this.guilds.size
         ).toLocaleString('pt')
     }
 
@@ -410,67 +410,16 @@ export default class KetClient extends Client {
     }
 }
 
-main()
+const ket = new KetClient(`Bot ${process.env.DISCORD_TOKEN}`, CLIENT_OPTIONS as ClientOptions);
 
-async function main() {
-    console.clear();
-    global.sleep = async (timeout: number) => timeout <= 0 ? false : await (new Promise((res) => setTimeout(() => res(true), timeout))) //Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, timeout)
-    global.PROD = process.argv.includes('--dev') ? false : true;
-    (await import('./Components/Core/ProtoTypes')).default();
-    (await import('dotenv')).config();
-    //@ts-ignore
-    duration(moment);
+console.log('SHARD MANAGER', 'Iniciando fragmentação', 46);
+ket.boot();
 
-    // const app = express();
-    // app.get("/", (_req, res: Response) => res.sendStatus(200));
-    // app.listen(process.env.PORT);
-    const ket = new KetClient(
-        `Bot ${global.PROD ? process.env.DISCORD_TOKEN : process.env.BETA_CLIENT_TOKEN}`, CLIENT_OPTIONS as ClientOptions);
-
-    console.log = function () {
-        let args = [...arguments];
-
-        if (typeof args[args.length - 1] !== 'number' && args[1]) {
-            console.info(eval(args.map((_a, index) => `args[${index}]`).join(', ')));
-            return sendWebhook(eval(args.map((_a, index) => `args[${index}]`).join(', ')));
-        }
-
-        moment.locale("pt-BR");
-        let color = args.pop(),
-            str: string = `[ ${args.shift()} | ${tz(Date.now(), "America/Bahia").format("LT")}/${Math.floor(process.memoryUsage().rss / 1024 / 1024)}MB ] - ${args.join(' ')}`;
-        sendWebhook(str);
-        return console.info(`\x1B[${color}m${str}\x1B[0m`);
-    }
-    console.error = function () {
-        return console.log('ANTI-CRASH', 'ERRO GENÉRICO:', String(arguments['0'].stack ? arguments['0'].stack : arguments['0']).slice(0, 512), 31);
-    }
-
-    console.log('SHARD MANAGER', 'Iniciando fragmentação', 46);
-    ket.boot();
-
-    function sendWebhook(str: string | string[]) {
-        if (global.PROD)
-            ket.executeWebhook(process.env.WEBHOOK_LOGS.split(' | ')[0], process.env.WEBHOOK_LOGS.split(' | ')[1], {
-                username: `${ket?.user?.username || ''} Logs`,
-                avatarURL: "https://cdn.discordapp.com/attachments/788376558271201290/932605381539139635/797062afbe6a08ae32e443277f14b7e2.jpg",
-                content: String(str).slice(0, 1990).encode('fix')
-            });
-    }
-
-    process
-        .on('SIGINT', async () => {
-            console.log('CLIENT', 'Encerrando...', 33);
-            await postgres.end();
-            console.log('DATABASE', 'Banco de dados desconectado', 32)
-            ket.editStatus('dnd', { name: 'Encerrando...', type: 0 });
-            process.exit();
-        })
-        .on('unhandledRejection', (error: Error) => console.log('ANTI-CRASH', 'SCRIPT REJEITADO: ', String(error.stack.slice(0, 512)), 31))
-        .on("uncaughtException", (error: Error) => console.log('ANTI-CRASH', 'ERRO CAPTURADO: ', String(error.stack.slice(0, 512)), 31))
-        .on('uncaughtExceptionMonitor', (error: Error) => console.log('ANTI-CRASH', 'BLOQUEADO: ', String(error.stack.slice(0, 512)), 31));
+process
+    .on('unhandledRejection', (error: Error) => console.log('ANTI-CRASH', 'SCRIPT REJEITADO: ', String(error.stack.slice(0, 512)), 31))
+    .on("uncaughtException", (error: Error) => console.log('ANTI-CRASH', 'ERRO CAPTURADO: ', String(error.stack.slice(0, 512)), 31))
+    .on('uncaughtExceptionMonitor', (error: Error) => console.log('ANTI-CRASH', 'BLOQUEADO: ', String(error.stack.slice(0, 512)), 31));
     // .on('multipleResolves', (type, promise, reason) => reject('MULTIPLOS ERROS: ', reason));
-    return;
-}
 
 /**
 * TONS DE BRANCO E CINZA

@@ -1,29 +1,17 @@
 {
     "name": "ket",
     "version": "0.1.8",
-    "description": "",
     "main": "build/Main.js",
-    "packageManager": "yarn@3.2.0",
+    "packageManager": "yarn@3.3.0",
     "scripts": {
         "build": "echo Building application... && yarn tsc && cp -r -f src/Assets build/Assets && echo Application built successfully!",
-        "start": "yarn build && echo Starting... && yarn noCompile",
-        "dev": "yarn noCompile --dev",
-        "nodemon": "nodemon build/Main.js --dev",
-        "noCompile": "yarn node --expose-gc --trace-warnings build/Main.js ",
-        "ts-mode": "ts-node --ignore-watch ./ src/Main.ts"
-    },
-    "engines": {
-        "node": "^14.19.1",
-        "npm": "^6.14.16"
-    },
-    "prisma": {
-        "schema": "src/Components/Prisma/schema.prisma"
+        "start": "yarn build && echo Starting... && yarn node --expose-gc --trace-warnings build/Main.js"
     },
     "repository": {
         "type": "git",
         "url": "https://github.com/KetDiscordBot/Ket"
     },
-    "author": "Heryson1616",
+    "author": "Sunf3r",
     "license": "GPL-3.0",
     "bugs": {
         "url": "https://github.com/KetDiscordBot/Ket/issues"

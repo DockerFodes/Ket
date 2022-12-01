@@ -72,7 +72,7 @@ module.exports = class CLI {
     }
 
     exit() {
-        process.emit('SIGINT', null);
+        process.exit();
     }
 
     help() {

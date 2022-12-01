@@ -51,7 +51,7 @@ module.exports = class Eval extends Command {
                 ? '- Sem retorno.'.encode('diff')
                 : util.inspect(content)
                     .replace(new RegExp(
-                        `(${process.env.DISCORD_TOKEN}|${process.env.BETA_CLIENT_TOKEN}|${process.env.DATABASE}|${process.env.PASSWORD}|${process.env.USER}|${process.env.HOST})`,
+                        `(${process.env.DISCORD_TOKEN}|${process.env.DATABASE}|${process.env.PASSWORD}|${process.env.USER}|${process.env.HOST})`,
                         'gi'), 'censored key')
                     .replace(new RegExp('`', 'gi'), '\\`')
                     .slice(0, 3080)
