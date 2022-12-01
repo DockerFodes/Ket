@@ -8,7 +8,6 @@ export default abstract class Event {
     type: number;
     disabled?: boolean
     KetUtils: any;
-    dir: string;
 
     constructor(public ket: KetClient, public postgres: PostgresClient) {
         this.ket = ket;

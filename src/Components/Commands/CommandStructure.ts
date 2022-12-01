@@ -1,5 +1,5 @@
 import { CommandInteraction, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage, EmbedOptions, Guild, GuildTextableChannel, Member, Message, Shard, User } from "eris";
-import { CommandContextFunc } from "../Typings/Modules";
+import { CommandContextFunc, serverSchema, userSchema } from "../Typings/Modules";
 import settings, { statusMsg } from "../../JSON/settings.json";
 import KetClient from "../../Main";
 import { duration } from "moment";
@@ -150,8 +150,8 @@ export function getColor(color: string, toNumber = true) {
 export class CommandContext {
     env: Message<any> | CommandInteraction<any>;
     send: Function;
-    user: any;
-    server: any;
+    user: userSchema;
+    server: serverSchema;
     args: any[];
     author: User;
     uID: string;

@@ -1,4 +1,4 @@
-import { CommandClientOptions, CommandInteraction, ComponentInteraction } from "eris";
+import { CommandInteraction, ComponentInteraction } from "eris";
 import { getContext } from "../../Components/Commands/CommandStructure";
 import { channels, DEFAULT_LANG } from "../../JSON/settings.json";
 import homeInteractions from "../../Packages/Home/_homeInteractions";
@@ -7,7 +7,6 @@ import DMexec from "../../Packages/Home/_DMClient";
 import Event from "../../Components/Classes/Event";
 
 module.exports = class InteractionCreate extends Event {
-    public dir = __filename;
 
     public async on(interaction: CommandInteraction<any> | ComponentInteraction<any>) {
         if (interaction instanceof ComponentInteraction) {

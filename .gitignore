@@ -5,6 +5,7 @@ application.yml
 # Modules
 node_modules/
 .yarn/*
+.yarn*
 .pnp.*
 build/
 test/

@@ -20,7 +20,7 @@ export default async function (ket: KetClient, postgres: PostgresClient) {
             }
         }, {
             onCancel: function () {
-                console.log('TERMINAL CLIENT', 'Para encerrar o processo digite .exit (para mais informações use .help)', 31);
+                console.log('TERMINAL CLIENT', 'To close the process type .exit (for more information type .help)', 31);
                 return termEval();
             }
         });

@@ -24,6 +24,7 @@ export default class DatabaseInteraction<T> {
     postgres: Client;
     tableName: string;
     primaryKey: string;
+
     constructor(tableName: string, primaryKey: string, postgres: Client) {
         this.tableName = tableName;
         this.primaryKey = primaryKey;

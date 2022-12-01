@@ -5,7 +5,7 @@ module.exports = class ShardReady extends Event {
     public dir = __filename;
 
     public async on(shardID: number) {
-        console.log(`SHARD ${shardID}`, 'Conectada ao Discord', 34);
+        console.log(`SHARD ${shardID}`, 'Connected to Discord', 34);
         this.ket.shardUptime.set(shardID, Date.now());
 
         if (global.PROD)

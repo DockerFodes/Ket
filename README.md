@@ -1,6 +1,6 @@
 # ⭐ Ket Discord Bot ⭐
-✨ Ket is a shitty discord bot made in TypeScript using Eris ✨
-> ⚠️ » Ket is still in the early stages of its development
+✨ Ket WAS a shitty discord bot made in TypeScript using Eris ✨
+> ⚠️ » Ket is NO LONGER in development
 
 - - - -
 
@@ -8,11 +8,11 @@
 ### `1 -` 🛠️ Download and install the necessary tools to get started
 If you want to run Ket on your machine, you'll need to:
 - [NodeJS](https://nodejs.org/pt-br/)
-> ⚠️ » Recommended version: 14.19.1
+> ⚠️ » Recommended version: 14.21.1
 - [Yarn](https://yarnpkg.com/)
-> ⚠️ » Recommended version: 3.2.0
+> ⚠️ » Recommended version: 3.3.0
 - [PostgreSQL](https://www.postgresql.org/download/)
-> ⚠️ » Recommended version: 13 or higher
+> ⚠️ » Recommended version: 14 or higher
 - [Lavalink](https://ci.fredboat.com/viewLog.html?buildId=lastSuccessful&buildTypeId=Lavalink_Build&tab=artifacts&guest=1)
 > ⚠️ » Lavalink is required for music commands
 - [Java 13](https://www.oracle.com/java/technologies/javase/jdk13-archive-downloads.html)
@@ -21,14 +21,15 @@ If you want to run Ket on your machine, you'll need to:
 
 ### `2 -` 📁 Download the above frameworks and clone the repository:
 ```bash
-git clone https://github.com/KetDiscordBot/Ket
+git clone https://github.com/KetDiscordBot/Ket # Download this repository
 ```
 
 ### `3 -` 🧰 Install the necessary dependencies to run the project:
-> ⚠️ » If you don't have yarn installed, install corepack before continuing: "`npm i -g corepack`"
+> ⚠️ » If you don't have yarn installed, install corepack before continuing: "`corepack enable`"
 ```bash
 cd Ket
-yarn install
+npm install # Download and build dependencies
+yarn # Install all dependencies on yarn
 ```
 
 ### `4 -` 🌿 Preparing the environment
@@ -43,15 +44,13 @@ yarn dlx @yarnpkg/sdks vscode # Open a .ts file, type Ctrl + Shift + P and chang
 ### `5 -` 🚀 Getting Started
 To get started, just type:
 ``` bash
-# Starting Lavalink:
+# Starting Lavalink: (you can skip it)
 java -jar Lavalink.jar # Watch out! Lavalink can consume a lot of RAM
 # in a separate terminal:
-yarn start
+yarn prod
 ```
-> ⚠️ » To skip compilation use `yarn noCompile`, but you need to build the project first
+> ⚠️ » To skip compilation use `yarn start`, but you need to build the project first
 
 - - - -
 
 ### I Hope you like the project :)
-
-(Ket is still in development, not yet open for public use.)

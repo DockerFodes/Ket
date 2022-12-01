@@ -54,9 +54,9 @@ module.exports = class Ready extends Event {
         }, 5000);
 
         console.log('GATEWAY', `
-  - Sessão iniciada como ${this.ket.user.tag}
+  - Logged as ${this.ket.user.tag}
  ◆ ▬▬▬▬▬▬▬▬▬▬▬▬▬ ❴ ✪ ❵ ▬▬▬▬▬▬▬▬▬▬▬▬▬ ◆
-  - Operante em ${this.ket.guilds.size} servidores com ${this.ket.allUsersCount} membros.`, 33);
+  - Working at ${this.ket.guilds.size} servers with ${this.ket.allUsersCount} member.`, 33);
         TerminalClient(this.ket, this.postgres);
 
         return;
