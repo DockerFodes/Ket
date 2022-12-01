@@ -25,7 +25,7 @@ git clone https://github.com/KetDiscordBot/Ket # Download this repository
 ```
 
 ### `3 -` 🧰 Install the necessary dependencies to run the project:
-> ⚠️ » If you don't have yarn installed, install corepack before continuing: "`npm i -g corepack`"
+> ⚠️ » If you don't have yarn installed, install corepack before continuing: "`corepack enable`"
 ```bash
 cd Ket
 npm install # Download and build dependencies
