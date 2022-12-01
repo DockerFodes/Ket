@@ -46,8 +46,8 @@ module.exports = class CLI {
     }
 
     async compile() {
-        console.log('COMPILER', 'Compilando arquivos', 2);
-        exec('yarn tsc', (_command, _stdout, stderr) => console.log('COMPILER', stderr ? stderr : 'Arquivos compilados', stderr ? 41 : 32));
+        console.log('COMPILER', 'Compiling files', 2);
+        exec('yarn tsc', (_command, _stdout, stderr) => console.log('COMPILER', stderr ? stderr : 'The files have been compiled', stderr ? 41 : 32));
     }
 
     async deploy(args: string[]) {
@@ -64,7 +64,7 @@ module.exports = class CLI {
         try {
             if (args[0]) await this.ket.bulkEditGuildCommands(args[0], commands)
             else await this.ket.bulkEditCommands(commands)
-            console.log('SLASH CLIENT', `${commands.length} comandos registrados`, 32)
+            console.log('SLASH CLIENT', `${commands.length} registred commands`, 32)
         } catch (e) {
             console.log('SLASH CLIENT', e, 31)
         }
@@ -76,17 +76,17 @@ module.exports = class CLI {
     }
 
     help() {
-        return console.log('TERMINAL CLIENT', `Comandos do terminal:
-        Você também pode digitar códigos aqui para serem executados como um comando de eval\n\
-        Lista de comandos
-        .clear            | limpa o console
-        .compile          | compila os arquivos
-        .deploy [guildID] | atualiza a lista de slash commands
-        .exit             | encerra o processo
-        .help             | exibe esta mensagem ;3
-        .info             | exibe uso de recursos e uptime
-        .reload <comando> | recarrega um comando
-        .restart          | reinicia as shards`, 33);
+        return console.log('TERMINAL CLIENT', `Ket CLI:
+        You can send text commands here to be executed by eval\n\
+        Command list
+        .clear            | Clear the console
+        .compile          | Compile all files
+        .deploy [guildID] | Registry all slash commands
+        .exit             | Close the process
+        .help             | Show this message ;3
+        .info             | Show ram usage
+        .reload <command> | Reload a command
+        .restart          | Restart all shards`, 33);
     }
 
     info() {
@@ -102,7 +102,7 @@ module.exports = class CLI {
         if (args[0] === '*') return this.ket.commands.forEach(command => this.ket.reloadCommand(command.name, this.postgres));
         else {
             let data = await this.ket.reloadCommand(args[0], this.postgres);
-            if (data === true) return console.log('RELOADER', `Comando ${args[0]} recarregado`, 42);
+            if (data === true) return console.log('RELOADER', `Command ${args[0]} reloaded`, 42);
             console.log('RELOADER', data);
         }
     }
@@ -135,7 +135,7 @@ module.exports = class CLI {
 
                 return console.info(translation);
                 writeFileSync(filePath, String(translation));
-                return console.log('LOCALES', `Arquivo ${c.files[b]} foi traduzido`, 2)
+                return console.log('LOCALES', `File ${c.files[b]} has been translated`, 2)
             }
             console.log('LOCALES', `Idioma ${c.langs[a]} traduzido com sucesso`, 32);
         }

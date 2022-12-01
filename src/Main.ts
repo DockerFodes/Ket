@@ -23,7 +23,7 @@ export default class KetClient extends Client {
                 ? this.guilds.get(id).shard.sendWS(payload.op, payload.d)
                 : null
         });
-        // this.users = new Collection(User, CLIENT_OPTIONS.cacheLimit.users);
+        this.users = new Collection(User, CLIENT_OPTIONS.cacheLimit.users);
         this.rootDir = __dirname;
     }
 
@@ -47,23 +47,23 @@ export default class KetClient extends Client {
 
     public async loadCommands(path: string, postgres: PostgresClient) {
         const categories = readdirSync(path);
+
         for (const a in categories) {
             const files = readdirSync(`${path}/${categories[a]}/`);
+
             for (const b in files) {
                 try {
-                    const command = new (require(`${path}/${categories[a]}/${files[b]}`))(this, postgres);
-
-                    let splitDir = String(command.dir).includes('\\')
-                        ? String(command.dir).split('\\')
-                        : String(command.dir).split('/');
+                    const dir = `${path}/${categories[a]}/${files[b]}`;
+                    const splitDir = dir.split('/');
+                    const command = new (require(dir))(this, postgres);
 
                     const Command = {
-                        name: String(command.name || splitDir.pop().split('Command')[0]).toLowerCase(),
+                        name: (command.name || splitDir.pop().split('Command')[0]).toLowerCase(),
                         aliases: command.aliases
                             ? command.aliases.map((aliase: string) => String(aliase).toLowerCase())
                             : [],
                         cooldown: Number(command.cooldown || 3),
-                        category: String(command.category || splitDir[splitDir.length - 1]).toLowerCase(),
+                        category: (command.category || splitDir.slice(-1)[0]).toLowerCase(),
                         permissions: {
                             user: command?.permissions?.user || [],
                             bot: command?.permissions?.bot || [],
@@ -76,9 +76,9 @@ export default class KetClient extends Client {
                         dontType: command.dontType || false,
                         testCommand: command.testCommand || [],
                         slash: command.slash,
-                        dir: command.dir,
+                        dir,
                         ket: this,
-                        postgres: postgres,
+                        postgres,
                         execute: command.execute
                     } as CommandConfig
 
@@ -91,7 +91,7 @@ export default class KetClient extends Client {
                 }
             }
         }
-        console.log('COMMANDS', `${this.commands.size} Comandos carregados`, 2);
+        console.log('COMMANDS', `${this.commands.size} commands loaded`, 2);
         return true;
     }
 
@@ -112,7 +112,7 @@ export default class KetClient extends Client {
                     config.filesMetadata[config.langs[a]][config.files[b].split('.json')[0]] = require(`${path}/${config.langs[a]}/${config.files[b]}`);
                 }
 
-            console.log('LOCALES', `${config.langs.length} Locales carregados`, 36);
+            console.log('LOCALES', `${config.langs.length} locales loaded`, 36);
 
             return true;
         } catch (e) {
@@ -133,7 +133,7 @@ export default class KetClient extends Client {
                     this.events.add(`${path}/${categories[a]}/${files[b]}`);
                 }
             }
-            console.log('EVENTS', `${this.events.size} Listeners adicionados`, 2);
+            console.log('EVENTS', `${this.events.size} listeners added`, 2);
             return true;
         } catch (e) {
             console.log('EVENTS', e, 31);
@@ -150,7 +150,7 @@ export default class KetClient extends Client {
                     ? null
                     : (await import(`${path}/${categories[a]}/${i++ ? modules[b] : modules[b]}`)).default(this, postgres);
             }
-            console.log('MODULES', `${i} Módulos inicializados`, 2);
+            console.log('MODULES', `${i} initialized modules`, 2);
             return true;
         } catch (e) {
             console.log('MODULES', e, 31);
@@ -160,7 +160,7 @@ export default class KetClient extends Client {
 
     public async reloadCommand(commandName: string, postgres: PostgresClient) {
         const comando = this.commands.get(commandName) || this.commands.get(this.aliases.get(commandName));
-        if (!comando) return 'Comando não encontrado';
+        if (!comando) return 'command not found';
 
         comando.aliases?.forEach((aliase: string) => this.aliases.delete(aliase));
         this.commands.delete(comando.name);
@@ -412,13 +412,13 @@ export default class KetClient extends Client {
 
 const ket = new KetClient(`Bot ${process.env.DISCORD_TOKEN}`, CLIENT_OPTIONS as ClientOptions);
 
-console.log('SHARD MANAGER', 'Iniciando fragmentação', 46);
+console.log('SHARD MANAGER', 'Starting fragmentation', 46);
 ket.boot();
 
 process
-    .on('unhandledRejection', (error: Error) => console.log('ANTI-CRASH', 'SCRIPT REJEITADO: ', String(error.stack.slice(0, 512)), 31))
-    .on("uncaughtException", (error: Error) => console.log('ANTI-CRASH', 'ERRO CAPTURADO: ', String(error.stack.slice(0, 512)), 31))
-    .on('uncaughtExceptionMonitor', (error: Error) => console.log('ANTI-CRASH', 'BLOQUEADO: ', String(error.stack.slice(0, 512)), 31));
+    .on('unhandledRejection', (error: Error) => console.log('ANTI-CRASH', 'Unhandled Rejection: ', String(error.stack.slice(0, 512)), 31))
+    .on("uncaughtException", (error: Error) => console.log('ANTI-CRASH', 'Uncaught Exception: ', String(error.stack.slice(0, 512)), 31))
+    .on('uncaughtExceptionMonitor', (error: Error) => console.log('ANTI-CRASH', 'Uncaught Exception Monitor: ', String(error.stack.slice(0, 512)), 31));
     // .on('multipleResolves', (type, promise, reason) => reject('MULTIPLOS ERROS: ', reason));
 
 /**

@@ -5,7 +5,8 @@
     "packageManager": "yarn@3.3.0",
     "scripts": {
         "build": "echo Building application... && yarn tsc && cp -r -f src/Assets build/Assets && echo Application built successfully!",
-        "start": "yarn build && echo Starting... && yarn node --expose-gc --trace-warnings build/Main.js"
+        "start": "echo Starting... && yarn node --expose-gc --trace-warnings build/Main.js --dev",
+        "prod": "yarn build && yarn start"
     },
     "repository": {
         "type": "git",

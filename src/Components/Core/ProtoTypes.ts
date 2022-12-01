@@ -65,7 +65,7 @@ export default function () {
     }
 
     console.error = function () {
-        return console.log('ANTI-CRASH', 'ERRO GENÉRICO:', String(arguments['0'].stack ? arguments['0'].stack : arguments['0']).slice(0, 512), 31);
+        return console.log('ANTI-CRASH', 'GENERIC ERROR:', String(arguments['0'].stack ? arguments['0'].stack : arguments['0']).slice(0, 512), 31);
     }
 
     /*		message.deleteAfter(5)		*/

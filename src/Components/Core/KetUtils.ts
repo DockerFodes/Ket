@@ -36,7 +36,7 @@ export default class KetUtils {
         return;
     }
 
-    async checkUserGuildData(ctx: CommandContext, globalchat: boolean = false) {
+    async checkUserGuildData(ctx: CommandContext, globalchat: boolean = false): Promise<userSchema> {        
         let user: userSchema = await this.postgres.users.find(ctx.uID);
 
         if (!user) {

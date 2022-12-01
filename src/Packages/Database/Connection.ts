@@ -25,7 +25,7 @@ export default async () => {
             "id" TEXT NOT NULL PRIMARY KEY,
             "prefix" VARCHAR(3),
             "lang" VARCHAR(2),
-            "commands" INTEGER NOT NULL,
+            "commands" INTEGER NOT NULL DEFAULT 1,
             "banned" TEXT
         );`)
         })
